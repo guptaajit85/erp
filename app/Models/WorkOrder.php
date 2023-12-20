@@ -9,7 +9,7 @@ class WorkOrder extends Model
 {
     use HasFactory;
     protected $table   		= 'work_orders';
-    protected $primaryKey   = 'work_order_id ';
+    protected $primaryKey   = 'work_order_id';
 	public $timestamps = false;
 	
 	

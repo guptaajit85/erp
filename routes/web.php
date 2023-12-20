@@ -502,6 +502,12 @@ Route::post('/create_work_order_for_weaving',[WorkOrderController::class,'create
 Route::post('/create_work_order_for_dying',[WorkOrderController::class,'create_work_order_for_dying'])->name('create_work_order_for_dying');
 Route::post('/create_work_order_for_coating',[WorkOrderController::class,'create_work_order_for_coating'])->name('create_work_order_for_coating');
 Route::post('/create_work_order_for_printing',[WorkOrderController::class,'create_work_order_for_printing'])->name('create_work_order_for_printing');
+
+Route::post('/create_work_order_for_packaging',[WorkOrderController::class,'create_work_order_for_packaging'])->name('create_work_order_for_packaging');
+
+
+
+
 Route::post('/accept_item_for_work',[WorkOrderController::class,'accept_item_for_work'])->name('accept_item_for_work');
 
 

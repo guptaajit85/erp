@@ -664,9 +664,16 @@ class CommonController extends Controller
 				'shortcode' =>'C',
 				'unit' =>'Meter',
 			),
+			'5'=>array(
+				'input'  =>array('Tape','Box'),
+				'output' =>'Dispatch',
+				'process' =>'Packaging',
+				'id' =>'4',
+				'shortcode' =>'C',
+				'unit' =>'Meter',
+			),
 		);
-
-
+  
 
 		return $arrayAProcess[$id];
     }
