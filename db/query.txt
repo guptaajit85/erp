@@ -7,3 +7,9 @@ ALTER TABLE `work_orders` ADD `is_gatepass_genrated_by_warehouse` ENUM('Yes','No
 
 
 ALTER TABLE `sale_order_items` ADD `is_work_completed` ENUM('0','1') NOT NULL DEFAULT '0' AFTER `is_work_order_created`; 
+
+Date:20 Dec 2023, NAME: PRASUN KUNDU
+---------------------------------------
+1. ALTER TABLE `sale_orders` CHANGE `ind_agent_id` `ind_agent_id` VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+
+-----------------------------------------------------------------------------------------------------------------------
