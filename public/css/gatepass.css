@@ -1,0 +1,174 @@
+body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #FAFAFA;
+        font: 12pt "Tahoma";
+    }
+
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    .pagebreak {
+        page-break-inside: always;
+    }
+
+    @media print {
+        * {
+            -webkit-print-color-adjust: exact;
+        }
+
+        .bgwp {
+            background: url('') scroll 70% 70%;
+            background-size: 205px 205px;
+        }
+
+        .pagebreak {
+            page-break-inside: always;
+        }
+
+        @page {
+            margin: 0in !important;
+            padding: 0in !important;
+        }
+
+        .newgatePass .head {
+            display: none;
+        }
+
+        .table.table-bordered tr td p {
+            margin: 0px;
+            padding: 0px 0 0 0;
+        }
+
+        .newgatePass {
+            height: 2.5in !important;
+        }
+
+        .newgatePass tr td {
+            line-height: 16px !important;
+            vertical-align: bottom !important;
+        }
+
+        .page {
+            margin: 0;
+            border: initial;
+            border-radius: initial;
+            width: initial;
+            min-height: initial;
+            box-shadow: initial;
+            background: initial;
+            page-break-after: always;
+        }
+
+        .head h1 {
+            font-size: 12px;
+        }
+
+        .divLoop table {
+            border: 1px solid rgba(255, 255, 255, 0) !important;
+        }
+
+        .hidden-print {
+            display: none;
+        }
+
+        input {
+            display: none;
+        }
+
+        .divLoop {
+            display: flex !important;
+        }
+    }
+
+    .divLoop {
+        display: flex !important;
+    }
+
+    .divLoop .bxOne {
+        width: 10.5cm !important;
+        border: 1px solid #eeeeee;
+        min-height: 9.9cm;
+        max-height: 9.9cm;
+        overflow: hidden !important;
+        padding: 0.5cm 0 0 0;
+    }
+
+    .divLoop .bxTwo {
+        width: 10.5cm !important;
+        border: 1px solid #eeeeee;
+        min-height: 9.9cm;
+        max-height: 9.9cm;
+        overflow: hidden !important;
+        position: relative;
+        padding: 0.5cm 0 0 0;
+    }
+
+    .divLoop .bxThree {
+        width: 7cm !important;
+        border: 1px solid #eeeeee;
+        min-height: 9.9cm;
+        max-height: 9.9cm;
+        overflow: hidden !important;
+        position: relative;
+        padding: 0.5cm 0 0 0;
+    }
+
+    .table.table-bordered {
+        width: 100% !important;
+    }
+
+    .head h1,
+    .head h5 {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .head h1 {
+        font-size: 14px;
+    }
+
+    .table.table-bordered tr td .firstName {
+        margin: 0px;
+        float: left;
+        width: 100px;
+    }
+
+    .divLoop {
+        margin: 0 .75%;
+        width: 97%;
+        float: left;
+    }
+
+    .divLoop .table {
+        margin-bottom: 20px;
+    }
+
+    .table td,
+    .table th {
+        padding: 7px 0 0 0;
+        font-size: 13px !important;
+        word-break: break-word;
+    }
+
+    .divLoop .bxThree:before {
+        content: url();
+        position: absolute;
+        bottom: 0px;
+        left: 9px;
+        z-index: 999;
+        opacity: 0.1;
+        background-size: 184px;
+    }
+
+
+

@@ -1,0 +1,78 @@
+Individual
+>> Multiple Type Vendor like  , Yarn Vendor, Greige Vendor,  Chemical Vendor,  Maintanance Vendor,  General Vendor, 
+
+>> Form Validation changes like If Employee  , Adharcard fild remove 
+
+Material/ Item
+
+>>  Manage Yarn Master
+
+changes Warp = EPI  ,  Weft = PPI
+
+Work Order
+
+Machine Allotment , When a work order is allotted, the machine becomes busy; otherwise, it is released.
+
+Notification 
+
+all details save in table like IP, all related data including browser
+
+Sale Entry
+
+Change name Sale Entry to Sale invoice
+
+
+Sale order
+
+Change name Sale order P. O Number
+Address default selected
+When the Sales Order type is selected, a new text box will open. Similarly, if 'Agent' is chosen, the option box for agents is open.
+Lot Number > change name AJY Number 
+Sale order ke against mein multiple invoice and packaging slip banega
+
+AJY Khud ka apna Sale Order create kr sakta hai.
+
+
+Sale Order Report
+Ek view history ka link dena hai , Jaha per wo dekh sake ki uska kitna item pending hai aur kitna despatch ho gaya hai.
+
+
+Create Work Order
+Select msg for extra data similar item display.
+3%  + and - work order complate managayega sale order ka
+
+yarn se beam ban raha hai us time text change kerna hai. New text is "I drawing process complete ?" Only for beam.  
+
+Beam must count on KG
+
+Requition Report MSG Change 
+
+
+GRN Report Submit daily in Email, and WhatsApp (Goods Remaining Report) 
+NOTE: Format AJAY Sir Send Karenge bole the
+
+
+Production department se Multiple Size Box mein Veja ja sakta hai (Ek baar mein.)
+2 - 105 Miter    |
+1 - 110 Miter    |  
+2 - 115 Miter    |  Warehouse
+3 - 120 Miter    |  
+1 - 125 Miter    |  
+
+
+Warehouse department can send  Purchase rerquest to purchase department multiple time , no need requision to any department.
+
+
+Purchase order ke baad item warehouse mein aayega,  warehouse apna store karega and puchase slip genrate karega , us slip ke adhar per purchase entry hoga. 
+
+
+
+
+
+
+
+
+
+
+
+

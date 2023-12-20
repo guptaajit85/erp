@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Redirect non-www to www
+    RewriteCond %{HTTP_HOST} !^www\. [NC]
+    RewriteRule ^ http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Redirect HTTPS requests to HTTP
+    RewriteCond %{HTTPS} on
+    RewriteRule ^ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Handle public assets and allow Laravel to route everything else
+    RewriteRule ^/?(css|js|images|fonts|storage)/(.*)$ public/$1/$2 [L,NC]
+    RewriteRule ^ index.php [L]
+
+</IfModule>
+
+# Prevent viewing of .env file
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>

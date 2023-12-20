@@ -1,0 +1,135 @@
+<?php
+use \App\Http\Controllers\CommonController;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>@include('common.head')
+</head>
+<body class="hold-transition sidebar-mini">
+<!--preloader-->
+<div id="preloader">
+  <div id="status"></div>
+</div>
+<!-- Site wrapper -->
+<div class="wrapper"> @include('common.header')
+  <div class="content-wrapperd">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="header-icon"> <i class="fa fa-users"></i> </div>
+      <div class="header-title">
+        <h1>Update Warehouse</h1>
+        <small>Warehouse list</small> </div>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+      <div class="row">
+        <!-- Form controls -->
+        <div class="col-sm-12">
+          <div class="panel panel-bd lobidrag">
+            <div class="panel-heading">
+              <div class="btn-group" id="buttonlist"> <a class="btn btn-add " href="{{ route('show-warehouses') }}"> <i class="fa fa-list"></i> Warehouse List </a> </div>
+            </div>
+            <div class="panel-body">
+              <form class="col-sm-6" role="form" name="productEdit" id="productEdit" method="post" action="{{ url('/update_warehouse') }}" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" class="form-control" name="id" id="id" value="{{ htmlentities($data->id) }}"  >
+                <div class="form-group">
+                  <label> Name   <span style="color:#ff0000;">*</span></label>
+                  <input type="text" class="form-control" name="warehouse_name" id="warehouse_name" value="{{ htmlentities($data->warehouse_name) }}"  placeholder="Enter Name">
+                </div>
+                <div class="form-group">
+                  <label>Location  <span style="color:#ff0000;">*</span></label>
+                  <input type="text" class="form-control" name="location" id="location" value="{{ htmlentities($data->location) }}"  placeholder="Enter Location" required>
+                </div>
+                <div class="form-group">
+                  <label>Capacity  <span style="color:#ff0000;">*</span></label>
+                  <input type="number" class="form-control" name="capacity" id="capacity" value="{{ htmlentities($data->capacity) }}"  placeholder="Enter Capacity" required>
+                </div>
+				 
+				 <div class="form-group">
+                  <label>Supervisor Name  <span style="color:#ff0000;">*</span></label>                   
+				  <select class="form-control" name="supervisor_name" id="supervisor_name">
+				  <option value=""> Select Supervisor</option>		
+				  <?php foreach($dataU as $row) { ?>
+					<option value="<?=$row->id;?>" @if($row->id == $data->supervisor_name) selected="selected" @endif;> <?=$row->name;?></option>					
+				  <?php } ?>
+				  </select>				  
+                </div>
+				
+				
+                <div class="form-group">
+                  <label>Contact Number  <span style="color:#ff0000;">*</span></label>
+                  <input type="text" class="form-control" name="contact_number" id="contact_number" value="{{ htmlentities($data->contact_number) }}"  placeholder=" Enter Contact Number" required>
+                </div>
+                <div class="reset-button">
+                  <input type="submit" name="submit" value="Save" class="btn btn-success">
+                  <a href="javascript:window.location.href=window.location.href" class="btn btn-warning">Reset</a> </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  @include('common.footer') </div>
+@include('common.footerscript')
+<script src="{{ asset('js/jquery-ui-timepicker-addon.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery.validate.js') }}"></script>
+<script language="javascript" type="text/javascript">
+		$().ready(function() {
+			$("#productEdit").validate({
+					rules: {
+					warehouse_name: 	{
+								required: true,
+								minlength: 3
+					},
+					location: 	{
+								required: true,
+								minlength: 3
+					},
+					capacity: {
+								required: true,
+								minlength: 2,
+								number: true
+					},
+					supervisor_name: {
+										required: true										 
+                           },
+					contact_number: {
+										required: true,
+										minlength: 10,
+										maxlength: 10,
+										number: true
+								   }
+							},
+					messages: {
+					warehouse_name: {
+								required: "<span style='color:#ff0000;'>Please enter name</span>",
+								minlength:"<span style='color:#ff0000;'>The warehouse name should have at least 3 characters</span>"
+							},
+					location: {
+								required: "<span style='color:#ff0000;'>Please enter location name</span>",
+								minlength:"<span style='color:#ff0000;'>The location name should have at least 3 characters</span>"
+							},
+					capacity: {
+								required: "<span style='color:#ff0000;'>Please enter capacity</span>",
+								minlength:"<span style='color:#ff0000;'>The capacity should have at least 2 numbers</span>"
+							},
+					supervisor_name: {
+								required: "<span style='color:#ff0000;'>Please enter supervisor name</span>"								 
+							},
+					contact_number: {
+								required: "<span style='color:#ff0000;'>Please enter contact number</span>",
+								minlength:"<span style='color:#ff0000;'>The contact number should have at least 10 numbers</span>"
+							}
+					}
+				});
+                     jQuery.validator.addMethod("letterswithbasicpunc", function(value, element) {
+                     return this.optional(element) || /^[A-Za-z\s]*$/i.test(value);
+               }, "<span style='color: red;'> Only alphabet characters are allowed </span>");
+		});
+</script>
+</body>
+</html>
