@@ -33,10 +33,7 @@ class WorkProcessRequirementController extends Controller
 
     public function index()
     {
-		$query = WorkProcessRequirement::where('is_accept', '!=', '2')
-			->groupBy('work_order_id')
-			->groupBy('is_accept')
-			->orderByDesc('id');
+		$query = WorkProcessRequirement::where('is_accept', '!=', '2')->groupBy('work_order_id')->groupBy('is_accept')->orderByDesc('id');
 		$dataWPR = $query->paginate(20);
 		 
 		/*
@@ -120,26 +117,27 @@ class WorkProcessRequirementController extends Controller
 			$usedQuantity 			= $dataWPR->quantity;
 			$whbId 					= $dataWPR->warehouse_balance_item_id; 
 			$dataWIS = WarehouseItemStock::where('wis_id', '=', $wisId)->where('is_allotted_stock', '=', 'No')->where('status', '=', '1')->first();
+			
 			if($dataWIS) 
 			{				 
-				$inspQuanSize 			= $dataWIS->insp_quan_size ?? 0;
-				$inspAllotQuanSize 		= $dataWIS->insp_allot_quan_size ?? 0;
+				$inspQuanSize 			= $dataWIS->insp_quan_size;
+				$inspAllotQuanSize 		= $dataWIS->insp_allot_quan_size;
 				$inspBalQuanSize    	= $dataWIS->insp_bal_quan_size;				 
 				$totAllotSize 			= $inspAllotQuanSize + $recvdQuan;
 				$balanQunSize 			= $inspQuanSize - $totAllotSize;	
 				
-				WarehouseItemStock::where(['wis_id' => $wisId, 'status' => '1', 'is_allotted_stock' => 'No'])
+				WarehouseItemStock::where(['wis_id' => $wisId, 'status' => '1'])
 				->update([
 					'insp_allot_quan_size'  => $totAllotSize,
-					'insp_bal_quan_size'    => $balanQunSize,
-					'is_allotted_stock'     => empty($balanQunSize) ? 'Yes' : 'No',  
+					'insp_bal_quan_size'    => $balanQunSize, 
+					'is_allotted_stock'     => $inspQuanSize <= 0 ? 'Yes' : 'No',  
 					'work_order_id'         => $workOrderId,
 					'work_pro_req_id'       => $workProcessReqId,
 					'stock_alloted_by'      => $individualId,
 					'alloted_remark'        => $allotmentRemark,
-				]);				
-			}
-
+				]);	
+					 
+			} 
             $dataWI = WarehouseItem::find($warehouseItemId);
             if(empty($dataWI)) 
 			{
@@ -255,175 +253,7 @@ class WorkProcessRequirementController extends Controller
         }
     }
 	
-	
-	/*
-	public function StoreWarehouseStockAllotment(Request $request)
-    {  
-			 
-		     echo "<pre>"; print_r($request->all());   exit;
-		   
-			$validator = Validator::make($request->all(), [
-				"used_item"=>"required",
-				"wis_id"=>"required",
-				"warehouse_item_id"=>"required",
-				"work_process_req_id"=>"required", 
-				"work_order_id"=>"required",	
-				"allotment_remark"=>"required",			
-			], [
-				"used_item.required"=>"Received Quantity not found.",
-				"wis_id.required"=>"Warehouse Item Stock Id not Found",
-				"warehouse_item_id.required"=>"Warehouse item Id not found",	
-				"work_process_req_id.required"=>"Work process request not found",	
-				"work_order_id.required"=>"Work order not found", 
-				"allotment_remark.required"=>"Stock Allotment remark not found.",			
-			]);
-			
-			if ($validator->fails())
-			{
-				$error = $validator->errors()->first();
-				Session::put('message', $validator->messages()->first());
-				Session::put("messageClass","errorClass");
-				return redirect()->back()->withInput();
-			} 
-			
-			$workProcessReqIdArr 		= $request->work_process_req_id;
-			$workOrderId 				= $request->work_order_id;
-			$allotQuantity 				= $request->allot_quantity;
-			$allotmentRemark 			= $request->allotment_remark;
-			$useQuan 					= $request->used_item;
-			$wisIdArr 					= $request->wis_id; 
-			$warehouseItemIdArr 		= $request->warehouse_item_id; 
-			$userId         			= Auth::id();
-			$userD 						= User::find($userId);
-			$IndId  					= $userD->individual_id; 
-			
-			$flag = false;
-			foreach($wisIdArr as $wisidk=>$wisId)
-			{  
-				$used_quan 			= $useQuan[$wisidk];
-				$warehouseItemId 	= $warehouseItemIdArr[$wisidk]; 
-				$workProcessReqId 	= $workProcessReqIdArr[$wisidk]; 
-				
-				WarehouseItemStock::where(['wis_id'=>$wisId])
-				->update([
-					'is_allotted_stock'	=>'Yes',
-					'work_order_id'		=>$workOrderId,
-					'work_pro_req_id'	=>$workProcessReqId,
-					'stock_alloted_by'	=>$IndId,
-					'alloted_remark'	=>$allotmentRemark,
-				]); 
-				 
-				$dataWI = WarehouseItem::find($warehouseItemId);				
-				 // echo "<pre>"; print_r($dataWI); exit;
-				if (empty($dataWI))
-				{
-					$error = $validator->errors()->first();
-					Session::put('message', 'Warehouse Item Not Found.');
-					Session::put("messageClass","errorClass");
-					return redirect()->back()->withInput();
-				} 
-                
-				////////////////////////////////////////////////////////////////
-				$newItem = WarehouseOutItem::create([
-					'process_type_id' 				=> $dataWI->process_type_id ?? 0,
-					'warehouse_id' 					=> $dataWI->warehouse_id,
-					'ware_comp_id' 					=> $dataWI->ware_comp_id,
-					'item_id' 						=> $dataWI->item_id,
-					'item_type_id' 					=> $dataWI->item_type_id,
-					'unit_type_id' 					=> $dataWI->unit_type_id,
-					'item_qty' 						=> $used_quan,
-					'pcs' 							=> $dataWI->pcs ?? 0.00,
-					'cut' 							=> $dataWI->cut,
-					'meter' 						=> $dataWI->meter ?? 0.00,
-					'individual_id' 				=> $IndId,
-					'work_order_id' 				=> $workOrderId,
-					'item_remark' 					=> $allotmentRemark,
-					'grey_quality' 					=> $dataWI->grey_quality,
-					'dyeing_color' 					=> $dataWI->dyeing_color,
-					'coated_pvc' 					=> $dataWI->coated_pvc,
-					'print_job' 					=> $dataWI->print_job,
-					'extra_job' 					=> $dataWI->extra_job,
-					'created' 						=> now(),
-					'status' 						=> 1,
-				]); 
-				
-				$opItemQty = WarehouseBalanceItem::where('item_id', $newItem->item_id)
-					->where('item_type_id', $newItem->item_type_id)
-					->where('dyeing_color', $newItem->dyeing_color)
-					->where('coated_pvc', $newItem->coated_pvc)
-					->where('print_job', $newItem->print_job)
-					->where('extra_job', $newItem->extra_job)
-					->orderBy('id', 'desc')
-					->value('item_qty');
-
-				$closingItemQty = $opItemQty - $newItem->item_qty;
-				$warehouseBalanceItem = new WarehouseBalanceItem([
-					'ware_in_item_id' 		=> 0,
-					'ware_out_item_id' 		=> $newItem->id,
-					'warehouse_id' 			=> $newItem->warehouse_id,
-					'ware_comp_id' 			=> $newItem->ware_comp_id,
-					'item_id' 				=> $newItem->item_id,
-					'item_type_id' 			=> $newItem->item_type_id,
-					'unit_type_id' 			=> $newItem->unit_type_id,
-					'op_item_qty' 			=> $opItemQty,
-					'in_item_qty' 			=> 0,
-					'out_item_qty' 			=> $newItem->item_qty,
-					'item_qty' 				=> $closingItemQty,
-					'grey_quality' 			=> $newItem->grey_quality,
-					'dyeing_color' 			=> $newItem->dyeing_color,
-					'coated_pvc' 			=> $newItem->coated_pvc,
-					'print_job' 			=> $newItem->print_job,
-					'extra_job' 			=> $newItem->extra_job,
-					'created' 				=> now(),
-					'status' 				=> 1,
-				]);
-				$warehouseBalanceItem->save();
-				DB::table('warehouse_balance_items')
-				->where('item_id', $newItem->item_id)
-				->where('item_type_id', $newItem->item_type_id)
-				->where('dyeing_color', $newItem->dyeing_color)
-				->where('coated_pvc', $newItem->coated_pvc)
-				->where('print_job', $newItem->print_job)
-				->where('extra_job', $newItem->extra_job)
-				->where('balance_status', 1)
-				->where('id', '<>', $warehouseBalanceItem->id)
-				->update(['balance_status' => 0]);
-				
-				////////////////////////////////////////////////////////
-				 
-				$totItemQty 	= $dataWI->item_qty;
-				$totAllotQty 	= $dataWI->allotted_qty;
-				$totQty 		= $totItemQty-1;
-				$totAltQty 		= $totAllotQty+1;
-				
-				WarehouseItem::where(['id'=>$warehouseItemId])
-				->update([					 
-					'item_qty'			=> $totQty,
-					'allotted_qty'		=> $totAltQty,					 
-				]);
- 
-				$objWP  = WorkProcessRequirement::where('id', '=', $workProcessReqId)
-				->update([
-					'is_pro_acc_by_warehouse'=> 'Yes',
-					'process_accepted_by'=> $IndId,
-					'acc_deny_date'=> date("Y-m-d")
-				]); 
-				
-				$obj2  = WorkOrder::where('work_order_id', '=', $workOrderId)->update(
-				['is_work_require_request_accepted'=> 'Yes']); 
-				
-				$flag = true; 
-			}
-			if($flag) 
-			{
-				Session::put('message', 'Stock Alloted successfully.');
-				Session::put("messageClass","successClass");
-				return redirect("/show-warehouse-item-requirement");
-			}
-		  
-    }
-	*/
-
+	 
 	public function getWorkProcessAllotmentView(Request $request)
 	{
 		$FId 			= $request->FId;
@@ -442,8 +272,7 @@ class WorkProcessRequirementController extends Controller
 		// echo $workOrdId; exit;
 		$orderCounts = WarehouseItemStock::select('item_id', 'item_type_id', 'alloted_remark', DB::raw('count(work_pro_req_id) as req_count'))
 			->groupBy('item_id')
-			->where('work_order_id', '=', $workOrdId)
-			->where('is_allotted_stock', '=', 'No')
+			->where('work_order_id', '=', $workOrdId) 
 			->with('Item', 'Item.UnitType') // Eager loading
 			->get();
 			
@@ -591,7 +420,7 @@ class WorkProcessRequirementController extends Controller
     public function print_warehouse_item_requirement_gatepass($id)
 	{
 			$wprId 	 = base64_decode($id);
-			$dataWPR = WorkProcessRequirement::where('status', '=', '1')->where('is_accept', '=', '1')->first();
+			$dataWPR 		= WorkProcessRequirement::where('id', '=', $wprId)->where('status', '=', '1')->where('is_accept', '=', '1')->first();
 			$workOrderId 	= $dataWPR->work_order_id;
 			$userId 		= Auth::id();
 			$userD 			= User::find($userId);
@@ -603,8 +432,12 @@ class WorkProcessRequirementController extends Controller
 							//   echo "<pre>"; print_r($data); exit;
 			$fromDepartment = $data->process_type_id;
 			$toDepartment 	= $fromDepartment+1;
+			
+			WorkOrder::where('work_order_id', $workOrderId)->update(['is_gatepass_genrated_by_warehouse' => 'Yes']);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['gatepass_genrated_by_warehouse_user' => $IndividualId]);
 
 			return view('html.workprocessrequirement.print-warehouse-item-requirement-gatepass',compact("data","toDepartment","compData","dataInd"));
+			
 	}
 
 	 

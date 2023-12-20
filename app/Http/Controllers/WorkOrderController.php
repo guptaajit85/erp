@@ -46,14 +46,18 @@ class WorkOrderController extends Controller
 		$ordNumSearch 	= trim($request->ordNumSearch);
 		$priority 		= trim($request->priority);
 		
-		$query = WorkOrder::where('status', '=', '1')->with('WorkOrderItem')->with('GatePass')->orderByDesc('work_order_id');
+		// $worSqlRes = WorkOrder::where('status', '=', '1')->with('WorkReqSend')->orderByDesc('work_order_id')->get(); 
+		
+		$query = WorkOrder::where('status', '=', '1')->with('WorkOrderItem')->with('ProcessType')->with('GatePass')->with('Item')->with('WorkReqSend')->with('GatepassGenratedByWarehouseUser')->orderByDesc('work_order_id');
 
-		if (!empty($cusSearch)) {
+		if (!empty($cusSearch)) 
+		{
 			$workorderids = WorkOrderItem::where('customer_id', '=', $individualId)->where('status', '=', '1')->pluck('work_order_id')->implode(',');
 			$query->whereIn('work_order_id', explode(',', $workorderids));
 		}
 
-		if (!empty($itemSearch)) {
+		if (!empty($itemSearch))
+		{
 			// echo "dffdfdf"; exit;
 			$query->where(DB::raw("concat(item_name)"), 'LIKE', '%' . $itemSearch . '%');
 		}
@@ -64,14 +68,13 @@ class WorkOrderController extends Controller
 		}
 
 		$dataWI = $query->paginate(20); 
-		 
+		// echo "<pre>"; print_r($dataWI); exit;	
+		
 		
 		$dataMas 	= Individual::where('type', '=', 'master')->where('status', '=', '1')->get();
 		$machine 	= Machine::where('status', '=', '1')->get();
-		// echo "<pre>"; print_r($machine); exit;
-		
-		$processI 	= ProcessItem::where('status', '=', '1')->get();
-		
+		// echo "<pre>"; print_r($machine); exit;		
+		$processI 	= ProcessItem::where('status', '=', '1')->get();		
 		$dataW 		= Warehouse::where('status', '=', '1')->orderBy('id','asc')->get();
 		
 		$dataF 		= FabricFaultReason::where('status', '=', '1')->orderByDesc('id')->get();
@@ -230,7 +233,7 @@ class WorkOrderController extends Controller
 
 				$soItem 		= SaleOrderItem::where('sale_order_item_id', '=', $soId)->first();
 				$customerId  	= SaleOrder::where('sale_order_id', '=', $soItem->sale_order_id)->value('individual_id');
-				$unit_type_id = Item::where('item_id', '=', $soItem->item_id)->value('unit_type_id');
+				$unit_type_id 	= Item::where('item_id', '=', $soItem->item_id)->value('unit_type_id');
 				$obj2 = new WorkOrderItem;
 
 				$obj2->work_order_id  					= $workOrderId;
@@ -270,87 +273,20 @@ class WorkOrderController extends Controller
 		}
 
     }
-
-    public function store_old_not_wok(Request $request)
-    {
-		 // echo "<pre>"; print_r($request->all()); exit;
-		$validator = Validator::make($request->all(), [
-			"item_name"=>"required",
-			"process_type"=>"required",
-		], [
-			"item_name.required"=>"Please select Item Name.",
-			"process_type.required"=>"Please select process type.",
-		]);
-
-		if ($validator->fails())
-		{
-			$error = $validator->errors()->first();
-			Session::put('message', $validator->messages()->first());
-			Session::put("messageClass","errorClass");
-			return redirect()->back()->withInput();
-		}
-
-		$userId = Auth::id();
-		$userD = User::find($userId);
-		$IndividualId = $userD->individual_id;
-		$obj = new WorkOrder;
-		$obj->sale_order_id  					= $request->sale_order_id;
-		$obj->item_name  						= $request->item_name;
-		$obj->item_id  							= $request->item_id;
-		$obj->purchase_item_id  				= $request->item_id;
-		$obj->item_type_id   				    = $request->item_type_id ;
-		$obj->user_id  							= $IndividualId;
-		$obj->process_type_id  					= $request->process_type;
-		$obj->order_priority  					= $request->order_priority;
-		$obj->customer_name  					= $request->customer_name;
-		$obj->customer_id  						= $request->customer_id;
-		$obj->process_started_by  				= $request->process_started_by;
-		$obj->process_ended_by  				= $request->process_ended_by;
-		$obj->process_inspected_by  			= $request->process_inspected_by;
-		$obj->gatepass_print_by  				= $request->gatepass_print_by;
-		$obj->gatepass_print_date  				= $request->gatepass_print_date;
-		$obj->process_started_date  			= $request->process_started_date;
-		$obj->process_ended_date  				= $request->process_ended_date;
-		$obj->process_inspected_date  			= $request->process_inspected_date;
-		$obj->gatepass_genrated_by  			= $request->gatepass_genrated_by;
-		$obj->gatepass_genrated_to  			= $request->gatepass_genrated_to;
-		$obj->process_started_remarks  			= $request->process_started_remarks;
-		$obj->process_ended_remarks  			= $request->process_ended_remarks;
-		$obj->process_inspected_remark  		= $request->process_inspected_remark;
-		$obj->getapass_to_department  			= $request->getapass_to_department;
-		$obj->getapass_from_department  		= $request->getapass_from_department;
-		$obj->status  							= 1;
-		$obj->created  							= date("Y-m-d");
-		$is_saved 								= $obj->save();
-
-		if($is_saved)
-		{
-			Session::put('message', 'Work Order Added successfully.');
-			Session::put("messageClass","successClass");
-			return redirect("/show-workorders");
-		}
-		else 
-		{
-			Session::put('message', 'Something went wrong.');
-			Session::put("messageClass", "errorClass");
-			return redirect()->back()->withInput();
-		}
-
-    }
-
+ 
     public function start_addworkorder($id,$ItemTypeId)
     {
 		$sale_order_item_id  =  base64_decode($id);
-		$ItemTypeId  =  base64_decode($ItemTypeId); // exit;
-		$dataSOI 	= SaleOrderItem::where('sale_order_item_id', '=', $sale_order_item_id)->where('is_deleted', '=', '0')->first();
-		$ItemId 	= $dataSOI->item_id;
-		$saleordId 	=  $dataSOI->sale_order_id;
+		$ItemTypeId  	=  base64_decode($ItemTypeId); // exit;
+		$dataSOI 		= SaleOrderItem::where('sale_order_item_id', '=', $sale_order_item_id)->where('is_deleted', '=', '0')->first();
+		$ItemId 		= $dataSOI->item_id;
+		$saleordId 		=  $dataSOI->sale_order_id;
 		$orderItemPriority = $dataSOI->order_item_priority;
-		$dataI  	= Item::where('item_id', '=', $ItemId)->where('status', '=', '1')->orderByDesc('item_type_id')->first();
+		$dataI  		= Item::where('item_id', '=', $ItemId)->where('status', '=', '1')->orderByDesc('item_type_id')->first();
 	    //	echo "<pre>"; print_r($dataI); exit;
-		$dataIT  	= ItemType::where('status', '=', '1')->orderByDesc('item_type_id')->get();
-		$dataUT  	= UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
-		$dataSO  	= SaleOrder::where('is_deleted', '=', '0')->get();
+		$dataIT  		= ItemType::where('status', '=', '1')->orderByDesc('item_type_id')->get();
+		$dataUT  		= UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
+		$dataSO  		= SaleOrder::where('is_deleted', '=', '0')->get();
 
 		return view('html.workorder.add-workorder', compact("dataIT","dataUT","dataSO","ItemTypeId","ItemId","saleordId","dataI","orderItemPriority"));
 
@@ -373,7 +309,6 @@ class WorkOrderController extends Controller
 		$saleOrdItemId 	= base64_decode($saleOrdItemId);
 		$dataSOI 		= SaleOrderItem::where('sale_order_item_id', '=', $saleOrdItemId)->where('is_deleted', '=', '0')->first();
 		$saleOrderId 	= $dataSOI->sale_order_id;
-
 		return view('html.workorder.check-warehouse-item-stock', compact("saleOrderId","dataSOI","saleOrdItemId"));
 	}
 
@@ -387,11 +322,8 @@ class WorkOrderController extends Controller
 		$ItemTypeId = $dataI->item_type_id;
 		$unitTypeId = $dataI->unit_type_id;
 		$ItemName   = $dataI->item_name;
-		$dataWhI = WarehouseItem::where('item_type_id', '=', $ItemTypeId)->where('status', '=', '1')->first();
-
-		$dataArr = WarehouseItem::where('item_type_id', '=', $ItemTypeId)
-		->where('status', '=', '1')
-		->get();
+		$dataWhI = WarehouseItem::where('item_type_id', '=', $ItemTypeId)->where('status', '=', '1')->first(); 
+		$dataArr = WarehouseItem::where('item_type_id', '=', $ItemTypeId)->where('status', '=', '1')->get();
 
 		$purItemQtyTotal = $dataArr->sum('pur_item_qty');
 
@@ -750,7 +682,7 @@ class WorkOrderController extends Controller
 		$insp_status 			= ($workStatusProcess == 'Yes') ? 'Complete' : 'Pending';		 
 		if ($insp_status == 'Complete') 
 		{
-			// WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
 		}	 
 		
 		$warehouseId 		    = $request->insp_work_warehouse_id;
@@ -906,10 +838,10 @@ class WorkOrderController extends Controller
 			$objG->work_order_id 						= $request->ins_work_order_id;
 			$objG->item_id 								= $itemId;
 			$objG->item_type_id 						= $itemTypeId;
-			$objG->unit_type_id 						= $unit_type_id;
+			$objG->unit_type_id 						= 4;
 			$objG->qty_size 							= $outputQuanSize;
 			$objG->qty 									= $quantity;
-			$objG->to_department 						= $proTypeId;
+			$objG->to_department 						= $processTypeId;
 			$objG->to_warehouse 						= $warehouseId;
 			$objG->gatepass_number 						= $lastPsnl;
 			$objG->genrated_by 							= $IndividualId;
@@ -971,7 +903,7 @@ class WorkOrderController extends Controller
 		 
 		if ($insp_status == 'Complete') 
 		{
-			//	WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]); 
+			WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]); 
 			// WorkOrderItem::where('woi_id', '=', $woid)->update(['is_work_completed'=> 1]);  
 		}	 
 		
@@ -1006,25 +938,22 @@ class WorkOrderController extends Controller
 		$lastInsertId 						= $objWI->getKey();
 		if($is_Insaved)
 		{  
-			// $objPI = ProcessItem::where('id', '=', $proTypeId)->update(['process_sl_no_last'=> $lastPsnl]); 	 
-			 
+			// $objPI = ProcessItem::where('id', '=', $proTypeId)->update(['process_sl_no_last'=> $lastPsnl]); 				 
 			$objG = new GatePass;
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
-			$objG->unit_type_id  						= $unit_type_id;
+			$objG->unit_type_id  						= 2;
 			$objG->qty_size  							= $outputQuanSize;
 			$objG->qty  								= $quantity;
-			$objG->to_department  						= $proTypeId;
+			$objG->to_department  						= $processTypeId;
 			$objG->to_warehouse  						= $warehouseId;
 			$objG->gatepass_number  					= $lastPsnl;
-			$objG->genrated_by  						= $IndividualId;
+			$objG->genrated_by  						= '';
 			$objG->print_date  							= '';
 			$objG->status  								= 1;
 			$objG->created  							= date("Y-m-d");
 			$is_savedG 									= $objG->save();
-
-
 			Session::put('message', 'Work Inspection Updated successfully.');
 			Session::put("messageClass","successClass");
 			return redirect("/show-workorders");			 
@@ -1037,9 +966,7 @@ class WorkOrderController extends Controller
 		}
 	  
 	}
-    
-
-	
+     
     public function update_dyeing_inspec_process(Request $request)
     {		  
 		//   echo "<pre>"; print_r($request->all()); exit; 
@@ -1080,7 +1007,7 @@ class WorkOrderController extends Controller
 		 
 		if ($insp_status == 'Complete') 
 		{
-			// WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
 		}	 
 		
 		$userId  				= Auth::id();
@@ -1108,38 +1035,34 @@ class WorkOrderController extends Controller
 		$objWI->fabric_fault_reason_id 		= $fabric_fault_reasonId ?: null;
 		$objWI->insp_work_warehouse_id  	= $warehouseId;
 		$objWI->insp_status  				= $insp_status;
-		$objWI->inspected_by  				= $IndividualId;
-		
+		$objWI->inspected_by  				= $IndividualId;		
 		$objWI->dyeing_color  				= $DyingColor; 
 		// $objWI->coated_pvc  				= $IndividualId; 
 		// $objWI->extra_job  				= $IndividualId; 
-		// $objWI->print_job  				= $IndividualId; 
-		
-		
+		// $objWI->print_job  				= $IndividualId; 		
 		$objWI->status  					= 1;
 		$objWI->created  					= $curDate;
 		$is_Insaved							= $objWI->save(); 
 		$lastInsertId 						= $objWI->getKey();
 		
 		if($is_Insaved)
-		{ 
-			 
+		{			 
 			$objG = new GatePass;
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
-			$objG->unit_type_id  						= $unit_type_id;
+			$objG->unit_type_id  						= 2;
 			$objG->qty_size  							= $outputQuanSize;
 			$objG->qty  								= $quantity;
-			$objG->to_department  						= $proTypeId;
+			$objG->to_department  						= $processTypeId;
 			$objG->to_warehouse  						= $warehouseId;
 			$objG->gatepass_number  					= $lastPsnl;
-			$objG->genrated_by  						= $IndividualId;
+			$objG->genrated_by  						= '';
+			$objG->dyeing_color  						= $DyingColor; 
 			$objG->print_date  							= '';
 			$objG->status  								= 1;
 			$objG->created  							= date("Y-m-d");
 			$is_savedG 									= $objG->save();
-
 
 			Session::put('message', 'Work Inspection Updated successfully.');
 			Session::put("messageClass","successClass");
@@ -1153,8 +1076,7 @@ class WorkOrderController extends Controller
 		}
 	  
 	}
-    
-	
+     
     public function update_coating_inspec_process(Request $request)
     {		  
 		//   echo "<pre>"; print_r($request->all()); exit; 
@@ -1240,13 +1162,14 @@ class WorkOrderController extends Controller
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
-			$objG->unit_type_id  						= $unit_type_id;
+			$objG->unit_type_id  						= 2;
 			$objG->qty_size  							= $outputQuanSize;
 			$objG->qty  								= $quantity;
-			$objG->to_department  						= $proTypeId;
+			$objG->to_department  						= $processTypeId;
 			$objG->to_warehouse  						= $warehouseId;
 			$objG->gatepass_number  					= $lastPsnl;
-			$objG->genrated_by  						= $IndividualId;
+			$objG->genrated_by  						= '';
+			$objG->coated_pvc  							= $coatedPvc; 
 			$objG->print_date  							= '';
 			$objG->status  								= 1;
 			$objG->created  							= date("Y-m-d");
@@ -1284,22 +1207,18 @@ class WorkOrderController extends Controller
 			Session::put("messageClass", "errorClass");
 			return redirect()->back()->withInput();
 		}
+		 
+		$proType 	= CommonController::getProcessTypeName($dataGp->to_department);		
+		$warehouseName 	= CommonController::getWarehouseName($dataGp->to_warehouse);		
+
+
+
 		
-		// $toDepartment 	= $fromDepartment;
+		// echo "<pre>"; print_r($proType); exit;		
+		$toDepart  	= $proType['process'];
+		 
+		return view('html.workorder.print-workorder-gatepass',compact("data","toDepart","compData","dataInd","GpId","dataGp","warehouseName"));
 		
-		$proType		= CommonController::getProcessTypeName($data->process_type_id);		
-		$toDepartment  	= $proType['output'];
-		// echo "<pre>"; print_r($toDepartment); exit;
-		/*
-		$obj2 = WorkOrder::where('work_order_id', '=', $workOrderId)->update(
-		['gatepass_genrated_by'		=> $IndividualId,
-		'gatepass_print_date'		=> $currentDate,
-		'gatepass_genrated_to'		=> $IndividualId,
-		'getapass_to_department'	=> $toDepartment,
-		'getapass_from_department'	=> $fromDepartment]);
-		$data = WorkOrder::where('work_order_id', $workOrderId)->first();
-		*/
-		 return view('html.workorder.print-workorder-gatepass',compact("data","toDepartment","compData","dataInd","GpId"));
 	}
 
 	public function print_workorder_report($id)
@@ -1366,7 +1285,6 @@ class WorkOrderController extends Controller
 		return view('html.workorder.show-workorder-report', compact("dataWI", "qsearch", "dataPI", "receiverName", "recvWhDate", "cusSearch", "processTypeId"));
 	}
 	
-
 	public function accept_work_item_in_warehouse(Request $request)
     {
 		$userId = Auth::id();
@@ -1778,114 +1696,7 @@ class WorkOrderController extends Controller
 			return redirect("/show-workorders");
 		}
 	}
-	
-
-/*
-    public function add_work_requisition(Request $request)
-	{ 
-		$validator = Validator::make($request->all(), [
-			"itemIdReq" => "required",
-			"work_order_id_req" => "required",
-			"quantity" => "required|array|min:1",
-			"quantity.*" => "required|numeric|min:1",
-			"required_item_qty" => "required|array|min:1",
-			"required_item_qty.*" => "numeric|min:0", // Allow zero value for required_item_qty
-			"ext_item_type_id" => "required|numeric",
-			"req_item_id" => "required|array|min:1",
-			"req_item_id.*" => "required|numeric|min:1",
-		], [
-			"itemIdReq.required" => "Please select Item Name.",
-			"work_order_id_req.required" => "Please select your Work type.",
-			"quantity.required" => "Please enter your work Quantity.",
-			"quantity.*.required" => "Each quantity must not be empty.",
-			"quantity.*.numeric" => "Each quantity must be a number.",
-			"quantity.*.min" => "Each quantity must be at least 1.",
-			"required_item_qty.required" => "Please enter required item quantity.",
-			"required_item_qty.*.numeric" => "Each required item quantity must be a number.",
-			"required_item_qty.*.min" => "Each required item quantity must be at least 0.", // Allow zero value for required_item_qty
-			"ext_item_type_id.required" => "Please enter external item type ID.",
-			"ext_item_type_id.numeric" => "External item type ID must be a number.",
-			"req_item_id.required" => "Please enter required item ID.",
-			"req_item_id.*.required" => "Each required item ID must not be empty.",
-			"req_item_id.*.numeric" => "Each required item ID must be a number.",
-			"req_item_id.*.min" => "Each required item ID must be at least 1.",
-		]);
-
-		if ($validator->fails()) {
-			$error = $validator->errors()->first();
-			Session::put('message', $validator->messages()->first());
-			Session::put("messageClass", "errorClass");
-			return redirect()->back()->withInput();
-		} 
-		$workOrdId  	= $request->work_order_id_req;
-		$dataWk 		= WorkOrder::where('work_order_id', '=', $workOrdId)->where('status', '=', '1')->first();
-
-		$ItemName   	= $dataWk->item_name;
-		$procesTypeId   = $dataWk->process_type_id;
-		$dataPr 		= ProcessRequirement::where('process_type_id', '=', $procesTypeId)->where('status', '=', '1')->first();
-
-		$dataIT 		= ItemType::where('item_type_id', '=', $dataPr->item_type_id)->where('status', '=', '1')->first();
-		$itemTypeName 	= $dataIT->item_type_name;
-		$Quantity  		= $request->quantity; 
-		$userId 		= Auth::id();
-		$userD 			= User::find($userId);
-		$IndividualId 	= $userD->individual_id;
-		$curDate 		= date("Y-m-d");
-		$reqItemIdArr 	= $request->req_item_id;
-		$reqItemQty 	= $request->required_item_qty;
-		$qty_arr 		= $request->quantity;
-		$WitemId 		= $request->itemIdReq;
-		 
-		foreach($reqItemQty as $qty=>$rowArr)
-		{ 
-			$dataWPR[] = array(
-				'work_order_id' => $workOrdId,
-				'item_id' => $WitemId,
-				'process_type_id' => $procesTypeId,
-				'item_type_id' => $request->ext_item_type_id,
-				'work_req_send_by' => $IndividualId,
-				'quantity' => $qty,
-				'status' => 1,
-				'created' => date("Y-m-d")
-			);
-		}
-		$resWPR =  WorkProcessRequirement::insert($dataWPR);	
-		
-		foreach($reqItemIdArr as $itemidk=>$valArr)
-		{
-			$itemId 	= $reqItemIdArr[$itemidk];
-			$dataI 		= Item::where('item_id', '=', $itemId)->where('status', '=', '1')->first();
-			$ItemTypeId = $dataI->item_type_id;
-
-			$qty 		= $qty_arr[$itemidk];
-			$data[] = array(
-				'work_order_id' => $workOrdId,
-				'item_id' => $itemId,
-				'process_type_id' => $procesTypeId,
-				'item_type_id' => $ItemTypeId,
-				'work_req_send_by' => $IndividualId,
-				'quantity' => $qty,
-				'status' => 1,
-				'created' => date("Y-m-d")
-			);
-		}		 
-		$res =  WorkProcessRequirement::insert($data);	
- 
-		if($res)
-		{
-			$obj2  = WorkOrder::where('work_order_id', '=', $workOrdId)->update(
-			['work_req_send_by'=> $IndividualId,
-			'is_work_require_request_accepted'=> 'Null',
-			'work_req_send_date'=> $curDate]);
-
-			Session::put('message', 'Work Requirement Send to Warehouse successfully.');
-			Session::put("messageClass","successClass");
-			return redirect("/show-workorders");
-		}
-
-	}
-	*/
-
+	 
     public function add_work_requisition_for_dyeing(Request $request)
 	{ 
 		//echo "<pre>"; print_r($request->all()); exit;
@@ -2039,9 +1850,6 @@ class WorkOrderController extends Controller
 		echo json_encode($result); 
 		 
     }
-	
-
-
 	 
 	public function start_requisition_process($id)
 	{ 	
@@ -2083,7 +1891,6 @@ class WorkOrderController extends Controller
 				return 'html.workorder.start-requisition-process';
 		}
 	}
-
 	
 	public function create_work_order_for_weaving(Request $request)
     {
@@ -2104,6 +1911,7 @@ class WorkOrderController extends Controller
 
         if ($insp_status === 'Complete') {
             WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+            WorkOrder::where('work_order_id', $workOrderId)->update(['work_status' => $insp_status]);
         }
 
         $userId = Auth::id();
@@ -2179,8 +1987,7 @@ class WorkOrderController extends Controller
             return redirect("/show-workorders");
         }
     }
- 
-	
+ 	
 	public function create_work_order_for_dying(Request $request)
     {		
 		$validator = Validator::make($request->all(), [
@@ -2198,8 +2005,10 @@ class WorkOrderController extends Controller
         $workOrderId = $request->work_order_Id;
         $insp_status = 'Complete';
 
-        if ($insp_status === 'Complete') {
+        if ($insp_status === 'Complete') 
+		{
             WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['work_status' => $insp_status]);
         }
 
         $userId 		= Auth::id();
@@ -2316,8 +2125,10 @@ class WorkOrderController extends Controller
         $workOrderId = $request->work_order_Id;
         $insp_status = 'Complete';
 
-        if ($insp_status === 'Complete') {
+        if ($insp_status === 'Complete') 
+		{
             WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['work_status' => $insp_status]);
         }
 		
 		$userId  				= Auth::id();
@@ -2424,9 +2235,10 @@ class WorkOrderController extends Controller
 
         $workOrderId = $request->work_order_Id;
         $insp_status = 'Complete';
-
-        if ($insp_status === 'Complete') {
+        if ($insp_status === 'Complete') 
+		{
             WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['work_status' => $insp_status]);
         }
 		
 		$userId  				= Auth::id();
@@ -2513,6 +2325,46 @@ class WorkOrderController extends Controller
 			Session::put("messageClass","errorClass");
 			return redirect("/show-workorders");
 		}
+	  
+	}
+    	
+	public function accept_item_for_work(Request $request)
+    {		 
+		$validator = Validator::make($request->all(), [
+            "work_order_Id" => "required",
+        ], [
+            "work_order_Id.required" => "Work order Not Found.",
+        ]);
+
+        if ($validator->fails()) {
+            Session::put('message', $validator->messages()->first());
+            Session::put("messageClass", "errorClass");
+            return redirect()->back()->withInput();
+        }
+		
+        $workOrderId 	= $request->work_order_Id;
+		$insp_status 	= 'Complete';
+		$userId 		= Auth::id();
+		$user 			= User::find($userId);
+		$individualId 	= $user->individual_id;
+		if ($insp_status === 'Complete') 
+		{			
+			WorkOrder::where('work_order_id', $workOrderId)->update([
+				'is_item_received_from_warehouse' => 'Yes',
+				'item_received_in_department_by' => $individualId
+			]);
+		}
+		if ($workOrderId) 
+		{
+			Session::put('message', 'Work Item Accepted successfully.');
+			Session::put("messageClass", "successClass");
+		} else {
+			Session::put('message', 'Something went wrong.');
+			Session::put("messageClass", "errorClass");
+		}
+
+		return redirect("/show-workorders");
+
 	  
 	}
     

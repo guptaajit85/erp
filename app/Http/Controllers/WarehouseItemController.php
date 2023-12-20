@@ -333,7 +333,7 @@ class WarehouseItemController extends Controller
     {  
 		$WareId = $request->Id;
 		$dataWC = WarehouseCompartment::where('warehouseid', '=', $WareId)->where('status', '=', '1')->orderByDesc('id')->get();	
-		$str ="<label>Warehouse Compartment</label>";
+		$str  ="<label>Warehouse Compartment</label>";
 		$str .=" <select class='form-control' required name='warehouseCompId' id='warehouseCompId' onChange='selectEmployee(this.value)'>";
 		$str .="<option value=''>Select Warehouse compartment</option>";
 		foreach($dataWC as $row)

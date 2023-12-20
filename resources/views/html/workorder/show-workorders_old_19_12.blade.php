@@ -71,9 +71,10 @@
                   <tbody>
                     <?php 
 						foreach($dataWI as $data) {
-					   //   echo "<pre>"; print_r($data); // exit;
+					    // echo "<pre>"; print_r($data); // exit;
 						$WOItem = $data['WorkOrderItem'];
-						$Id 	= $data->work_order_id; 					 
+						$Id 	= $data->work_order_id; 
+						 
 						 		  
 						$proTypeId 			= $data->process_type_id;			  
 						$quantity 			= $data->quantity;
@@ -83,21 +84,12 @@
 						$outputProcess 		= $data->output_process;
 						$endProcessEmpId 	= $data->machine_id;
 						$inspWorkStatusProcess 		= $data->insp_status;
-						$WorkStatusProcess 			= $data->work_status;
 						$isWarehouseAccepted 		= $data->is_warehouse_accepted;
 						$work_req_send_by 			= $data->work_req_send_by;
 						$WorkRequireReqAccepted 	= $data->is_work_require_request_accepted;
-						
-						$IsGatePassGenrated 		= $data->is_gatepass_genrated_by_warehouse;
-					echo	$isItemReceivedFromWarehouse 		= $data->is_item_received_from_warehouse;
-						
-						
-						$GatePassGenratedBy   		= $data['GatepassGenratedByWarehouseUser']->name;   
-						
-						$ReqSendBy   				= $data['WorkReqSend']->name;   
-						$internalName 				= $data['Item']->internal_item_name;  
-						$processName 				= $data['ProcessType']->process_name;     
-						 
+						$ReqSendBy   				= CommonController::getEmpName($work_req_send_by);
+						$internalName 				= CommonController::getItemInternalName($data->item_id);
+						$wInspId 					= CommonController::checkWorkInspection($Id);
 					?>
                     <tr id="Mid{{ $Id }}">
                       <td><?=$data->process_type;?><?=$data->process_sl_no;?> </td>       
@@ -113,51 +105,36 @@
 							?>
 						<?php } ?> 
 					  </td> 
-						<td> {{ $data->item_name }}   </td>
-						<td> {{ $internalName }}   </td>
+                      <td> {{ $data->item_name }}   </td>
+                      <td> {{ $internalName }}   </td>
 						<td> {{ $data->customer_name }}     
-						<?php foreach($WOItem as $valArr)  {  ?>
-						<p> {{ CommonController::getEmpName($valArr->customer_id) }} 	</p> 				  
-						<?php } ?> 
+						  <?php foreach($WOItem as $valArr) {  ?>
+						  <p> {{ CommonController::getEmpName($valArr->customer_id) }} 	</p> 				  
+						  <?php } ?> 
 						</td>
-						<td> <?=$processName;?></td>                     
+						<td> {{ CommonController::getProcessName($data->process_type_id) }} </td>                     
 						<td> 
 						<?php foreach($WOItem as $rowArr) { ?>
-						<p> {{ $rowArr->order_item_priority }} </p> 				  
+							<p> {{ $rowArr->order_item_priority }} </p> 				  
 						<?php } ?>
 						</td>  
 						<td><?=$data->cut;?> </td> 
 						<td><?=$data->pcs;?> </td> 
 						<td><?=$data->meter;?> </td> 
-						 
-					    <td>
-							<?php if (!empty($work_req_send_by) && $WorkRequireReqAccepted == 'Null') { ?>
-									<p>Work Requisition Send In Warehouse By <?= $ReqSendBy ?></p>
-							<?php } elseif ($WorkRequireReqAccepted == 'Yes') { ?>
-								<span class="btn btn-info btn-xs"> Work Request Accepted By Warehouse</span>
-								 <?php if($IsGatePassGenrated =='Yes') { ?>
-								 <span class="btn btn-info btn-xs"> Gatepass genrated In Warehouse By <?=$GatePassGenratedBy;?> </span> 
-								 <br/>
-								 <?php if($isItemReceivedFromWarehouse =='No') { ?>
-								<form method="post" action="{{ route('accept_item_for_work') }}" class="form-horizontal">
-									@csrf
-									<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-									<div class="modal-footer">
-										<button type="submit" class="btn btn-success pull-left">Accept</button>
-									</div>
-								</form>
-										
-								 <?php } ?>
-								 <?php } ?>
-								
-							<?php } elseif ($WorkRequireReqAccepted == 'No') { ?>
-								<p><span class="btn btn-default btn-xs"> Work Request Denied By Warehouse</span></p>
-								<p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
-							<?php } else { ?>
-								<p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
-							<?php } ?>
-						</td>
- 
+						
+                      <td>
+					     <?php if(!empty($work_req_send_by) && $WorkRequireReqAccepted =='Null') { ?>
+                        <p>Work Requisition Send In Warehouse By {{ $ReqSendBy }} </p>
+                        <?php } else if($WorkRequireReqAccepted =='Yes') { ?>
+                        <span class="btn btn-info btn-xs"> Work Request Accepted By Warehouse</span>
+                        <?php } else if($WorkRequireReqAccepted =='No') { ?>
+                        <p><span class="btn btn-default btn-xs"> Work Request Denied By Warehouse</span></p>
+                        <p> <a href="start-requisition-process/{{ base64_encode($Id) }}" class="btn btn-success btn-xs">Request</a>  </p>
+                        <?php } else { ?>    
+						<p><a href="start-requisition-process/{{ base64_encode($Id) }}" class="btn btn-success btn-xs">Request</a> </p>
+                        <?php } ?>
+                      </td>	
+
 					<td class="center">					  
 						<?php if($isWarehouseAccepted =='Yes' && $WorkRequireReqAccepted =='Yes' && $proTypeId > 1) { ?>
 							<a target="_blank" href="{{ route('print-workorder-gatepass', base64_encode($Id)) }}" class="btn btn-success btn-xs">Gatepass</a>
@@ -165,111 +142,71 @@
 						<?php $i =1;  foreach($data['GatePass'] as $gateVal)  {  $GPId = $gateVal->id;	?>	
 							<a target="_blank" href="{{ route('print-workorder-gatepass', base64_encode($GPId)) }}" class="btn btn-success btn-xs">Gatepass <?=$i;?></a>
 						<?php $i++; } ?>						
-					</td>	
-					
-					<td class="center">
-						<?php if ($WorkRequireReqAccepted == 'Yes') { ?>
-						
-								
+					</td>					  
+                        <td class="center">					  
+						  				  
+						  <?php if($WorkRequireReqAccepted =='Yes') { ?>
+							<?php if(empty($masterIndId) || empty($machineId)) { ?>
+							<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
 							
-								<?php if ($proTypeId >= 4) { ?>	
-
-
-									<?php if (empty($masterIndId) || empty($machineId)) { ?>
-									<?php if($IsGatePassGenrated =='Yes' && $isItemReceivedFromWarehouse =='Yes') { ?>
-									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
-									<?php } ?>
-									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
-									<span class="label-custom label label-default">Item Send To Warehouse</span>
-									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
-									<a href="javascript:void(0);" onClick="CoatingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse</a>
-									<?php } ?>	
-
-									
-									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
-										<form method="post" action="{{ route('create_work_order_for_printing') }}" class="form-horizontal">
-											@csrf
-											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-											<div class="modal-footer">
-												<button type="submit" class="btn btn-success pull-left">Create Printing Process</button>
-											</div>
-										</form>
-									<?php } ?>		
-
-
-									
-								<?php } elseif ($proTypeId >= 3) { ?>
-								
-									<?php if (empty($masterIndId) || empty($machineId)) { ?>
-									<?php if($IsGatePassGenrated =='Yes' && $isItemReceivedFromWarehouse =='Yes') { ?>
-									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
-									<?php } ?>
-									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
-									<span class="label-custom label label-default">Item Send To Warehouse</span>
-									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
-									
-									<a href="javascript:void(0);" onClick="DyeingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse</a>
-									<?php } ?>
-									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
-										<form method="post" action="{{ route('create_work_order_for_coating') }}" class="form-horizontal">
-											@csrf
-											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-											<div class="modal-footer">
-												<button type="submit" class="btn btn-success pull-left">Create Coating Process</button>
-											</div>
-										</form>
-									<?php } ?>
-									
-								<?php } elseif ($proTypeId == 2) { ?>
-								
-									<?php if (empty($masterIndId) || empty($machineId)) { ?>
-									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
-									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
-									<span class="label-custom label label-default">Item Send To Warehouse</span>
-									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
-									<a href="javascript:void(0);" onClick="WeavingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse</a>
-									<?php } ?>
-									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
-										<form method="post" action="{{ route('create_work_order_for_dying') }}" class="form-horizontal">
-											@csrf
-											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-											<div class="modal-footer">
-												<button type="submit" class="btn btn-success pull-left">Create Dying Process</button>
-											</div>
-										</form>
-									<?php } ?>
-									
-								<?php } else { ?>
-								
-								
-									<?php if (empty($masterIndId) || empty($machineId)) { ?>
-									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
-									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
-									<span class="label-custom label label-default">Item Send To Warehouse</span>
-									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
-									<a href="javascript:void(0);" onClick="InspectionProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse</a>
-									<?php } ?>
-									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
-										<form method="post" action="{{ route('create_work_order_for_weaving') }}" class="form-horizontal">
-											@csrf
-											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-											<div class="modal-footer">
-												<button type="submit" class="btn btn-success pull-left">Create Weaving Process</button>
-											</div>
-										</form>
-									<?php } ?>
-									
+							<?php } else if($inspWorkStatusProcess =='Complete') { ?>
+							<span class="label-custom label label-default">Item Send To Warehouse</span>                       
+							<?php } else { ?> 
+							
+							<?php if($proTypeId >= 4) { ?>
+							<a href="javascript:void(0);" onClick="CoatingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse3</a>
+							<?php if($wInspId) { ?>
+							<form method="post" action="{{ route('create_work_order_for_printing')}}" class="form-horizontal">
+								@csrf
+								<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-success pull-left">Create Printing Process </button>
+								</div>
+							</form>		
+							<?php } ?>	
+							<?php } else if($proTypeId >= 3) { ?>
+							<a href="javascript:void(0);" onClick="DyeingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse3</a>
+							<?php if($wInspId) { ?>
+							<form method="post" action="{{ route('create_work_order_for_coating')}}" class="form-horizontal">
+								@csrf
+								<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-success pull-left">Create Coating Process </button>
+								</div>
+							</form>	
+							<?php } ?>
+							<?php } else if($proTypeId == 2) { ?>
+							<a href="javascript:void(0);" onClick="WeavingInspProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse2</a>
+							<?php if($wInspId) { ?>
+							<form method="post" action="{{ route('create_work_order_for_dying')}}" class="form-horizontal">
+								@csrf
+								<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-success pull-left">Create Dying Process </button>
+								</div>
+							</form>		
+							<?php } ?>	
+							<?php } else { ?>							
+							<a href="javascript:void(0);" onClick="InspectionProcess({{ $Id }})" class="btn btn-success btn-xs">Inspect & Send to Warehouse1</a>
+								<?php if($wInspId) { ?>
+								<form method="post" action="{{ route('create_work_order_for_weaving')}}" class="form-horizontal">
+								@csrf
+								<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-success pull-left">Create Weaving Process </button>
+								</div>
+								</form>								
 								<?php } ?>
-							 
-						<?php } ?>
-						
-						<a target="_blank" href="workorder-details/{{ base64_encode($Id) }}" title="View Work Order Details" class="tooltip-info">
-							<label class="label bg-green"><i class="fa fa-eye" aria-hidden="true"></i></label>
-						</a>
-					</td>
-
-					
-					 
+							<?php } ?>
+							<?php } ?>
+							<?php } ?>
+							
+							<a target="_blank" href="workorder-details/{{ base64_encode($Id) }}" title="View Work Order Details" class="tooltip-info">
+								<label class="label bg-green"><i class="fa fa-eye" aria-hidden="true"></i></label>
+							</a>		
+							
+                        </td>
+					   
                     </tr>
                     <?php } ?>
                     <tr class="center text-center">

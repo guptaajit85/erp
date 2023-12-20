@@ -98,57 +98,66 @@
               </table>  
 			   
 			  
-			<?php 
-				 
-				$resultArray = CommonController::getWarehouseAvailableDyingItemStockArray($itemId, $itemTypeId, $dyingColor); 
-				foreach ($resultArray as $result) 
-				{
-					//  echo "<pre>"; print_r($result);  // exit;
-					$totalItemQty 		= $result->insp_bal_quan_size;
-					$stockTblId 		= $result->wis_id;
-					$item_type_name  	= CommonController::getItemTypeName($result->item_type_id); 
-					$item_type_id 		= $result->item_type_id;
-
-				?>	
 				
               <table class="table table-bordered">
                 <tbody>
+				
+				 <tr>
+                    <th>Item Name</th>
+                    
+                    <td> <strong>Avaliable </strong> </td>
+                    <td> <strong>Required </strong> </td>
+                    <td>   </td>
+                  </tr>	 
+					<?php  
+						$resultArray = CommonController::getWarehouseAvailableDyingItemStockArray($itemId, $itemTypeId, $dyingColor); 
+						foreach ($resultArray as $result) 
+						{
+							//  echo "<pre>"; print_r($result);  // exit;
+							$totalItemQty 		= $result->insp_bal_quan_size;
+							$stockTblId 		= $result->wis_id;
+							$item_type_name  	= CommonController::getItemTypeName($result->item_type_id); 
+							$item_type_id 		= $result->item_type_id;
+					?>	
+
                   <tr>
                     <th>Item Name</th>
                     <td> <?=$item_name;?> </td> 
-                    <td> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
-					
+                    <td> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>					
 					<td> <strong>Required </strong> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
-                    <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>
-					
+                    <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>			
                   </tr>	 
-				   <input type="hidden" id="ext_item_type_id" name="ext_item_type_id" value="<?=$item_type_id;?>">
-				    
+				  <?php } ?>  				  
+				  
+				   <input type="hidden" id="ext_item_type_id" name="ext_item_type_id" value="<?=$item_type_id;?>">				    
                 </tbody>
               </table> 			  
-			  <?php } ?>  
+			  
 			  
 			<?php 
 				$unitTypeId = 2;
 				$balanceQ =  CommonController::check_warehouse_item_type_balance($itemId,$itemTypeId,$unitTypeId);
 			?>	 
+				<input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
+				<input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
+				<input type="number" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required>
+			
+			<?php /* ?>	
               <table class="table table-bordered" id="myTable">
                 <tbody>
-                  <tr>
-                    <input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
-                    <input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
-					<span id="ReqProduct"></span> 
-					<?php /* ?>	
+					<tr> 
+						<span id="ReqProduct"></span>  
 						<th>Avaliable Unit </th>
-						<td> <?=$balanceQ;?> Meter </td>    
-					<?php */ ?>                
-                  </tr> 				   
-				  <tr>                  
-                    <th>Required Quantity</th>
-                    <td><input type="number" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required>&nbsp; Meter </td>                    
-                  </tr>				  
+						<td> <?=$balanceQ;?> Meter </td>   
+					</tr> 				   
+					<tr>                  
+						<th>Required Quantity</th>
+						<td><input type="number" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required> &nbsp; Meter </td>                    
+					</tr>				  
                 </tbody>
-              </table>				
+              </table>	
+			<?php */ ?>         
+			  
 			  <button type="submit" class="btn btn-success pull-left">Send Requisition </button>
 			</form>
 			  

@@ -1,9 +1,11 @@
  <?php
 use \App\Http\Controllers\CommonController; 
-$fromDepart   = CommonController::getProcessName($data->process_type_id);
-$toDepart     = $toDepartment; // CommonController::getProcessName($toDepartment); 
-$warehouseId = $data['WarehouseItem']->warehouse_id; 
-$warehouseName  = CommonController::getWarehouseName($warehouseId); 
+ 
+ 
+$unitTypeId 	= $dataGp->unit_type_id; 
+$itemTypeId 	= $dataGp->item_type_id; 
+$unitTypeName   = CommonController::getUnitTypeName($unitTypeId); 
+$itemTypeName   = CommonController::getItemTypeName($itemTypeId); 
 //barcode generator
 $generator = new Picqer\Barcode\BarcodeGeneratorHTML();
 
@@ -13,10 +15,22 @@ $process_type  	 	= $data->process_type;
 $process_sl_no  	= $data->process_sl_no;
 $proTypeOrdNumber  	= $process_type.$process_sl_no;  
 
+
+$dyeing_color 		= $dataGp->dyeing_color;
+$coated_pvc 		= $dataGp->coated_pvc;
+$extra_job 			= $dataGp->extra_job;
+$print_job 			= $dataGp->print_job;
+
+if(!empty($dyeing_color)) 		$readyItem = "Dyeing Color : ".$dyeing_color;
+else if(!empty($coated_pvc)) 	$readyItem = "Coated : ".$coated_pvc;
+else if(!empty($extra_job)) 	$readyItem = "Extra Job : ".$extra_job;
+else if(!empty($print_job)) 	$readyItem = "Print Job : ".$extra_job;
+
 ?>
 <!doctype html>
 <html lang="en">
 <head>
+<body>
 <meta charset="UTF-8">
 <title>
 <?php if(trim($data->work_order_id)!='') { ?>
@@ -59,16 +73,17 @@ Gatepass No:-<?php echo (1000+$data->work_order_id);?>
                 <tr>
                     <td align="left" colspan="2">
                         <ul>
-                            <li>Work Order : #<?php echo ($data->work_order_id);?></li>
+                            <li>Work Order : #<?=$proTypeOrdNumber;?></li>
                             <li><b>Sale Order Item : #<?php echo ($data->sale_order_item_id);?></b></li>
                             <li>Item : <?php echo $data->item_name;?> </li>
-                            <li><i><b>QTY : </b></i></li>
-                            <li>From Department : <?=$warehouseName;?></li>
-
-                            <li><b>To Department : <?=$toDepart;?></b></li>
-                            <li> Generated Date : <?=date('d/m/Y');?> </li>
-
-
+                            <li><i><b>QTY : </b></i>  <?=$dataGp->qty_size;?>  <?=$unitTypeName;?>  <?=$itemTypeName;?> (<?=$dataGp->qty;?> Pcs) </li>
+							
+                            <?php if(!empty($readyItem)) { ?>
+							<li>  <b> <?=$readyItem;?></b> </li>	
+                            <?php } ?>
+							<li><b>From Department : <?=$toDepart;?></b></li>							
+							<li>To Department : <?=$warehouseName;?></li>   
+                            <li>Generated Date : <?=date('d/m/Y');?> </li> 
                         </ul>
                     </td>
                 </tr>
@@ -112,15 +127,14 @@ Gatepass No:-<?php echo (1000+$data->work_order_id);?>
                 <tr>
                     <td align="left"  colspan="2">
                         <ul>
-                            <li>Work Order : #<?php echo ($data->work_order_id);?></li>
+                            <li>Work Order : #<?=$proTypeOrdNumber;?></li>
                             <li><b>Sale Order Item : #<?php echo ($data->sale_order_item_id);?></b></li>
                             <li>Item : <?php echo $data->item_name;?> </li>
-                            <li><i><b>QTY : &nbsp;</b></i>
+                            <li><i><b>QTY : </b></i>  <?=$dataGp->qty_size;?>  <?=$unitTypeName;?>  <?=$itemTypeName;?> (<?=$dataGp->qty;?> Pcs) </li>
                             </li>
-                            <li>From Department : <?=$warehouseName;?></li>
-                            <li><b>To Department : <?=$toDepart;?></b></li>
-                            <li> Generated Date : <?=date('d/m/Y');?> </li>
-
+                           <li><b>From Department : <?=$toDepart;?></b></li> 
+							<li>To Department : <?=$warehouseName;?></li>
+                            <li> Generated Date : <?=date('d/m/Y');?> </li> 
                         </ul>
 
                     </td>
@@ -157,8 +171,7 @@ Gatepass No:-<?php echo (1000+$data->work_order_id);?>
                             </tr>
                         </table>
                     </td>
-                </tr>
-
+                </tr> 
                 <tr>
                     <td align="center" colspan="2">
                          {!! $generator->getBarcode($proTypeOrdNumber, $generator::TYPE_CODE_128) !!}
@@ -167,17 +180,15 @@ Gatepass No:-<?php echo (1000+$data->work_order_id);?>
                 <tr>
                     <td align="left"  colspan="2">
                         <ul>
-                            <li>Work Order : #<?php echo ($data->work_order_id);?></li>
+                            <li>Work Order : #<?=$proTypeOrdNumber;?></li>
                             <li><b>Sale Order Item : #<?php echo ($data->sale_order_item_id);?></b></li>
                             <li>Item : <?php echo $data->item_name;?> </li>
-                            <li><i><b>QTY : &nbsp;</b></i>
+                            <li><i><b>QTY : </b></i>  <?=$dataGp->qty_size;?>  <?=$unitTypeName;?>  <?=$itemTypeName;?> (<?=$dataGp->qty;?> Pcs) </li>
                             </li>
-                            <li>From Department : <?=$warehouseName;?></li>
-                            <li><b>To Department : <?=$toDepart;?></b></li>
-                            <li> Generated Date : <?=date('d/m/Y');?> </li>
-
-                        </ul>
-
+                           <li><b>From Department : <?=$toDepart;?></b></li> 
+							<li>To Department : <?=$warehouseName;?></li>
+                            <li> Generated Date : <?=date('d/m/Y');?> </li> 
+                        </ul> 
                     </td>
                 </tr>
                 <tr>

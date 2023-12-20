@@ -19,9 +19,7 @@
 		{!! CommonController::display_message('message') !!}
           <div class="panel panel-bd lobidrag">
             <div class="panel-heading">
-              <div class="btn-group" id="buttonexport"> <a href="add-warehouse">
-                <h4>Warehouse Requirement List</h4>
-                </a> </div>
+              <div class="btn-group" id="buttonexport"><a href="add-warehouse"><h4>Warehouse Requirement List</h4></a></div>
             </div>
             <div class="panel-body">
               <!-- Plugin content:powerpoint,txt,pdf,png,word,xl -->
@@ -38,74 +36,64 @@
               </div>
               <!-- Plugin content:powerpoint,txt,pdf,png,word,xl -->
               <div class="table-responsive">
-                <table id="dataTableExample1" class="table table-bordered table-striped table-hover">
-                  <thead>
-                    <tr class="info">
-                      <th>Request Id</th>
-                      <th>Work Order Id</th>
-                      <th>Process Type</th>
-                      <th>Item Type </th>
-                     <!-- <th>Item</th> --->
-                      <th>Work Request Send By</th>
-                      <th>Status </th>
-                      <th>Allotment </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  
-                  @foreach($dataWPR as $data)
-				<?php
-				
-					// echo "<pre>"; print_r($data); 
-					  $wprData   = CommonController::WorkProcessRequirementData($data->work_order_id);
-					  // echo "<pre>"; print_r($wprData); 
-					  $wprId 			   	= $data->id;
-					  $woId 			   	= $data->work_order_id;
-					  $process_accepted_by 	= $data->process_accepted_by;
-					  $process_deny_by 	  	= $data->process_deny_by;
-					  $isProAccByWarehouse 	= $data->is_pro_acc_by_warehouse;
-					  $processAcceptedBy   	= CommonController::getEmpName($process_accepted_by);
-					  $processDenyBy   		= CommonController::getEmpName($process_deny_by);
-					  
-					  
-				  ?>
-                  <tr id="Mid{{ $data->id }}">
-                    <td> {{ $wprId }}  </td>
-                    <td> {{ $data['WorkOrder']->process_type }}{{ $data['WorkOrder']->process_sl_no }} </td>
-                    <td> {{ CommonController::getProcessName($data->process_type_id) }} </td>
-                    <td> {{ CommonController::getItemType($data->item_type_id) }} </br> 
-					<a href="javascript:void(0);" onClick="getProcessRequirementItems({{ $woId }})" class="btn btn-info btn-xs">View</a></td>
-                 <!---   <td> {{ $data->count }} </td> --->
-                    <td> {{ CommonController::getEmpName($data->work_req_send_by) }} </td>
-                    <td class="center" id="Waccepted{{ $data->id }}">
-					  <?php if(empty($isProAccByWarehouse)) { ?>
-                     <!--- <a href="javascript:void(0);" onClick="AcceptWarehouseReq({{ $data->id }})" class="btn btn-success btn-xs">Accept</a> ---->   
-					  <a href="{{ route('accept-warehouse-item-requirement', base64_encode($woId)) }}" target="_blank" class="btn btn-success btn-xs">Accept</a>  
-					  <a href="javascript:void(0);" onClick="DenyWarehouseReq({{ $woId }})" class="btn btn-danger btn-xs">Deny</a>
-                      <?php } else if($isProAccByWarehouse == 'Yes') { ?>
-                      <a href="javascript:void(0);" class="btn btn-success btn-xs">Accepted</a>
-                      <p> Accepted By <?=$processAcceptedBy;?> </p>
-                      <?php } else if($isProAccByWarehouse == 'No') { ?>
-                      <a href="javascript:void(0);" class="btn btn-success btn-xs">Denied</a>
-                      <p> Denied By <?=$processDenyBy;?> </p>
-                      <?php } ?>
-                    </td>
-					<td>
-					 <?php if($isProAccByWarehouse == 'Yes') { ?>
-					<a href="javascript:void(0);" onClick="ViewWarehouseReq({{ $wprId }})" class="btn btn-info btn-xs">View</a>
-					
-					 <a target="_blank" href="{{ route('print-warehouse-item-requirement-gatepass', base64_encode($wprId)) }}" class="btn btn-success btn-xs">Gatepass</a>
-					
-					 <?php } ?>
-					</td>
-                  </tr>
-                  @endforeach
-                  <tr class="center text-center">
-                    <td class="center" colspan="8"><div class="pagination">{{ $dataWPR->links() }}</div></td>
-                  </tr>
-                  </tbody>
-                  
-                </table>
+                 <table id="dataTableExample1" class="table table-bordered table-striped table-hover">
+					<thead>
+						<tr class="info">
+							<th>Request Id</th>
+							<th>Work Order Id</th>
+							<th>Process Type</th>
+							<th>Item Type</th>
+							<th>Work Request Send By</th>
+							<th>Status</th>
+							<th>Allotment</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach($dataWPR as $data)
+							<?php
+								$wprId              = $data->id;
+								$woId               = $data->work_order_id;
+								$process_accepted_by    = $data->process_accepted_by;
+								$process_deny_by      = $data->process_deny_by;
+								$isProAccByWarehouse   = $data->is_pro_acc_by_warehouse;
+								$processAcceptedBy     = CommonController::getEmpName($process_accepted_by);
+								$processDenyBy         = CommonController::getEmpName($process_deny_by);
+							?>
+							<tr id="Mid{{ $data->id }}">
+								<td>{{ $wprId }}</td>
+								<td>{{ $data['WorkOrder']->process_type }}{{ $data['WorkOrder']->process_sl_no }}</td>
+								<td>{{ CommonController::getProcessName($data->process_type_id) }}</td>
+								<td>{{ CommonController::getItemType($data->item_type_id) }} <br>
+									<a href="javascript:void(0);" onClick="getProcessRequirementItems({{ $woId }})" class="btn btn-info btn-xs">View</a>
+								</td>
+								<td>{{ CommonController::getEmpName($data->work_req_send_by) }}</td>
+								<td class="center" id="Waccepted{{ $data->id }}">
+									<?php if(empty($isProAccByWarehouse)) { ?>
+										<a href="{{ route('accept-warehouse-item-requirement', base64_encode($woId)) }}" target="_blank" class="btn btn-success btn-xs">Accept</a>
+										<a href="javascript:void(0);" onClick="DenyWarehouseReq({{ $woId }})" class="btn btn-danger btn-xs">Deny</a>
+									<?php } else if($isProAccByWarehouse == 'Yes') { ?>
+										<a href="javascript:void(0);" class="btn btn-success btn-xs">Accepted</a>
+										<p>Accepted By <?= $processAcceptedBy; ?></p>
+									<?php } else if($isProAccByWarehouse == 'No') { ?>
+										<a href="javascript:void(0);" class="btn btn-success btn-xs">Denied</a>
+										<p>Denied By <?= $processDenyBy; ?></p>
+									<?php } ?>
+								</td>
+								<td>
+									<?php if($isProAccByWarehouse == 'Yes') { ?>
+										<!--- <a href="javascript:void(0);" onClick="ViewWarehouseReq({{ $woId }})" class="btn btn-info btn-xs">View</a> --->
+										<a target="_blank" href="{{ route('print-warehouse-item-requirement-gatepass', base64_encode($wprId)) }}" class="btn btn-success btn-xs">Gatepass</a>
+									<?php } ?>
+								</td>
+							</tr>
+						@endforeach
+						<tr class="center text-center">
+							<td class="center" colspan="8">
+								<div class="pagination">{{ $dataWPR->links() }}</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
               </div>
             </div>
           </div>
@@ -183,14 +171,11 @@
                 <table class="table table-bordered">
                   <tr>
                     <th>Work Item Name</th>
-                    <th> <span id="ItemNameReq"></span></th>
-                  </tr>
-                   
+                    <th><span id="ItemNameReq"></span></th>
+                  </tr>                   
                   <tr>
-
 				  <td>Purchase Remark </td>
-				  <td> 	<input type="text" name="pur_remark" id="pur_remark" required class="form-control"> </td>
-
+				  <td> <input type="text" name="pur_remark" id="pur_remark" required class="form-control"> </td>
 				  </tr>
                 </table>
 				<span id="wprDetails"></span>

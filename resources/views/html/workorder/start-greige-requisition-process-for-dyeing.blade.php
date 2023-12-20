@@ -95,53 +95,63 @@
                 </tbody>
               </table>			  
 			 
-			<?php 
-				$resultArray = CommonController::getWarehouseAvailableItemStockArray($itemId, $itemTypeId); 
-				foreach ($resultArray as $result) 
-				{
-					//  echo "<pre>"; print_r($result);  // exit;
-					$totalItemQty 		= $result->insp_bal_quan_size;
-					$stockTblId 		= $result->wis_id;
-					$item_type_name  	= CommonController::getItemTypeName($result->item_type_id); 
-					$item_type_id 		= $result->item_type_id;
-
-				?>
+			
               <table class="table table-bordered">
                 <tbody>
                   <tr>
                     <th>Item Name</th>
-                    <td> <?=$item_name;?> </td> 
-                    <td> <strong>Avaliable </strong> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
-                    <td> <strong>Required </strong> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
-                    <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>
+                    
+                    <td> <strong>Avaliable </strong> </td>
+                    <td> <strong>Required </strong> </td>
+                    <td>   </td>
                   </tr>	 
+				   
+				   
+				<?php 
+				$resultArray = CommonController::getWarehouseAvailableItemStockArray($itemId, $itemTypeId); 
+				foreach ($resultArray as $result) 
+				{ 
+					$totalItemQty 		= $result->insp_bal_quan_size;
+					$stockTblId 		= $result->wis_id;
+					$item_type_name  	= CommonController::getItemTypeName($result->item_type_id); 
+					$item_type_id 		= $result->item_type_id;
+				?> 
+				   <tr>                   
+                    <td> <?=$item_name;?> </td> 
+                    <td>   <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
+                    <td>  <input type="number" id="req_grey_qty_<?=$stockTblId?>" value="0.00" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
+                    <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>
+                  </tr>	 				  
+				<?php } ?>   
+				
 				   <input type="hidden" id="ext_item_type_id" name="ext_item_type_id" value="<?=$item_type_id;?>">
                 </tbody>
               </table> 			  
-			  <?php } ?>  
-			  
-			  
 			  
 			<?php 
 				$unitTypeId = 2;
 				$balanceQ =  CommonController::check_warehouse_item_type_balance($itemId,$itemTypeId,$unitTypeId);
 			?>	 
-              <table class="table table-bordered" id="myTable">
-                <tbody>
-                  <tr>
-                    <input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
+			  <input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
                     <input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
-					<span id="ReqProductrrr"></span> 
-						<?php /* ?>	<?php */ ?>  
+					<input type="hidden" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required> 
+					
+			<?php /* ?>	    
+			  <table class="table table-bordered" id="myTable">
+                <tbody>
+					<tr>                  
+						<span id="ReqProductrrr"></span> 						
 						<th>Avaliable Unit </th>
 						<td><?=$balanceQ;?> Meter</td> 				              
-                  </tr> 				   
+					</tr> 				   
 				  <tr>                  
                     <th>Required Quantity</th>
                     <td><input type="number" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required> &nbsp; Meter </td>                    
                   </tr>  				  
                 </tbody>
-              </table>				
+              </table>	 
+			<?php */ ?>  
+			  
 			  <button type="submit" class="btn btn-success pull-left">Send Requisition </button>
 			</form>
 			  
