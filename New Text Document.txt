@@ -1,0 +1,9 @@
+ALTER TABLE `work_orders` ADD `work_status` ENUM('Complete','Pending') NOT NULL DEFAULT 'Pending' AFTER `is_work_require_request_accepted`; 
+
+ALTER TABLE `gate_passes` ADD `dyeing_color` VARCHAR(255) NULL DEFAULT NULL AFTER `to_warehouse`, ADD `coated_pvc` VARCHAR(255) NULL DEFAULT NULL AFTER `dyeing_color`, ADD `extra_job` VARCHAR(255) NULL DEFAULT NULL AFTER `coated_pvc`, ADD `print_job` VARCHAR(255) NULL DEFAULT NULL AFTER `extra_job`; 
+
+
+ALTER TABLE `work_orders` ADD `is_gatepass_genrated_by_warehouse` ENUM('Yes','No') NULL DEFAULT 'Yes' AFTER `is_work_require_request_accepted`, ADD `gatepass_genrated_by_warehouse_user` INT(11) NULL AFTER `is_gatepass_genrated_by_warehouse`, ADD `is_item_received_from_warehouse` ENUM('Yes','No') NULL DEFAULT 'Yes' AFTER `gatepass_genrated_by_warehouse_user`, ADD `item_received_in_department_by` INT(11) NULL AFTER `is_item_received_from_warehouse`; 
+
+
+ALTER TABLE `sale_order_items` ADD `is_work_completed` ENUM('0','1') NOT NULL DEFAULT '0' AFTER `is_work_order_created`; 

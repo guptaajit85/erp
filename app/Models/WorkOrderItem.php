@@ -19,6 +19,23 @@ class WorkOrderItem extends Model
         return $this->belongsTo(WorkOrder::class, 'work_order_id', 'work_order_id');
     }
 	
+	public function Customer()
+	{
+		return $this->hasOne(Individual::class, 'id', 'customer_id');
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }

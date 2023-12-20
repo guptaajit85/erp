@@ -13,6 +13,28 @@ class WorkOrder extends Model
 	public $timestamps = false;
 	
 	
+	
+	
+	public function WorkReqSend()
+	{
+		return $this->hasOne(Individual::class, 'id', 'work_req_send_by');
+	}	
+	public function ProcessType()
+	{
+		return $this->hasOne(ProcessItem::class, 'id', 'process_type_id');
+	} 
+	
+	public function Item()
+	{
+		return $this->hasOne(Item::class, 'item_id', 'item_id');
+	}
+	
+	public function GatepassGenratedByWarehouseUser()
+	{
+		return $this->hasOne(Individual::class, 'id', 'gatepass_genrated_by_warehouse_user');
+	}
+	
+	
 	public function WarehouseItem()
 	{
 		return $this->hasOne(WarehouseItem::class, 'process_type_id', 'process_type_id');
