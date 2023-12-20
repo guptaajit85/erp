@@ -102,13 +102,12 @@
               <table class="table table-bordered">
                 <tbody>
 				
-				 <tr>
-                    <th>Item Name</th>
-                    
-                    <td> <strong>Avaliable </strong> </td>
-                    <td> <strong>Required </strong> </td>
-                    <td>   </td>
-                  </tr>	 
+					<tr>
+						<th>Item Name</th> 
+						<th>Avaliable</th>
+						<th>Required</th>
+						<th></th>
+					</tr>	 
 					<?php  
 						$resultArray = CommonController::getWarehouseAvailableDyingItemStockArray($itemId, $itemTypeId, $dyingColor); 
 						foreach ($resultArray as $result) 
@@ -121,7 +120,7 @@
 					?>	
 
                   <tr>
-                    <th>Item Name</th>
+                    
                     <td> <?=$item_name;?> </td> 
                     <td> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>					
 					<td> <strong>Required </strong> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
@@ -140,7 +139,7 @@
 			?>	 
 				<input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
 				<input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
-				<input type="number" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required>
+				<input type="hidden" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required>
 			
 			<?php /* ?>	
               <table class="table table-bordered" id="myTable">

@@ -93,19 +93,19 @@
                         </td> 
 						
                         <td><label for="dyeing_color">Dyeing Color</label>
-                          <input type="text" id="dyeing_color" class="form-control" value="<?=$dataWI->dyeing_color;?>" name="dyeing_color">         
+                          <input type="text" id="dyeing_color" class="form-control" readonly value="<?=$dataWI->dyeing_color;?>" name="dyeing_color">         
 						</td>
 						
                         <td><label for="coated_pvc">Coated Pvc</label>
-                          <input type="text" id="coated_pvc" class="form-control" value="<?=$dataWI->coated_pvc;?>" name="coated_pvc">         
+                          <input type="text" id="coated_pvc" class="form-control" readonly value="<?=$dataWI->coated_pvc;?>" name="coated_pvc">         
 						</td>
 						
                         <td><label for="extra_job">Extra Job</label>
-                          <input type="text" id="extra_job" class="form-control" value="<?=$dataWI->extra_job;?>" name="extra_job">         
+                          <input type="text" id="extra_job" class="form-control" readonly value="<?=$dataWI->extra_job;?>" name="extra_job">         
 						</td>
 						
                         <td><label for="print_job">Print Job</label>
-                          <input type="text" id="print_job" class="form-control" value="<?=$dataWI->print_job;?>" name="print_job">         
+                          <input type="text" id="print_job" class="form-control" readonly value="<?=$dataWI->print_job;?>" name="print_job">         
 						</td>						 
                       </tr>					                   
                       </tbody>                      

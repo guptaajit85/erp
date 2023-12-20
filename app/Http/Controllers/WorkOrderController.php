@@ -1252,7 +1252,7 @@ class WorkOrderController extends Controller
 		} else {
 			$recvWhDate = '';
 		}
-		$query = WorkInspection::where('status', '=', '1')->with('WorkOrder', 'WorkOrder.WorkOrderItem')->orderByDesc('work_order_id');
+		$query = WorkInspection::where('status', '=', '1')->with('WorkOrder', 'WorkOrder.WorkOrderItem')->orderByDesc('id');
 		if (!empty($customerId)) 
 		{	 
 			$workorderids = WorkOrderItem::where('customer_id', '=', $customerId)->where('status', '=', '1')->pluck('work_order_id')->implode(',');
@@ -1699,7 +1699,7 @@ class WorkOrderController extends Controller
 	 
     public function add_work_requisition_for_dyeing(Request $request)
 	{ 
-		//echo "<pre>"; print_r($request->all()); exit;
+		//  echo "<pre>"; print_r($request->all()); exit;
 		$validator = Validator::make($request->all(), [
 			"itemIdReq"=>"required",
 			"work_order_id_req"=>"required",
@@ -1745,6 +1745,8 @@ class WorkOrderController extends Controller
 		$filteredArray 	= array_filter($req_grey_qty);
 		$filtGreyArray 	= array_values($filteredArray);
 		 
+		
+		
 		$data = [];
 		foreach ($reqItemIdArr as $index => $itemId) {
 			$dataI = Item::where('item_id', '=', $itemId)->where('status', '=', '1')->first();
@@ -1881,6 +1883,8 @@ class WorkOrderController extends Controller
 	private function getViewName($processId)
 	{
 		switch ($processId) {
+			case '5':
+				return 'html.workorder.start-coating-requisition-process-for-packaging';
 			case '4':
 				return 'html.workorder.start-dyeing-requisition-process-for-coating';
 			case '3':
@@ -2368,7 +2372,109 @@ class WorkOrderController extends Controller
 	  
 	}
     
-	
+	public function create_work_order_for_packaging(Request $request)
+    {		  
+		// echo "<pre>"; print_r($request->all()); exit;
+		$validator = Validator::make($request->all(), [
+            "work_order_Id" => "required",
+        ], [
+            "work_order_Id.required" => "Work order Not Found.",
+        ]);
+
+        if ($validator->fails()) {
+            Session::put('message', $validator->messages()->first());
+            Session::put("messageClass", "errorClass");
+            return redirect()->back()->withInput();
+        }
+
+        $workOrderId = $request->work_order_Id;
+		/*  $insp_status = 'Complete';
+		if($workOrderId) 
+		{
+			WorkOrder::where('work_order_id', $workOrderId)->update([
+				'insp_status' => $insp_status,
+				'work_status' => $insp_status,
+			]);
+		}
+		*/ 
+		$userId  				= Auth::id();
+		$userD   				= User::find($userId);
+		$IndividualId 			= $userD->individual_id;
+		
+		$dataOrder  			= WorkOrder::where('work_order_id', '=', $workOrderId)->with('WorkOrderItem')->first();		 
+		$dataPT     			= ProcessItem::where('id', '>', $dataOrder->process_type_id)->first();
+		$lastPsnl 				= $dataPT->process_sl_no_last+1;
+		$dataPr 				= ProcessRequirement::where('process_type_id', '=', $dataPT->id)->where('status', '=', '1')->first();
+		// echo "<pre>"; print_r($dataPr); exit;
+		$itemTypeId 			= $dataPr->item_type_id;
+		$proTypeId  			= $dataPT->id;
+		$proType				= CommonController::getProcessTypeName($proTypeId);
+		$shortcode  			= $proType['shortcode']; 
+		$processTypeId 			= $dataOrder->process_type_id;	
+   
+		 
+		if($workOrderId)
+		{ 
+			$woiSql = WorkOrderItem::where('work_order_id', $workOrderId)->get();				
+			foreach ($woiSql as $row) 
+			{				
+				 							
+				$objW = new WorkOrder;
+				$objW->child_work_order_id  				= $workOrderId;
+				$objW->process_type  						= $shortcode;
+				$objW->process_sl_no  						= $lastPsnl;
+				$objW->user_id  							= $dataOrder->user_id;
+				$objW->item_type_id  						= $itemTypeId;
+				$objW->process_type_id  					= $dataPT->id;
+				$objW->item_id  							= $row->item_id;
+				$objW->item_name  							= $dataOrder->item_name;
+				$objW->pcs  								= $row->pcs;
+				$objW->cut  								= $row->cut;
+				$objW->meter  								= $row->meter;
+				$objW->status  								= 1;
+				$objW->created  							= date("Y-m-d");
+				$is_savedW 									= $objW->save();
+				$neworkOrderId 								= $objW->getKey();
+				
+				$objWO = new WorkOrderItem;
+				$objWO->work_order_id  					= $neworkOrderId;						 
+				$objWO->item_type_id  					= $itemTypeId;
+				$objWO->unit_type_id  					= 2;
+				$objWO->customer_id  					= $row->customer_id;
+				$objWO->sale_order_id  					= $row->sale_order_id;
+				$objWO->sale_order_item_id  			= $row->sale_order_item_id;
+				$objWO->item_id  						= $row->item_id; 
+				$objWO->grey_quality  					= $row->grey_quality;
+				$objWO->dyeing_color  					= $row->dyeing_color;
+				$objWO->coated_pvc  					= $row->coated_pvc;
+				$objWO->extra_job  						= $row->extra_job;
+				$objWO->print_job  						= $row->print_job;
+				$objWO->expect_delivery_date  			= $row->expect_delivery_date;
+				$objWO->order_item_priority  			= $row->order_item_priority;
+				$objWO->pcs  							= $row->pcs;
+				$objWO->cut  							= $row->cut;
+				$objWO->meter  							= $row->meter;
+				$objWO->status  						= 1;
+				$objWO->created  						= date("Y-m-d");
+				$is_saved 								= $objWO->save();						
+				 			 		
+			}
+			
+			$objPI = ProcessItem::where('id', '=', $proTypeId)->update(['process_sl_no_last'=> $lastPsnl]); 	 
+			 
+			Session::put('message', 'Work Inspection Updated successfully.');
+			Session::put("messageClass","successClass");
+			return redirect("/show-workorders");			 
+		} 
+		else 
+		{				
+			Session::put('message', 'Somethig error.');
+			Session::put("messageClass","errorClass");
+			return redirect("/show-workorders");
+		}
+	  
+	}
+    	
 	
 
 

@@ -88,30 +88,24 @@
 						$work_req_send_by 			= $data->work_req_send_by;
 						$WorkRequireReqAccepted 	= $data->is_work_require_request_accepted;
 						
-						$IsGatePassGenrated 		= $data->is_gatepass_genrated_by_warehouse;
-					echo	$isItemReceivedFromWarehouse 		= $data->is_item_received_from_warehouse;
-						
-						
-						$GatePassGenratedBy   		= $data['GatepassGenratedByWarehouseUser']->name;   
-						
-						$ReqSendBy   				= $data['WorkReqSend']->name;   
-						$internalName 				= $data['Item']->internal_item_name;  
-						$processName 				= $data['ProcessType']->process_name;     
+						$IsGatePassGenrated 				= $data->is_gatepass_genrated_by_warehouse;
+					    $isItemReceivedFromWarehouse 		= $data->is_item_received_from_warehouse; 
+						$GatePassGenratedBy 				= $data['GatepassGenratedByWarehouseUser'] ? $data['GatepassGenratedByWarehouseUser']->name : 'N/A';  
+						$ReqSendBy 							= $data['WorkReqSend'] ? $data['WorkReqSend']->name : 'N/A';     
+						$internalName 						= $data['Item']->internal_item_name;  
+						$processName 						= $data['ProcessType']->process_name;     
 						 
 					?>
+					 
                     <tr id="Mid{{ $Id }}">
-                      <td><?=$data->process_type;?><?=$data->process_sl_no;?> </td>       
+                      <td><?=$data->process_type;?><?=$data->process_sl_no;?> <?=$Id;?> </td>       
 					  <td> 
-						<?php  foreach($WOItem as $rowArr)  {  ?>
-							<?php 
+							@foreach($WOItem as $rowArr)
+							@php
 								$dataSO = CommonController::getSaleOrd($rowArr->sale_order_id);
-								if ($dataSO) {
-									echo "<p>" . $dataSO->sale_order_number . "</p>";
-								} else {
-									echo "<p>No Sale Order Found</p>";
-								}
-							?>
-						<?php } ?> 
+							@endphp
+								<p>{{ $dataSO ? $dataSO->sale_order_number : 'No Sale Order Found' }}</p>
+							@endforeach
 					  </td> 
 						<td> {{ $data->item_name }}   </td>
 						<td> {{ $internalName }}   </td>
@@ -128,30 +122,28 @@
 						</td>  
 						<td><?=$data->cut;?> </td> 
 						<td><?=$data->pcs;?> </td> 
-						<td><?=$data->meter;?> </td> 
-						 
+						<td><?=$data->meter;?> </td> 						 
 					    <td>
 							<?php if (!empty($work_req_send_by) && $WorkRequireReqAccepted == 'Null') { ?>
 									<p>Work Requisition Send In Warehouse By <?= $ReqSendBy ?></p>
 							<?php } elseif ($WorkRequireReqAccepted == 'Yes') { ?>
-								<span class="btn btn-info btn-xs"> Work Request Accepted By Warehouse</span>
+								<p class=""> Work Request Accepted By Warehouse</p>
 								 <?php if($IsGatePassGenrated =='Yes') { ?>
-								 <span class="btn btn-info btn-xs"> Gatepass genrated In Warehouse By <?=$GatePassGenratedBy;?> </span> 
+								 <p class="">Gatepass genrated In Warehouse By <?=$GatePassGenratedBy;?> </p> 
 								 <br/>
 								 <?php if($isItemReceivedFromWarehouse =='No') { ?>
-								<form method="post" action="{{ route('accept_item_for_work') }}" class="form-horizontal">
-									@csrf
-									<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
-									<div class="modal-footer">
-										<button type="submit" class="btn btn-success pull-left">Accept</button>
-									</div>
-								</form>
-										
+									<form method="post" action="{{ route('accept_item_for_work') }}" class="form-horizontal">
+										@csrf
+										<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
+										<div class="modal-footer">
+											<button type="submit" class="btn btn-success pull-left">Accept</button>
+										</div>
+									</form>										
 								 <?php } ?>
 								 <?php } ?>
 								
 							<?php } elseif ($WorkRequireReqAccepted == 'No') { ?>
-								<p><span class="btn btn-default btn-xs"> Work Request Denied By Warehouse</span></p>
+								<p>Work Request Denied By Warehouse </p>
 								<p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
 							<?php } else { ?>
 								<p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
@@ -187,11 +179,11 @@
 
 									
 									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
-										<form method="post" action="{{ route('create_work_order_for_printing') }}" class="form-horizontal">
+										<form method="post" action="{{ route('create_work_order_for_packaging') }}" class="form-horizontal">
 											@csrf
 											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
 											<div class="modal-footer">
-												<button type="submit" class="btn btn-success pull-left">Create Printing Process</button>
+												<button type="submit" class="btn btn-success pull-left">Create Packaging</button>
 											</div>
 										</form>
 									<?php } ?>		
@@ -223,7 +215,9 @@
 								<?php } elseif ($proTypeId == 2) { ?>
 								
 									<?php if (empty($masterIndId) || empty($machineId)) { ?>
+									<?php if($IsGatePassGenrated =='Yes' && $isItemReceivedFromWarehouse =='Yes') { ?>
 									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
+									<?php } ?> 
 									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
 									<span class="label-custom label label-default">Item Send To Warehouse</span>
 									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
@@ -242,8 +236,12 @@
 								<?php } else { ?>
 								
 								
-									<?php if (empty($masterIndId) || empty($machineId)) { ?>
-									<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
+									<?php if (empty($masterIndId) || empty($machineId)) { ?> 
+									 
+									<?php if($IsGatePassGenrated =='Yes' && $isItemReceivedFromWarehouse =='Yes') { ?>
+										<a href="javascript:void(0);" onClick="StartProcess({{ $Id }})" class="btn btn-success btn-xs">Start Process</a>
+									<?php } ?> 
+									
 									<?php }  else if ($inspWorkStatusProcess == 'Complete') { ?>
 									<span class="label-custom label label-default">Item Send To Warehouse</span>
 									<?php } else if ($inspWorkStatusProcess == 'Pending') { ?>
@@ -252,7 +250,7 @@
 									<?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
 										<form method="post" action="{{ route('create_work_order_for_weaving') }}" class="form-horizontal">
 											@csrf
-											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
+											<input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
 											<div class="modal-footer">
 												<button type="submit" class="btn btn-success pull-left">Create Weaving Process</button>
 											</div>

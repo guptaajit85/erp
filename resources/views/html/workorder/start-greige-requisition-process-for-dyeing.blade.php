@@ -119,7 +119,7 @@
 				   <tr>                   
                     <td> <?=$item_name;?> </td> 
                     <td>   <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
-                    <td>  <input type="number" id="req_grey_qty_<?=$stockTblId?>" value="0.00" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
+                    <td>  <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
                     <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>
                   </tr>	 				  
 				<?php } ?>   
