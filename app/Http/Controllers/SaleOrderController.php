@@ -179,9 +179,12 @@ class SaleOrderController extends Controller
 				"lot_number"=>"required",
 				"sale_order_number"=>"required",
 				"sale_order_date"=>"required",
-				"cus_name"=>"required",
-				"address"=>"required",
-				"shiping_address"=>"required",
+				//"cus_name"=>"required",
+        "cus_name"=>"required_if:sale_order_type,Customer",
+				//"address"=>"required",
+        "address"=>"required_if:sale_order_type,Customer",
+				//"shiping_address"=>"required",
+        "shiping_address"=>"required_if:sale_order_type,Customer",
 				"product_name_arr"=>"required",
 				"rate_arr"=>"required",
 			], [
@@ -194,6 +197,7 @@ class SaleOrderController extends Controller
 				"product_name_arr.required"=>"Please Select Your Order Item.",
 				"rate_arr.required"=>"Your Selected item Amount Not Found.",
 			]);
+      //dd($request->all());
 			if ($validator->fails())
 			{
 				$error = $validator->errors()->first();

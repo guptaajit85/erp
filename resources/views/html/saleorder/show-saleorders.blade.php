@@ -89,7 +89,7 @@ use \App\Http\Controllers\CommonController;
                       ?>
                       <tr id="Mid{{ $data->sale_order_id }}">
                         <td> {{ $data->sale_order_number }} </td>
-                        <td> {{ $data['Individual']->name }} </td>
+                        <td> @if(isset($data['Individual']->name)) {{ $data['Individual']->name }} @endif</td>
                         <td>
                           Priority : <strong>{{ $data->order_priority }} </strong>
                           </br>

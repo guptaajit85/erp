@@ -15,3 +15,14 @@ Date:20 Dec 2023, NAME: PRASUN KUNDU
 3. ALTER TABLE `purchase_order_items` CHANGE `item_id` `item_id` INT(9) UNSIGNED NULL DEFAULT NULL;
 
 -----------------------------------------------------------------------------------------------------------------------
+Date:21 Dec 2023, NAME: PRASUN KUNDU
+--------------------------------------
+1. ALTER TABLE `sale_orders` CHANGE `individual_id` `individual_id` INT(11) NULL DEFAULT NULL;
+2. ALTER TABLE `sale_orders` CHANGE `billing_address` `billing_address` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+3. ALTER TABLE `sale_orders` CHANGE `shiping_address` `shiping_address` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+4. ALTER TABLE `sale_orders` CHANGE `sales_order` `sales_order` VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+5. ALTER TABLE `sale_orders` CHANGE `ind_add_id` `ind_add_id` INT(11) NULL DEFAULT NULL;
+6. ALTER TABLE `sale_order_items` CHANGE `coated_pvc` `coated_pvc` VARCHAR(555) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+7. ALTER TABLE `sale_order_items` CHANGE `dyeing_color` `dyeing_color` VARCHAR(555) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+8. ALTER TABLE `sale_order_items` CHANGE `extra_job` `extra_job` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+-----------------------------------------------------------------------------------------------------------------------
