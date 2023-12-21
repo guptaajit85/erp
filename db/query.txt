@@ -11,5 +11,7 @@ ALTER TABLE `sale_order_items` ADD `is_work_completed` ENUM('0','1') NOT NULL DE
 Date:20 Dec 2023, NAME: PRASUN KUNDU
 ---------------------------------------
 1. ALTER TABLE `sale_orders` CHANGE `ind_agent_id` `ind_agent_id` VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+2. ALTER TABLE `purchase_order_items` CHANGE `hsn` `hsn` VARCHAR(55) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+3. ALTER TABLE `purchase_order_items` CHANGE `item_id` `item_id` INT(9) UNSIGNED NULL DEFAULT NULL;
 
 -----------------------------------------------------------------------------------------------------------------------
