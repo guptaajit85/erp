@@ -45,7 +45,15 @@ class WorkOrderController extends Controller
 		$itemSearch 	= trim($request->item_search);
 		$ordNumSearch 	= trim($request->ordNumSearch);
 		$priority 		= trim($request->priority);
-		
+    $search_process_id=$request->search_process_id;
+		//dd($request->all());
+    //dd(count($search_process_id));
+    if(!empty($search_process_id)){
+      $search_process_filter =  array_filter($search_process_id);
+      $arrr = count($search_process_filter);
+     }
+    //echo "<pre>"; print_r($arrr); exit; 
+    //dd($search_process_id);
 		// $worSqlRes = WorkOrder::where('status', '=', '1')->with('WorkReqSend')->orderByDesc('work_order_id')->get(); 
 		
 		$query = WorkOrder::where('status', '=', '1')->with('WorkOrderItem')->with('ProcessType')->with('GatePass')->with('Item')->with('WorkReqSend')->with('GatepassGenratedByWarehouseUser')->orderByDesc('work_order_id');
@@ -65,16 +73,27 @@ class WorkOrderController extends Controller
 		if (!empty($priority)) {
 			$workorderids = WorkOrderItem::where('order_item_priority', 'LIKE', '%' . $priority . '%')->where('status', '=', '1')->pluck('work_order_id')->implode(',');
 			$query->whereIn('work_order_id', explode(',', $workorderids));
+		} 
+    if (!empty($arrr)) 
+		{ 
+      for($i=0;$i<count($search_process_id);$i++)
+      {
+			$processItemIds[] = ProcessItem::where('id', '=', $search_process_id[$i])->where('status', '=', '1')->pluck('id');
+      }
+      //dd($processItemIds);
+			$query->whereIn('process_type_id', $processItemIds);
 		}
-
-		$dataWI = $query->paginate(20); 
+    //\DB::enableQueryLog();
+		$dataWI = $query->paginate(20);
+    //dd(\DB::getQueryLog()); 
 		// echo "<pre>"; print_r($dataWI); exit;	
 		
 		
 		$dataMas 	= Individual::where('type', '=', 'master')->where('status', '=', '1')->get();
 		$machine 	= Machine::where('status', '=', '1')->get();
 		// echo "<pre>"; print_r($machine); exit;		
-		$processI 	= ProcessItem::where('status', '=', '1')->get();		
+		$processI 	= ProcessItem::where('status', '=', '1')->get();
+    //dd($processI);		
 		$dataW 		= Warehouse::where('status', '=', '1')->orderBy('id','asc')->get();
 		
 		$dataF 		= FabricFaultReason::where('status', '=', '1')->orderByDesc('id')->get();
@@ -82,7 +101,7 @@ class WorkOrderController extends Controller
 		$dataITP  	= ItemType::where('status', '=', '1')->where('is_purchase', '=', '1')->get();
 		$dataI  	= Item::where('status', '=', '1')->get();
 		$priorityArr = config('global.priorityArr');
-		return view('html.workorder.show-workorders', compact("dataWI","cusSearch","individualId","itemSearch","ordNumSearch","priority","dataMas","machine","processI","dataW","dataF","dataIT","dataI","dataITP","priorityArr"));
+		return view('html.workorder.show-workorders', compact("dataWI","cusSearch","individualId","itemSearch","ordNumSearch","priority","dataMas","machine","processI","dataW","dataF","dataIT","dataI","dataITP","priorityArr","search_process_id"));
     }
 
 	public function work_order_details($Id)

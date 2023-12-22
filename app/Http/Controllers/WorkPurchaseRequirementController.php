@@ -34,57 +34,52 @@ class WorkPurchaseRequirementController extends Controller
   public function index(Request $request)
   {
     error_reporting(0);
-    $qnamesearch 		= trim($request->qnamesearch);
-    $item_type  	= trim($request->item_type);
-    $qworkordersearch 		= trim($request->qworkordersearch);
-    $qsalesearch 		= trim($request->qsalesearch);
-    $qworkrequestsearch 		= trim($request->qworkrequestsearch);
+    $qnamesearch     = trim($request->qnamesearch);
+    $item_type    = trim($request->item_type);
+    $qworkordersearch     = trim($request->qworkordersearch);
+    $qsalesearch     = trim($request->qsalesearch);
+    $qworkrequestsearch     = trim($request->qworkrequestsearch);
     //dd($qworkordersearch);
-    $first_character =substr($qworkordersearch, 0, 1);
+    $first_character = substr($qworkordersearch, 0, 1);
     //dd($first_character);
-    $strlen=strlen($qworkordersearch);
-    $remaining_character =substr($qworkordersearch, 1, $strlen);
+    $strlen = strlen($qworkordersearch);
+    $remaining_character = substr($qworkordersearch, 1, $strlen);
     //dd($remaining_character);
-    $dataIT 		= ItemType::where('status', '=', '1')->get();
+    $dataIT     = ItemType::where('status', '=', '1')->get();
     //$dataWPR = WorkPurchaseRequirement::where('status', '=', '1')->orderByDesc('id')->paginate(20);
-    $query= WorkPurchaseRequirement::where('status', '=', '1')->orderByDesc('id');
-    if(!empty($qnamesearch)) 
-		{  
-			$itemIds = Item::where(DB::raw("CONCAT(item_name, ' ', internal_item_name)"), 'LIKE', '%' . $qnamesearch . '%')->where('status', '=', '1')->pluck('item_id')->implode(',');     
-			$query->whereIn('item_id', explode(',', $itemIds));				
-		}
-    if(!empty($item_type))
-    {
-      $itemType=explode(',', $item_type);
+    $query = WorkPurchaseRequirement::where('status', '=', '1')->orderByDesc('id');
+    if (!empty($qnamesearch)) {
+      $itemIds = Item::where(DB::raw("CONCAT(item_name, ' ', internal_item_name)"), 'LIKE', '%' . $qnamesearch . '%')->where('status', '=', '1')->pluck('item_id')->implode(',');
+      $query->whereIn('item_id', explode(',', $itemIds));
+    }
+    if (!empty($item_type)) {
+      $itemType = explode(',', $item_type);
       $query->whereIn('item_type_id', $itemType);
     }
-    if(!empty($qworkordersearch))
-    {
+    if (!empty($qworkordersearch)) {
       //\DB::enableQueryLog();
-      $workOrderIds= WorkOrder::where(DB::raw("process_type"), 'LIKE', '%' . $first_character . '%')->where(DB::raw("process_sl_no"), 'LIKE', '%' . $remaining_character . '%')->where('status', '=', '1')->pluck('work_order_id')->implode(',');
+      $workOrderIds = WorkOrder::where(DB::raw("process_type"), 'LIKE', '%' . $first_character . '%')->where(DB::raw("process_sl_no"), 'LIKE', '%' . $remaining_character . '%')->where('status', '=', '1')->pluck('work_order_id')->implode(',');
       //dd($workOrderId);
       //dd(\DB::getQueryLog());     
-			$query->whereIn('work_order_id', explode(',', $workOrderIds));
+      $query->whereIn('work_order_id', explode(',', $workOrderIds));
     }
-    if(!empty($qsalesearch))
-    {
+    if (!empty($qsalesearch)) {
       $ordNumSearchArray = explode(',', $qsalesearch);
-			$workOrderIds = WorkOrderItem::whereIn('sale_order_id', $ordNumSearchArray)->pluck('work_order_id');
-			$query->whereIn('work_order_id', $workOrderIds);
+      $workOrderIds = WorkOrderItem::whereIn('sale_order_id', $ordNumSearchArray)->pluck('work_order_id');
+      $query->whereIn('work_order_id', $workOrderIds);
       //dd($workOrderIds);
     }
-    if(!empty($qworkrequestsearch))
-    {
-      $individualIds= Individual::where(DB::raw("name"), 'LIKE', '%' . $qworkrequestsearch . '%')->where('status', '=', '1')->pluck('id')->implode(',');
+    if (!empty($qworkrequestsearch)) {
+      $individualIds = Individual::where(DB::raw("name"), 'LIKE', '%' . $qworkrequestsearch . '%')->where('status', '=', '1')->pluck('id')->implode(',');
       $query->whereIn('purchase_req_send_by', explode(',', $individualIds));
     }
     //dd($itemType);
     //  echo "<pre>"; print_r($dataWPR); exit;
     //\DB::enableQueryLog();
-    $dataWPR=$query->paginate(20);
+    $dataWPR = $query->paginate(20);
     //dd(\DB::getQueryLog());
     //dd($dataWPR);	
-    return view('html.workpurchaserequirements.show-work-purchase-requirement', compact("dataWPR","qnamesearch","item_type","qworkordersearch","qsalesearch","qworkrequestsearch","dataIT"));
+    return view('html.workpurchaserequirements.show-work-purchase-requirement', compact("dataWPR", "qnamesearch", "item_type", "qworkordersearch", "qsalesearch", "qworkrequestsearch", "dataIT"));
   }
 
   public function create()
@@ -92,6 +87,7 @@ class WorkPurchaseRequirementController extends Controller
     //  error_reporting(0);	 
 
     //  echo "<pre>"; print_r($dataWPR); exit;
+
     $dataIT = ItemType::where('status', '=', '1')->where('is_purchase', '=', '1')->get();
     $dataI  = Individual::where('type', '=', 'agents')->where('status', '=', '1')->get();
     $dataUT = UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
