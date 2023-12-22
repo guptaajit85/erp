@@ -38,7 +38,7 @@ use \App\Http\Controllers\CommonController;
                       <select class="form-control" name="item_type" id="item_type">
                         <option value="">Please Select Item</option>
                         <?php foreach ($dataIT as $row) { ?>
-                          <option value="<?= $row->item_type_id; ?>"><?= $row->item_type_name; ?></option>
+                          <option value="<?= $row->item_type_id; ?>"@if($row->item_type_id==$item_type) selected @endif><?= $row->item_type_name; ?></option>
                         <?php } ?>
                       </select>
                     </div>

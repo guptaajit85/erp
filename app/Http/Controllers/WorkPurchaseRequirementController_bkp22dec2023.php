@@ -80,11 +80,9 @@ class WorkPurchaseRequirementController extends Controller
     }
     //dd($itemType);
     //  echo "<pre>"; print_r($dataWPR); exit;
-    //\DB::enableQueryLog();
     $dataWPR=$query->paginate(20);
-    //dd(\DB::getQueryLog());
     //dd($dataWPR);	
-    return view('html.workpurchaserequirements.show-work-purchase-requirement', compact("dataWPR","qnamesearch","item_type","qworkordersearch","qsalesearch","qworkrequestsearch","dataIT"));
+    return view('html.workpurchaserequirements.show-work-purchase-requirement', compact("dataWPR","qnamesearch","qworkordersearch","qsalesearch","qworkrequestsearch","dataIT"));
   }
 
   public function create()
