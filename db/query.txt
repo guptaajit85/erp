@@ -25,4 +25,10 @@ Date:21 Dec 2023, NAME: PRASUN KUNDU
 6. ALTER TABLE `sale_order_items` CHANGE `coated_pvc` `coated_pvc` VARCHAR(555) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
 7. ALTER TABLE `sale_order_items` CHANGE `dyeing_color` `dyeing_color` VARCHAR(555) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
 8. ALTER TABLE `sale_order_items` CHANGE `extra_job` `extra_job` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+Date:22 Dec 2023, NAME: PRASUN KUNDU
+--------------------------------------
+1. ALTER TABLE `sale_orders` CHANGE `sale_order_type` `sale_order_type` INT(11) NOT NULL COMMENT '0=>Customer,1=>Self';
+2. ALTER TABLE `sale_orders` CHANGE `sale_order_type` `sale_order_type` INT(11) NOT NULL COMMENT '1=>Customer,2=>Self';
+
+-------------------------------------------------------------------------------------------------------------------------------------------------

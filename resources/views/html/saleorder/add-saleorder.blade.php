@@ -42,8 +42,8 @@ use \App\Http\Controllers\CommonController;
                             <td style="width:150px;"><label for="sale_order_number">Order Type</label>
                               <select class="form-control" name="sale_order_type" required id="sale_order_type" value="{{old('sale_order_type')}}" onchange="saleOrderType(this.value)">
                                 <option value="">Select Order Type</option>
-                                <option value="Customer">Customer</option>
-                                <option value="Self">Self</option>
+                                <option value="1">Customer</option>
+                                <option value="2">Self</option>
                               </select>
                             </td>
 
@@ -357,7 +357,7 @@ use \App\Http\Controllers\CommonController;
     // this code added by:Prasun date: 21/dec/2023 //
     function saleOrderType(val) {
       //alert(val);
-      if (val == "Self") {
+      if (val == "2") {
         $("#sales_order").prop('disabled', true);
         $("#sale_order_from").prop('disabled', true);
         $("#cus_name").prop('disabled', true);

@@ -35,13 +35,26 @@ class SaleOrderController extends Controller
 		$priority 		= $request->priority;
 		$fromDate 		= $request->from_date;
 		$toDate 		= $request->to_date;
-		$ordNumSearch 	= $request->ordNumSearch; 
+		$ordNumSearch 	= $request->ordNumSearch;
+    $sale_order_type=trim($request->sale_order_type);
+    //dd($sale_order_type);
 		$query = SaleOrder::where('is_deleted', '=', '0')->with('SaleOrderItem')->with('Individual')->with('ItemType')->orderByDesc('sale_order_id');		
 		if (!empty($qsearch)) 
 		{  
 			$individualIds = Individual::where(DB::raw("CONCAT(name, ' ', nick_name, ' ', whatsapp)"), 'LIKE', '%' . $qsearch . '%')->where('type', '=', 'customers')->where('status', '=', '1')->pluck('id')->implode(',');     
 			$query->whereIn('individual_id', explode(',', $individualIds));		
 		}
+    if (!empty($ordNumSearch)) 
+		{
+			$ordNumSearchArray = explode(',', $ordNumSearch);
+			$saleOrderIds = SaleOrder::whereIn('sale_order_number', $ordNumSearchArray)->pluck('sale_order_id');
+			$query->whereIn('sale_order_id', $saleOrderIds);
+		}
+    if(!empty($sale_order_type))
+    {
+      //dd($sale_order_type);
+      $query->where('sale_order_type', $sale_order_type);
+    } 
 		if (!empty($qnamesearch)) 
 		{ 
 			$saleOrderIds = SaleOrderItem::where(function ($subquery) use ($qnamesearch) {
@@ -50,17 +63,12 @@ class SaleOrderController extends Controller
 			
 			$individualIds = Individual::where(DB::raw("CONCAT(name, ' ', nick_name, ' ', whatsapp)"), 'LIKE', '%' . $qnamesearch . '%')->where('type', '=', 'customers')->where('status', '=', '1')->pluck('id')->implode(',');     
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds))->orWhereIn('individual_id', explode(',', $individualIds));		
-		} 
+		}
+    
 		if (!empty($priority)) 
 		{     
 			$saleOrderIds = SaleOrderItem::where('order_item_priority', 'LIKE', '%' . $priority . '%')->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');    
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
-		}
-		if (!empty($ordNumSearch)) 
-		{
-			$ordNumSearchArray = explode(',', $ordNumSearch);
-			$saleOrderIds = SaleOrder::whereIn('sale_order_number', $ordNumSearchArray)->pluck('sale_order_id');
-			$query->whereIn('sale_order_id', $saleOrderIds);
 		}
 		
 		if (!empty($fromDate) && !empty($toDate)) 
@@ -70,11 +78,14 @@ class SaleOrderController extends Controller
 			$toDate 		= date('Y-m-d', strtotime($request->to_date));		
 			$saleOrderIds = SaleOrderItem::where('expect_delivery_date', '>=',  $fromDate)->where('expect_delivery_date', '<=',  $toDate)->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');     
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
-		} 
+		}
+    
+    //\DB::enableQueryLog(); 
 		$dataP = $query->paginate(20);
-		
+		//dd(\DB::getQueryLog());
+
 		$priorityArr = config('global.priorityArr');		 
-		return view('html.saleorder.show-saleorders',compact("dataP","qsearch","qnamesearch","priorityArr","priority","fromDate","toDate","ordNumSearch"));
+		return view('html.saleorder.show-saleorders',compact("dataP","qsearch","qnamesearch","priorityArr","priority","fromDate","toDate","ordNumSearch","sale_order_type"));
 	}
 
   

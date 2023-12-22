@@ -56,6 +56,13 @@ use \App\Http\Controllers\CommonController;
                       <input type="date" class="form-control" name="to_date" id="to_date" placeholder="To Date" value="<?= $toDate; ?>">
                     </div>
                     <div class="col-sm-1 col-xs-12">
+                      <select class="form-control" name="sale_order_type" id="sale_order_type">
+                        <option value="">All</option>
+                        <option value="1" @if($sale_order_type=="1") selected @endif>Customer</option>
+                        <option value="2" @if($sale_order_type=="2") selected @endif>Self</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-1 col-xs-12">
                       <input type="submit" name="sbtSearch" class="btn btn-success" value="Search">
                     </div>
                   </form>
