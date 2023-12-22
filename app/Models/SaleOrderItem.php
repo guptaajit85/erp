@@ -13,12 +13,12 @@ class SaleOrderItem extends Model
 	
 	
 	 
-    public function SaleOrder()
-    {
-        return $this->belongsTo(SaleOrder::class, 'sale_order_id', 'sale_order_id');
-    }
-	
-	
+	 
+	public function SaleOrder()
+	{
+		return $this->belongsTo(SaleOrder::class, 'sale_order_id', 'sale_order_id');
+	}
+ 
 	public function WorkOrderItem()
 	{
 		return $this->hasOne(WorkOrderItem::class, 'sale_order_item_id', 'sale_order_item_id');

@@ -354,11 +354,9 @@ class CommonController extends Controller
 
 	public function list_employee(Request $request)
     {
-	  // echo "<pre>";  print_r($request->all()); exit;
-
+	    // echo "<pre>";  print_r($request->all()); exit;
 		$qsearch  = $request->term;
 		$dataI    = Individual::where('type', '=', 'employee')->where(DB::raw("concat(name,email)"), 'LIKE', '%' . $qsearch . '%')->with('IndividualBillingAddress')->with('IndividualShipingAddress')->where('status', '=', '1')->limit(10)->get();
-
 		// echo "<pre>";  print_r($dataI['0']->IndividualAddress->address_1); exit;
 		echo json_encode($dataI);
     }
@@ -595,6 +593,7 @@ class CommonController extends Controller
 		$data = Individual::where('id', $EId)->first();
 		return $data->name;
     }
+	
 	public static function fabricFaultReason($Id)
     {
 		$data = FabricFaultReason::where('id', $Id)->first();
@@ -817,6 +816,25 @@ class CommonController extends Controller
  
 		$dataWIS = $query->get();
 
+		return $dataWIS;
+	}
+	
+	public static function getWarehouseAvailableCoatingItemStockArray($itemId, $itemTypeId, $coating)
+	{ 
+		$query = WarehouseItemStock::where('item_id', $itemId)
+			->where('item_type_id', $itemTypeId)
+			->where('coated_pvc', $coating)
+			->where('entry_type', 'IN')
+			->where('is_allotted_stock', 'No')
+			->where('status', 1);
+			
+			/*	$sql = $query->toSql();
+				$bindings = $query->getBindings();
+				$fullSql = vsprintf(str_replace(['?'], ['\'%s\''], $sql), $bindings); 
+				echo $fullSql;
+			*/ 
+ 
+		$dataWIS = $query->get();
 		return $dataWIS;
 	}
  

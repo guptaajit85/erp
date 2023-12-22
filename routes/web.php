@@ -287,12 +287,28 @@ Route::get('/add-unittype',[App\Http\Controllers\UnitTypeController::class,'crea
 Route::post('/store_unittype',[App\Http\Controllers\UnitTypeController::class,'store_unittype'])->name('store_unittype');
 Route::get('/ajax_script/deleteUnitType', [App\Http\Controllers\UnitTypeController::class,'deleteUnitType']);
 
+
+Route::get('/show-packagingtypes',[App\Http\Controllers\PackagingTypeController::class,'index'])->name('show-packagingtypes');
+Route::get('/edit-packagingtype/{id}',[App\Http\Controllers\PackagingTypeController::class,'edit_packagingtype'])->name('edit-packagingtype');
+Route::post('/update_packagingtype',[App\Http\Controllers\PackagingTypeController::class,'update_packagingtype'])->name('update_packagingtype');
+Route::get('/add-packagingtype',[App\Http\Controllers\PackagingTypeController::class,'create_packagingtype'])->name('add-packagingtype');
+Route::post('/store_packagingtype',[App\Http\Controllers\PackagingTypeController::class,'store_packagingtype'])->name('store_packagingtype');
+Route::get('/ajax_script/deletePackagingType', [App\Http\Controllers\PackagingTypeController::class,'deletePackagingType']);
+
+
+
 Route::get('/show-packagings',[App\Http\Controllers\PackagingController::class,'index'])->name('show-packagings');
+
+Route::get('/print-package-items/{id}',[App\Http\Controllers\PackagingController::class,'print_packaging_items'])->name('print-package-items');
+
 Route::get('/edit-packaging/{id}',[App\Http\Controllers\PackagingController::class,'edit_packaging'])->name('edit-packaging');
 Route::post('/update_packaging',[App\Http\Controllers\PackagingController::class,'update_packaging'])->name('update_packaging');
 Route::get('/add-packaging',[App\Http\Controllers\PackagingController::class,'create_packaging'])->name('add-packaging');
 Route::post('/store_packaging',[App\Http\Controllers\PackagingController::class,'store_packaging'])->name('store_packaging');
+Route::post('/genrate_package_invoice',[App\Http\Controllers\PackagingController::class,'genrate_package_invoice'])->name('genrate_package_invoice'); 
 Route::get('/ajax_script/deletePackaging', [App\Http\Controllers\PackagingController::class,'deletePackaging']);
+
+
 
 Route::get('/show-hsns',[App\Http\Controllers\HSNController::class,'index'])->name('show-hsns');
 Route::get('/edit-hsn/{id}',[App\Http\Controllers\HSNController::class,'edit_hsn'])->name('edit-hsn');

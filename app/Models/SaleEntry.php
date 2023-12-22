@@ -11,6 +11,7 @@ class SaleEntry extends Model
     protected $table   = 'sale_entries';
 	public $timestamps = false;
     protected $primaryKey = 'sale_entry_id';
+	protected $guarded = [];
 
     
 	/*public function SaleEntryItem(){

@@ -1872,12 +1872,19 @@ class WorkOrderController extends Controller
 			->get();
 		$dataI 		= Item::where('status', '1')->where('item_type_id', '8')->get();	
 		$dataIC 	= Item::where('status', '1')->where('item_type_id', '9')->get();
-		$dataICH 	= Item::where('status', '1')->where('item_type_id', '7')->get();	 
+		$dataICH 	= Item::where('status', '1')->where('item_type_id', '7')->get();
 		
+		 
+		$dataIG 	= Item::where('status', '1')->where(function ($query) {
+			$query->where('item_type_id', '6')->orWhere('item_type_id', '10');
+		})->get();
+
+		
+		 
 		// echo $processId; exit;
 		
 		$viewName = $this->getViewName($processId);
-		return view($viewName, compact("data", "dataI", "dataIC", "dataICH", "dataIYR", "itemId", "itemTypeId", "workOrderId", "dataWI"));
+		return view($viewName, compact("data", "dataI", "dataIC", "dataICH", "dataIG", "dataIYR", "itemId", "itemTypeId", "workOrderId", "dataWI"));
 	}
 
 	private function getViewName($processId)
