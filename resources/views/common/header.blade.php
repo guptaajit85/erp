@@ -65,6 +65,14 @@
 				  <li><a href="{{ route('show-workorder-report') }}">Stock In Ward</a></li>
                 </ul>
               </li>
+			  
+              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Packaging </a>
+                <ul class="dropdown-menu"> 
+                  <li><a href="{{ route('add-packaging') }}">Add Package</a></li>                 
+				  <li><a href="{{ route('show-packagings') }}">Packaging List</a></li>
+                </ul>
+              </li>
+			   
             </ul>
           </li>
 		  

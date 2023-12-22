@@ -44,17 +44,12 @@ class SaleOrderController extends Controller
 			$individualIds = Individual::where(DB::raw("CONCAT(name, ' ', nick_name, ' ', whatsapp)"), 'LIKE', '%' . $qsearch . '%')->where('type', '=', 'customers')->where('status', '=', '1')->pluck('id')->implode(',');     
 			$query->whereIn('individual_id', explode(',', $individualIds));		
 		}
-    if (!empty($ordNumSearch)) 
+		if (!empty($ordNumSearch)) 
 		{
 			$ordNumSearchArray = explode(',', $ordNumSearch);
 			$saleOrderIds = SaleOrder::whereIn('sale_order_number', $ordNumSearchArray)->pluck('sale_order_id');
 			$query->whereIn('sale_order_id', $saleOrderIds);
 		}
-    if(!empty($sale_order_type))
-    {
-      //dd($sale_order_type);
-      $query->where('sale_order_type', $sale_order_type);
-    } 
 		if (!empty($qnamesearch)) 
 		{ 
 			$saleOrderIds = SaleOrderItem::where(function ($subquery) use ($qnamesearch) {
@@ -63,13 +58,15 @@ class SaleOrderController extends Controller
 			
 			$individualIds = Individual::where(DB::raw("CONCAT(name, ' ', nick_name, ' ', whatsapp)"), 'LIKE', '%' . $qnamesearch . '%')->where('type', '=', 'customers')->where('status', '=', '1')->pluck('id')->implode(',');     
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds))->orWhereIn('individual_id', explode(',', $individualIds));		
-		}
-    
+		} 
+		
+		
 		if (!empty($priority)) 
 		{     
 			$saleOrderIds = SaleOrderItem::where('order_item_priority', 'LIKE', '%' . $priority . '%')->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');    
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
 		}
+		
 		
 		if (!empty($fromDate) && !empty($toDate)) 
 		{
@@ -78,9 +75,17 @@ class SaleOrderController extends Controller
 			$toDate 		= date('Y-m-d', strtotime($request->to_date));		
 			$saleOrderIds = SaleOrderItem::where('expect_delivery_date', '>=',  $fromDate)->where('expect_delivery_date', '<=',  $toDate)->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');     
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
-		}
-    
-    //\DB::enableQueryLog(); 
+		} 
+		
+		
+		
+		// $sql = $query->toSql();
+		// $bindings = $query->getBindings(); 
+		// $sqlWithValues = vsprintf(str_replace('?', "'%s'", $sql), $bindings); 
+		// dd($sqlWithValues);
+		
+		
+		
 		$dataP = $query->paginate(20);
 		//dd(\DB::getQueryLog());
 

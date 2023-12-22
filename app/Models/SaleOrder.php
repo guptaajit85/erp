@@ -22,12 +22,14 @@ class SaleOrder extends Model
 	}
 	
 	 
-	
+ 
+		 
 	public function SaleOrderItem()
-    {
-        return $this->hasMany(SaleOrderItem::class, 'sale_order_id', 'sale_order_id');
-    }
-	
+	{
+		return $this->hasMany(SaleOrderItem::class, 'sale_order_id', 'sale_order_id');
+	}
+	 
+ 
 	public function WorkOrder()
     {
         return $this->hasMany(WorkOrder::class, 'sale_order_id', 'sale_order_id');

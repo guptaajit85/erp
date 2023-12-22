@@ -232,18 +232,15 @@ class SaleEntryController extends Controller
 
 		public function print_sale_entry($sale_entry_id)
 		{
+			$pId 		= base64_decode($sale_entry_id);
+			$dataSalE 	= SaleEntry::where('sale_entry_id', '=', $pId)->where('status', '=', '1')->first();
+			$dataPI 	= SaleEntryItem::where('sale_entry_id', '=', $pId)->where('is_deleted', '=', '0')->get();
+			$dataI  	= Individual::where('id', '=', $dataSalE->individual_id)->where('status', '=', '1')->first();
+			$dataIA  	= IndividualAddress::where('ind_add_id', '=', $dataSalE->ind_add_id)->where('status', '=', '1')->first();
+			$dataCom 	= Company::where('id', '=', '1')->where('status', '=', '1')->first();
 
-
-				$pId = base64_decode($sale_entry_id);
-				$dataSalE = SaleEntry::where('sale_entry_id', '=', $pId)->where('status', '=', '1')->first();
-
-				$dataPI = SaleEntryItem::where('sale_entry_id', '=', $pId)->where('is_deleted', '=', '0')->get();
-				$dataI  = Individual::where('id', '=', $dataSalE->individual_id)->where('status', '=', '1')->first();
-				$dataIA  = IndividualAddress::where('ind_add_id', '=', $dataSalE->ind_add_id)->where('status', '=', '1')->first();
-
-				$dataCom = Company::where('id', '=', '1')->where('status', '=', '1')->first();
-
-				return view('html.saleentry.print-saleentry', compact("dataSalE","dataPI","dataCom","dataI","dataIA"));
+			return view('html.saleentry.print-saleentry', compact("dataSalE","dataPI","dataCom","dataI","dataIA"));
+			
 		}
 
 

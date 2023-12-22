@@ -1,5 +1,5 @@
 <?php
-	use \App\Http\Controllers\CommonController;	 
+  use \App\Http\Controllers\CommonController;	  
 ?>	 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,11 +45,12 @@
 									<th>Print Job</th>   
 								</tr>								
 								<?php 
-									$dyingColor ='';
+									$coated_pvc ='';
 									foreach($data['WorkOrderItem'] as $rowArr)
-									{  // echo "<pre>"; print_r($rowArr);
+									{  
+										// echo "<pre>"; print_r($rowArr);
 										$item_name   = CommonController::getItemName($rowArr->item_id);
-										$dyingColor .= $rowArr->dyeing_color;
+										$coated_pvc .= $rowArr->coated_pvc;
 								?>
 								<tr> 
 									<td><?=$item_name;?> </td> 
@@ -70,20 +71,20 @@
                   </tr>
                 </tbody>
               </table>
-			  
+			   
 			   <table class="table table-bordered" id="myTable">
                 <tbody>
                   <tr>
                     <input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
                     <input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
-                    <th><span id="ReqProduct"></span> Item </th>
+                    <th><span id="ReqProduct"></span>Genral Item </th>
                     <th>Quantity</th>
                     <th>Unit</th>
                   </tr>
                   <tr>
                     <td><select  class="form-control" name="req_item_id[]">
                         <option value=""> Select Item</option>
-                        <?php foreach($dataICH as $rowArr) { ?>
+                        <?php foreach($dataIG as $rowArr) { ?>
 							<option value="<?=$rowArr->item_id;?>"><?=$rowArr->item_name;?></option>
                         <?php } ?>
                       </select>
@@ -95,9 +96,8 @@
                     <td><button type="button" class="btn btn-success btn-xs" onClick="addRow()">Add Row</button></td>
                   </tr>				  
                 </tbody>
-              </table>  
+              </table> 
 			   
-			  
 				
               <table class="table table-bordered">
                 <tbody>
@@ -109,10 +109,11 @@
 						<th></th>
 					</tr>	 
 					<?php  
-						$resultArray = CommonController::getWarehouseAvailableDyingItemStockArray($itemId, $itemTypeId, $dyingColor); 
+						$resultArray = CommonController::getWarehouseAvailableCoatingItemStockArray($itemId, $itemTypeId, $coated_pvc); 
+						
 						foreach ($resultArray as $result) 
 						{
-							//  echo "<pre>"; print_r($result);  // exit;
+							   // echo "<pre>"; print_r($result);  // exit;
 							$totalItemQty 		= $result->insp_bal_quan_size;
 							$stockTblId 		= $result->wis_id;
 							$item_type_name  	= CommonController::getItemTypeName($result->item_type_id); 
@@ -236,7 +237,7 @@
 		var cell3 = newRow.insertCell(2); 
 		var cell4 = newRow.insertCell(3); 
 
-		cell1.innerHTML = '<select  class="form-control" name="req_item_id[]"><option value=""> Select Item</option><?php foreach($dataICH as $rowArr) { ?><option value="<?=$rowArr->item_id;?>"><?=$rowArr->item_name;?></option><?php } ?></select> ';
+		cell1.innerHTML = '<select  class="form-control" name="req_item_id[]"><option value=""> Select Item</option><?php foreach($dataIG as $rowArr) { ?><option value="<?=$rowArr->item_id;?>"><?=$rowArr->item_name;?></option><?php } ?></select> ';
 		
 		cell2.innerHTML = '<input type="number" min="1" class="form-control" id="req_quantity[]" name="req_quantity[]" required>';		
 		cell3.innerHTML = 'Kg'; 
