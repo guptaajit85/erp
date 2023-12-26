@@ -51,7 +51,7 @@ class PackagingController extends Controller
 			$query   = SaleOrder::where('individual_id', '=', $individualId)
 				->where('is_deleted', '=', '0')
 				->with(['SaleOrderItem' => function ($query) {					 
-					$query->where('is_work_completed', '=', '1');
+					$query->where('is_work_completed', '=', 1);
 				}, 'Individual', 'ItemType']);
 
 			$dataP = $query->paginate(20);
@@ -108,6 +108,7 @@ class PackagingController extends Controller
 		$pacTypeArr 	= $request->pack_type;
 		$packMeterArr 	= $request->pack_meter;
 		 
+		// $soiData    = SaleOrderItem::where('sale_order_item_id', '=', $soiId)->first();   
 		 
 		$newPackagingOrder = new PackagingOrder();		
 		$newPackagingOrder->customer_id 		= $individual_id;

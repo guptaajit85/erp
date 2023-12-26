@@ -41,7 +41,7 @@ use App\Http\Controllers\CommonController;
 							@csrf 
 							<div class="col-sm-4 col-xs-12">
 								<input type="text" id="cus_name" name="cus_name" class="form-control" value="<?=$cusName;?>" placeholder="Customer Name" required autofocus="autofocus">
-								<input type="text" id="individual_id" value="<?=$individualId;?>" name="individual_id">
+								<input type="hidden" id="individual_id" value="<?=$individualId;?>" name="individual_id">
 								<label>Phone : <span id="phone"> <?=$dataInd->phone ?? ''; ?></span> </label>
 								</br>
 								<label>Email : <span id="email_spnId"><?=$dataInd->email ?? ''; ?></span> </label>
@@ -61,7 +61,7 @@ use App\Http\Controllers\CommonController;
 					  @if ($dataP)
 						<form  name="packingStore" id="packingStore" method="post" action="{{ url('/store_packaging') }}">
 						@csrf  
-						 <input type="text" id="individual_id" value="<?=$individualId;?>" name="individual_id">
+						 <input type="hidden" id="individual_id" value="<?=$individualId;?>" name="individual_id">
 						<div class="col-sm-4 col-xs-12">
 							<table class="table table-bordered">
 								<tbody>

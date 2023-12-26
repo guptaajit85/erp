@@ -492,10 +492,23 @@ Route::post('/store_user',[App\Http\Controllers\UserController::class,'store_use
 
 Route::get('/show-saleentries',[App\Http\Controllers\SaleEntryController::class,'index'])->name('show-saleentries');
 Route::post('/update_saleentry',[App\Http\Controllers\SaleEntryController::class,'update'])->name('update_saleentry');
+
 Route::get('/add-saleentry',[App\Http\Controllers\SaleEntryController::class,'create'])->name('add-saleentry');
+
+Route::get('/create-invoice-for-package/{id}',[App\Http\Controllers\SaleEntryController::class,'createInvoiceForPackage'])->name('create-invoice-for-package');
+
+
+// Route::post('/genrate_package_invoice',[App\Http\Controllers\PackagingController::class,'genrate_package_invoice'])->name('genrate_package_invoice'); 
+
+Route::post('/genrateInvoiceForPackage',[App\Http\Controllers\SaleEntryController::class,'genrateInvoiceForPackage'])->name('genrateInvoiceForPackage');
 Route::post('/store_saleentry',[App\Http\Controllers\SaleEntryController::class,'store'])->name('store_saleentry');
+
+
+
 Route::get('/print-saleentry/{id}',[App\Http\Controllers\SaleEntryController::class,'print_sale_entry'])->name('print-saleentry');
 Route::get('/ajax_script/deleteSaleEntry', [App\Http\Controllers\SaleEntryController::class,'deleteSaleEntry']);
+
+
 
 Route::get('/show-workorders',[App\Http\Controllers\WorkOrderController::class,'index'])->name('show-workorders');
 Route::get('/add-workorder',[App\Http\Controllers\WorkOrderController::class,'create'])->name('add-workorder');

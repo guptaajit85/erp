@@ -70,23 +70,19 @@ use App\Http\Controllers\CommonController;
 						$customerName 	 	= $data['Individual']->name;
 						$shiping_address 	= $data->shiping_address;
 						$billing_address 	= $data->billing_address;
-						$isInvGenerated 	= $data->is_invoice_generated;	
+					echo	$isInvGenerated 	= $data->is_invoice_generated;	
 						$poId 				= $data->id;				
 					 ?>
 				  <tr>
 					 <td> <?=(1000+$data->id);?> </td>
 					 <td> <?=$customerName;?> </td>
 					 <td>
-						<div class="address-container">
-						    
-						   <div class="address-value">{{ $data->shiping_address }}</div>
-						   
+						<div class="address-container"> 
+						   <div class="address-value">{{ $data->shiping_address }}</div> 
 						</div>
 					 </td>	
 					 <td>
-						<div class="address-container">
-						   
-						 
+						<div class="address-container">					 
 						   <div class="address-value">{{ $data->billing_address }}</div>
 						</div>
 					 </td>
@@ -94,24 +90,18 @@ use App\Http\Controllers\CommonController;
 					 
 					 <td>   
 
-					<?php if($isInvGenerated == 'No') { ?> 				 
-					<form method="post" action="{{ route('genrate_package_invoice') }}" class="form-horizontal">
-						@csrf
-						<input type="hidden" name="package_order_id" id="package_order_id" value="<?=$poId;?>">
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-success pull-left">Genrate Invoice</button>
-						</div>
-					</form>					 
+					<?php if($isInvGenerated == 'No') { ?> 
+					<p> <a target="_blank" href="create-invoice-for-package/{{ base64_encode($poId) }}" class="tooltip-info">Genrate Invoice</a></p>					
+					 		 
 					<?php } else {  ?>
 					
-					<p> <a target="_blank" href="print-saleentry/{{ base64_encode($data->sale_entry_id) }}" class="tooltip-info">
-                      <label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Invoice Generated</label>
-                      </a> 
-					  </p>
-					<p>  <a target="_blank" href="print-package-items/{{ base64_encode($data->id) }}" class="tooltip-info">
-                      <label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Print Package Items</label>
-                      </a> 
-					   </p>
+						<p> <a target="_blank" href="print-saleentry/{{ base64_encode($data->sale_entry_id) }}" class="tooltip-info">
+						<label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Invoice Generated</label>
+						</a></p>
+						
+						<p><a target="_blank" href="print-package-items/{{ base64_encode($data->id) }}" class="tooltip-info">
+						<label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Print Package Items</label>
+						</a></p>
 					 
 					<?php } ?>
 					 
@@ -119,15 +109,14 @@ use App\Http\Controllers\CommonController;
 				  </tr>
 				  <?php } ?>
 				  <tr class="center text-center">
-					 <td class="center" colspan="5">
-						<div class="pagination">{{ $dataP->links() }}</div>
-					 </td>
+					 <td class="center" colspan="5"> <div class="pagination">{{ $dataP->links() }}</div> </td>
 				  </tr>
 			   </tbody>
 			</table>
 			
         </div>
-      </div>
+     
+	 </div>
     </div>
     </section>
     <!-- /.content -->
