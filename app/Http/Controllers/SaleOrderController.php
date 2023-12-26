@@ -50,6 +50,10 @@ class SaleOrderController extends Controller
 			$saleOrderIds = SaleOrder::whereIn('sale_order_number', $ordNumSearchArray)->pluck('sale_order_id');
 			$query->whereIn('sale_order_id', $saleOrderIds);
 		}
+    if (!empty($sale_order_type)) 
+		{
+			$query->where('sale_order_type', $sale_order_type);
+		}
 		if (!empty($qnamesearch)) 
 		{ 
 			$saleOrderIds = SaleOrderItem::where(function ($subquery) use ($qnamesearch) {
@@ -77,15 +81,12 @@ class SaleOrderController extends Controller
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
 		} 
 		
-		
-		
 		// $sql = $query->toSql();
 		// $bindings = $query->getBindings(); 
 		// $sqlWithValues = vsprintf(str_replace('?', "'%s'", $sql), $bindings); 
 		// dd($sqlWithValues);
 		
-		
-		
+    //\DB::enableQueryLog();
 		$dataP = $query->paginate(20);
 		//dd(\DB::getQueryLog());
 

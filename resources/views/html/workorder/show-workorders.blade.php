@@ -5,7 +5,73 @@ use \App\Http\Controllers\CommonController;
 <!DOCTYPE html>
 <html lang="en">
 
-<head>@include('common.head')
+<head>
+  @include('common.head')
+  <style>
+    .MultiCheckBox {
+      border: 1px solid #e2e2e2;
+      padding: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .MultiCheckBox .k-icon {
+      font-size: 15px;
+      float: right;
+      font-weight: bolder;
+      margin-top: -7px;
+      height: 10px;
+      width: 14px;
+      color: #787878;
+    }
+
+    .MultiCheckBoxDetail {
+      display: none;
+      position: absolute;
+      border: 1px solid #e2e2e2;
+      overflow-y: hidden;
+    }
+
+    .MultiCheckBoxDetailBody {
+      overflow-y: scroll;
+    }
+
+    .MultiCheckBoxDetail .cont {
+      clear: both;
+      overflow: hidden;
+      padding: 2px;
+    }
+
+    .MultiCheckBoxDetail .cont:hover {
+      background-color: #cfcfcf;
+    }
+
+    .MultiCheckBoxDetailBody>div>div {
+      float: left;
+    }
+
+    .MultiCheckBoxDetail>div>div:nth-child(1) {}
+
+    .MultiCheckBoxDetailHeader {
+      overflow: hidden;
+      position: relative;
+      height: 28px;
+      background-color: #3d3d3d;
+    }
+
+    .MultiCheckBoxDetailHeader>input {
+      position: absolute;
+      top: 4px;
+      left: 3px;
+    }
+
+    .MultiCheckBoxDetailHeader>div {
+      position: absolute;
+      top: 5px;
+      left: 24px;
+      color: #fff;
+    }
+  </style>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -27,10 +93,10 @@ use \App\Http\Controllers\CommonController;
               </div>
               <div class="panel-body">
                 <div class="row" style="margin-bottom:5px">
-                  <form action="{{ route('show-workorders') }}" method="GET" role="search">
+                  <form action="{{ route('show-workorders') }}" method="GET" role="search" autocomplete="off">
                     @csrf
                     <div class="col-sm-2 col-xs-12">
-                      <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" placeholder="Search by Customer Name. ">
+                      <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" autofocus="autofocus" placeholder="Search by Customer Name. ">
                       <input type="hidden" id="individual_id" name="individual_id" value="{{ $individualId }}">
                     </div>
                     <div class="col-sm-2 col-xs-12">
@@ -38,6 +104,7 @@ use \App\Http\Controllers\CommonController;
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="ordNumSearch" id="ordNumSearch" value="{{ $ordNumSearch }}" placeholder="Search by Sale Order Number.">
+                      <input type="hidden" id="saler_order_id" name="saler_order_id" value="{{-- $individualId --}}">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <select class="form-control" name="priority" id="priority">
@@ -48,13 +115,19 @@ use \App\Http\Controllers\CommonController;
                       </select>
                     </div>
                     <div class="col-sm-2 col-xs-12">
-                      <select class="form-control" name="search_process_id[]" id="search_process_id" multiple>
-                        <option value="">Select Process Type</option>
+                      <select class="form-control" name="search_process_id[]" id="search_process_id">
+                        <option value="0">Select Process Type</option>
                         @foreach($processI as $process)
-                        <!-- <option value="{{-- $process->id --}}" {{--@if(in_array($process->id,$search_process_id,)) selected @endif --}}> {{-- $process->process_name --}} </option> -->
+                        <!-- <option value="{{-- $process->id --}}" {{--@if(in_array($process->id,$search_process_id )) checked @endif--}} > {{-- $process->process_name --}} </option>  -->
                         <option value="{{ $process->id }}"> {{ $process->process_name }} </option>
                         @endforeach
                       </select>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                      <input type="text" class="form-control" name="from_date" id="from_date" placeholder="From Date" style="margin-left: 18px;" value="<?= $fromDate; ?>">
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                      <input type="text" class="form-control" name="to_date" id="to_date" placeholder="To Date" value="<?= $toDate; ?>">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="submit" name="sbtSearch" class="btn btn-success" value="Search">
@@ -114,10 +187,10 @@ use \App\Http\Controllers\CommonController;
 
                         <tr id="Mid{{ $Id }}">
                           <td>
-                            <?= $data->process_type; ?><?= $data->process_sl_no; ?> <?= $Id; ?><br> 
-                            <?php  
-                              $created = date("d-m-Y", strtotime($data->created));
-                              echo $created; 
+                            <?= $data->process_type; ?><?= $data->process_sl_no; ?> <?= $Id; ?><br>
+                            <?php
+                            $created = date("d-m-Y", strtotime($data->created));
+                            echo $created;
                             ?>
                           </td>
                           <td>
@@ -933,27 +1006,213 @@ use \App\Http\Controllers\CommonController;
   </div>
   @include('common.formfooterscript')
   <script type="text/javascript" src="{{ asset('js/jquery.validate.js') }}"></script>
-
   <script type="text/javascript">
     $(document).ready(function() {
-      var siteUrl = "{{url('/')}}";
-      $("#qsearch").autocomplete({
+      $("#search_process_id").CreateMultiCheckBox({
+        width: '230px',
+        defaultText: 'Select Below',
+        height: '250px'
+      });
+    });
+
+    $(document).ready(function() {
+      $(document).on("click", ".MultiCheckBox", function() {
+        var detail = $(this).next();
+        detail.show();
+      });
+
+      $(document).on("click", ".MultiCheckBoxDetailHeader input", function(e) {
+        e.stopPropagation();
+        var hc = $(this).prop("checked");
+        $(this).closest(".MultiCheckBoxDetail").find(".MultiCheckBoxDetailBody input").prop("checked", hc);
+        $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
+      });
+
+      $(document).on("click", ".MultiCheckBoxDetailHeader", function(e) {
+        var inp = $(this).find("input");
+        var chk = inp.prop("checked");
+        inp.prop("checked", !chk);
+        $(this).closest(".MultiCheckBoxDetail").find(".MultiCheckBoxDetailBody input").prop("checked", !chk);
+        $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
+      });
+
+      $(document).on("click", ".MultiCheckBoxDetail .cont input", function(e) {
+        e.stopPropagation();
+        $(this).closest(".MultiCheckBoxDetail").next().UpdateSelect();
+
+        var val = ($(".MultiCheckBoxDetailBody input:checked").length == $(".MultiCheckBoxDetailBody input").length)
+        $(".MultiCheckBoxDetailHeader input").prop("checked", val);
+      });
+
+      $(document).on("click", ".MultiCheckBoxDetail .cont", function(e) {
+        var inp = $(this).find("input");
+        var chk = inp.prop("checked");
+        inp.prop("checked", !chk);
+
+        var multiCheckBoxDetail = $(this).closest(".MultiCheckBoxDetail");
+        var multiCheckBoxDetailBody = $(this).closest(".MultiCheckBoxDetailBody");
+        multiCheckBoxDetail.next().UpdateSelect();
+
+        var val = ($(".MultiCheckBoxDetailBody input:checked").length == $(".MultiCheckBoxDetailBody input").length)
+        $(".MultiCheckBoxDetailHeader input").prop("checked", val);
+      });
+
+      $(document).mouseup(function(e) {
+        var container = $(".MultiCheckBoxDetail");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+          container.hide();
+        }
+      });
+    });
+
+    var defaultMultiCheckBoxOption = {
+      width: '220px',
+      defaultText: 'Select Below',
+      height: '200px'
+    };
+
+    jQuery.fn.extend({
+      CreateMultiCheckBox: function(options) {
+
+        var localOption = {};
+        localOption.width = (options != null && options.width != null && options.width != undefined) ? options.width : defaultMultiCheckBoxOption.width;
+        localOption.defaultText = (options != null && options.defaultText != null && options.defaultText != undefined) ? options.defaultText : defaultMultiCheckBoxOption.defaultText;
+        localOption.height = (options != null && options.height != null && options.height != undefined) ? options.height : defaultMultiCheckBoxOption.height;
+
+        this.hide();
+        this.attr("multiple", "multiple");
+        var divSel = $("<div class='MultiCheckBox'>" + localOption.defaultText + "<span class='k-icon k-i-arrow-60-down'><svg aria-hidden='true' focusable='false' data-prefix='fas' data-icon='sort-down' role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512' class='svg-inline--fa fa-sort-down fa-w-10 fa-2x'><path fill='currentColor' d='M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41z' class=''></path></svg></span></div>").insertBefore(this);
+        divSel.css({
+          "width": localOption.width
+        });
+
+        var detail = $("<div class='MultiCheckBoxDetail'><div class='MultiCheckBoxDetailHeader'><input type='checkbox' class='mulinput' value='-1982' /><div>Select All</div></div><div class='MultiCheckBoxDetailBody'></div></div>").insertAfter(divSel);
+        detail.css({
+          "width": parseInt(options.width) + 10,
+          "max-height": localOption.height
+        });
+        var multiCheckBoxDetailBody = detail.find(".MultiCheckBoxDetailBody");
+
+        this.find("option").each(function() {
+          var val = $(this).attr("value");
+
+          if (val == undefined)
+            val = '';
+
+          multiCheckBoxDetailBody.append("<div class='cont'><div><input type='checkbox' class='mulinput' value='" + val + "' /></div><div>" + $(this).text() + "</div></div>");
+        });
+
+        multiCheckBoxDetailBody.css("max-height", (parseInt($(".MultiCheckBoxDetail").css("max-height")) - 28) + "px");
+      },
+      UpdateSelect: function() {
+        var arr = [];
+
+        this.prev().find(".mulinput:checked").each(function() {
+          arr.push($(this).val());
+        });
+
+        this.val(arr);
+      },
+    });
+    $(function() {
+      $("#from_date, #to_date").datepicker({
+        dateFormat: "dd-mm-yy",
+        changeMonth: true,
+        changeYear: true,
+        autoclose: true,
+      });
+    });
+
+    var siteUrl = "{{url('/')}}";
+    $("#cus_search").autocomplete({
         minLength: 0,
-        source: siteUrl + '/list_customer',
+        source: siteUrl + '/' + "list_customer",
         focus: function(event, ui) {
-          $("#qsearch").val(ui.item.name);
+          //console.log(ui);
+          $("#cus_search").val(ui.item.name);
           return false;
         },
         select: function(event, ui) {
+          $("#cus_search").val(ui.item.name);
           $("#individual_id").val(ui.item.id);
           return false;
         }
-      }).autocomplete("instance")._renderItem = function(ul, item) {
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
         return $("<li>")
-          .append("<div>" + item.name + "<br> GSTIN - " + item.gstin + "</div>")
+          .append("<div>" + item.name + "</div>")
           .appendTo(ul);
       };
-    });
+  </script>
+
+  <script type="text/javascript">
+    // $(document).ready(function() {
+    //   var siteUrl = "{{url('/')}}";
+    //   $("#qsearch").autocomplete({
+    //     minLength: 0,
+    //     source: siteUrl + '/list_customer',
+    //     focus: function(event, ui) {
+    //       $("#qsearch").val(ui.item.name);
+    //       return false;
+    //     },
+    //     select: function(event, ui) {
+    //       $("#individual_id").val(ui.item.id);
+    //       return false;
+    //     }
+    //   }).autocomplete("instance")._renderItem = function(ul, item) {
+    //     return $("<li>")
+    //       .append("<div>" + item.name + "<br> GSTIN - " + item.gstin + "</div>")
+    //       .appendTo(ul);
+    //   };
+    // });
+    $("#item_search").autocomplete({
+        minLength: 0,
+        source: siteUrl + '/' + "fabric_list_item",
+        focus: function(event, ui) {
+          if (ui.item.part_number != '') {
+            $("#item_search").val(ui.item.item_name);
+            //$( "#product_name" ).val( ui.item.item_name + ' ' + ui.item.item_code );
+          } else {
+            $("#product_name").val(ui.item.item_name);
+          }
+          return false;
+        },
+        select: function(event, ui) {
+          if (ui.item.part_number != '') {
+            $("#product_name").val(ui.item.item_name);
+            //$( "#product_name" ).val( ui.item.item_name + ' ' + ui.item.item_code);
+          } else {
+            $("#product_name").val(ui.item.item_name);
+          }
+          return false;          
+        }
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+          //.append( "<div>" + item.item_name + " </div>" )
+          .append("<div>" + item.item_name + " </div>")
+          .appendTo(ul);
+      };
+
+      $("#ordNumSearch").autocomplete({
+        minLength: 0,
+        source: siteUrl + '/' + "list_saleOrderNumer",
+        focus: function(event, ui) {
+          $( "#ordNumSearch" ).val( ui.item.sale_order_number);
+		      return false;
+        },
+        select: function(event, ui) {
+          $("#ordNumSearch").val(ui.item.sale_order_number);
+          $("#saler_order_id").val(ui.item.sale_order_id);
+          return false;          
+        }
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+          //.append( "<div>" + item.item_name + " </div>" )
+          .append("<div>" + item.sale_order_number + " </div>")
+          .appendTo(ul);
+      };
   </script>
 
   <script type="text/javascript">
