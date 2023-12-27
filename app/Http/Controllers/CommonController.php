@@ -1413,6 +1413,22 @@ class CommonController extends Controller
 	}
 
 
+	public function list_transport(Request $request)
+    {
+		// echo "<pre>";  print_r($request->all()); exit;
+		$qsearch  =  $request->term;
+		$dataI = Individual::where(DB::raw("concat(name, email)"), 'LIKE', '%' . $qsearch . '%')
+                  ->where('type', '=', 'transport')
+                  ->where('status', '=', '1')
+                  ->limit(10)
+                  ->get();		 
+		// echo "<pre>";  print_r($dataI['0']->IndividualAddress->address_1); exit;
+		echo json_encode($dataI);
+
+    }
+
+
+
 
 
 
