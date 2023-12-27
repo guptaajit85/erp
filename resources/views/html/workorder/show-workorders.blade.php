@@ -97,14 +97,14 @@ use \App\Http\Controllers\CommonController;
                     @csrf
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" autofocus="autofocus" placeholder="Search by Customer Name. ">
-                      <input type="hidden" id="individual_id" name="individual_id" value="{{ $individualId }}">
+                      <input type="hidden" id="individual_id" name="individual_id" value="{{-- $individualId --}}">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="item_search" id="item_search" value="{{ $itemSearch }}" placeholder="Search by Item Name.">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="ordNumSearch" id="ordNumSearch" value="{{ $ordNumSearch }}" placeholder="Search by Sale Order Number.">
-                      <input type="hidden" id="saler_order_id" name="saler_order_id" value="{{-- $individualId --}}">
+                      <!-- <input type="hidden" id="qsaleOrderId" name="qsaleOrderId" value="{{-- $qsaleOrderId --}}"> -->
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <select class="form-control" name="priority" id="priority">
@@ -117,10 +117,17 @@ use \App\Http\Controllers\CommonController;
                     <div class="col-sm-2 col-xs-12">
                       <select class="form-control" name="search_process_id[]" id="search_process_id">
                         <option value="0">Select Process Type</option>
-                        @foreach($processI as $process)
+                        {{--@foreach($processI as $process)--}}
                         <!-- <option value="{{-- $process->id --}}" {{--@if(in_array($process->id,$search_process_id )) checked @endif--}} > {{-- $process->process_name --}} </option>  -->
-                        <option value="{{ $process->id }}"> {{ $process->process_name }} </option>
-                        @endforeach
+                        {{--@endforeach--}}
+                        <?php
+                        foreach($processI as $process)
+                        {
+                          ?>
+                         <option value="<?php echo $process->id; ?>" <?php echo in_array($process->id,$search_process_id) ? 'selected' : 'null';?>><?=$process->process_name;?></option>
+                         <?php
+                        }
+                        ?>
                       </select>
                     </div>
                     <div class="col-sm-2 col-xs-12">
@@ -1010,7 +1017,7 @@ use \App\Http\Controllers\CommonController;
     $(document).ready(function() {
       $("#search_process_id").CreateMultiCheckBox({
         width: '230px',
-        defaultText: 'Select Below',
+        //defaultText: 'Select Below',
         height: '250px'
       });
     });
@@ -1193,17 +1200,18 @@ use \App\Http\Controllers\CommonController;
           .append("<div>" + item.item_name + " </div>")
           .appendTo(ul);
       };
-
+      //console.log($("#ordNumSearch").val());
       $("#ordNumSearch").autocomplete({
         minLength: 0,
-        source: siteUrl + '/' + "list_saleOrderNumer",
+        source: siteUrl + '/' + "find_saleOrderNumer",
         focus: function(event, ui) {
+          //var ordNumSearch=$("#ordNumSearch").val();
           $( "#ordNumSearch" ).val( ui.item.sale_order_number);
 		      return false;
         },
         select: function(event, ui) {
           $("#ordNumSearch").val(ui.item.sale_order_number);
-          $("#saler_order_id").val(ui.item.sale_order_id);
+          //$("#qsaleOrderId").val(ui.item.sale_order_id);
           return false;          
         }
       })

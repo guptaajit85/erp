@@ -32,7 +32,7 @@
  =====================================================================-->
 <!-- Dashboard js -->
 <script src="{{ asset('assets/dist/js/dashboard.js') }}" type="text/javascript"></script>
-
+<script src="{{ asset('assets/dist/js/bootstrap-multiselect.js') }}" type="text/javascript"></script>
 <script>
 
 

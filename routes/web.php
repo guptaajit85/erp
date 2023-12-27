@@ -443,6 +443,7 @@ Route::get('/ajax_script/search_customer_address', [CommonController::class,'sea
 
 Route::get('/fabric_list_item',[CommonController::class,'fabric_list_item'])->name('fabric_list_item');
 
+Route::get('/find_saleOrderNumer',[CommonController::class,'find_saleOrderNumer'])->name('find_saleOrderNumer');
 
 Route::get('/show-usermoduleassignments',[App\Http\Controllers\UserModuleAssignmentController::class,'index'])->name('show-usermoduleassignments');
 Route::get('/edit-usermoduleassignment/{id}',[App\Http\Controllers\UserModuleAssignmentController::class,'edit_usermoduleassignment'])->name('edit-usermoduleassignment');
