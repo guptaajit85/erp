@@ -41,10 +41,13 @@ class WorkOrderController extends Controller
 
 	public function index(Request $request)
 	{
+    // echo "<pre>";
+    // print_r($request->all()); die;
 		$cusSearch 		= trim($request->cus_search);
 		$individualId 	= trim($request->individual_id);
 		$itemSearch 	= trim($request->item_search);
 		$ordNumSearch 	= trim($request->ordNumSearch);
+    //$qsaleOrderId=$request->qsaleOrderId;
 		$priority 		= trim($request->priority);
 		$search_process_id = $request->search_process_id;
 		//dd($request->all());
@@ -70,6 +73,13 @@ class WorkOrderController extends Controller
 		if (!empty($itemSearch)) {
 			// echo "dffdfdf"; exit;
 			$query->where(DB::raw("concat(item_name)"), 'LIKE', '%' . $itemSearch . '%');
+		}
+
+    if (!empty($ordNumSearch)) {
+      $saleOrderId = SaleOrder::where('sale_order_number', '=', $ordNumSearch)->pluck('sale_order_id');
+      //dd($saleOrderId);
+			$workorderids = WorkOrderItem::whereIn('sale_order_id', $saleOrderId)->where('status', '=', '1')->pluck('work_order_id')->implode(',');
+			$query->whereIn('work_order_id', explode(',', $workorderids));
 		}
 
 		if (!empty($priority)) {
