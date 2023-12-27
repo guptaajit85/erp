@@ -80,10 +80,10 @@
                   </div>
                </div>
 			   
-			    <div class="col-sm-6">
+			    <div class="col-sm-6" id="processTypeId">
 				    <div class="form-group">
 						<label> Department </label>
-						<select class="form-control" name="process_type_id" id="process_wise">
+						<select class="form-control" name="process_type_id" id="process_type_id">
 							<option value="">Select Process</option>
 							<?php foreach($dataPI as $row) { ?>
 								<option value="<?=$row->id;?>"><?=$row->process_name;?></option>
@@ -201,7 +201,12 @@
 		{			 
 			$("#passwordId").show();	
 			$("#adharcardId").hide(); 				
-		} 		
+		}
+ 		if (selectedType === 'transport') 
+		{ 
+			$("#processTypeId").hide();
+			$("#adharcardId").hide(); 		
+		} 	
 		if (selectedType === 'vendors' || selectedType === 'customers') {
 			gstinInput.setAttribute('required', true);
 			$("#gstinRe").show();

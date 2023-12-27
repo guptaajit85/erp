@@ -41,8 +41,7 @@ class WorkOrderController extends Controller
 
 	public function index(Request $request)
 	{
-    // echo "<pre>";
-    // print_r($request->all()); die;
+	  // echo "<pre>";  print_r($request->all()); exit;
 		$cusSearch 		= trim($request->cus_search);
 		$individualId 	= trim($request->individual_id);
 		$itemSearch 	= trim($request->item_search);
@@ -117,6 +116,7 @@ class WorkOrderController extends Controller
 		$dataITP  	= ItemType::where('status', '=', '1')->where('is_purchase', '=', '1')->get();
 		$dataI  	= Item::where('status', '=', '1')->get();
 		$priorityArr = config('global.priorityArr');
+		// echo "<pre>"; print_r($search_process_id);   exit;
 		return view('html.workorder.show-workorders', compact("dataWI", "cusSearch", "individualId", "itemSearch", "ordNumSearch", "priority", "dataMas", "machine", "processI", "dataW", "dataF", "dataIT", "dataI", "dataITP", "priorityArr", "search_process_id","fromDate","toDate"));
 	}
 

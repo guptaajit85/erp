@@ -1,5 +1,4 @@
 <?php
-
 use \App\Http\Controllers\CommonController;
 ?>
 <!DOCTYPE html>
@@ -76,9 +75,7 @@ use \App\Http\Controllers\CommonController;
 
 <body class="hold-transition sidebar-mini">
   <!--preloader-->
-  <div id="preloader">
-    <div id="status"></div>
-  </div>
+ 
   <!-- Site wrapper -->
   <div class="wrapper"> @include('common.header')
     <div class="content-wrapperd">
@@ -99,6 +96,7 @@ use \App\Http\Controllers\CommonController;
                       <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" autofocus="autofocus" placeholder="Search by Customer Name. ">
                       <input type="hidden" id="individual_id" name="individual_id" value="{{-- $individualId --}}">
                     </div>
+					
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="item_search" id="item_search" value="{{ $itemSearch }}" placeholder="Search by Item Name.">
                     </div>
@@ -114,28 +112,49 @@ use \App\Http\Controllers\CommonController;
                         @endforeach
                       </select>
                     </div>
-                    <div class="col-sm-2 col-xs-12">
-                      <select class="form-control" name="search_process_id[]" id="search_process_id">
-                        <option value="0">Select Process Type</option>
-                        {{--@foreach($processI as $process)--}}
-                        <!-- <option value="{{-- $process->id --}}" {{--@if(in_array($process->id,$search_process_id )) checked @endif--}} > {{-- $process->process_name --}} </option>  -->
-                        {{--@endforeach--}}
-                        <?php
-                        foreach($processI as $process)
-                        {
-                          ?>
-                         <option value="<?php echo $process->id; ?>" <?php echo in_array($process->id,$search_process_id) ? 'selected' : 'null';?>><?=$process->process_name;?></option>
-                         <?php
-                        }
-                        ?>
-                      </select>
-                    </div>
+					
+					
+					
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="from_date" id="from_date" placeholder="From Date" style="margin-left: 18px;" value="<?= $fromDate; ?>">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="to_date" id="to_date" placeholder="To Date" value="<?= $toDate; ?>">
                     </div>
+					
+                    <div class="col-sm-2 col-xs-12">Select Process</div>
+                    <div class="col-sm-8 col-xs-12">
+                   <div class="dropdown">
+						<button class="btn btn-default dropdown-toggle" type="button" id="processDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							Select Processes
+							<span class="caret"></span>
+						</button>
+						 <ul class="dropdown-menu" role="menu" aria-labelledby="processDropdown">
+							<?php
+							
+							$search_process_id = is_array($search_process_id) ? array_map('intval', $search_process_id) : [];
+					 	
+							
+							foreach ($processI as $process) {
+							?>
+							<li role="presentation">
+								<label>
+									<input type="checkbox" name="search_process_id[]" value="<?php echo $process->id; ?>" <?php echo (empty($search_process_id) || in_array($process->id, $search_process_id)) ? 'checked' : ''; ?>>
+									<?php echo $process->process_name; ?>
+								</label>
+							</li>
+							<?php
+							}
+							?>
+						</ul>
+
+					</div>
+				 
+                    </div>
+					
+					
+					
+					
                     <div class="col-sm-2 col-xs-12">
                       <input type="submit" name="sbtSearch" class="btn btn-success" value="Search">
                     </div>
@@ -1012,6 +1031,8 @@ use \App\Http\Controllers\CommonController;
     @include('common.footer')
   </div>
   @include('common.formfooterscript')
+ 
+ 
   <script type="text/javascript" src="{{ asset('js/jquery.validate.js') }}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
