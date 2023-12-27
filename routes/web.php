@@ -298,6 +298,9 @@ Route::get('/ajax_script/deletePackagingType', [App\Http\Controllers\PackagingTy
 
 
 Route::get('/show-packagings',[App\Http\Controllers\PackagingController::class,'index'])->name('show-packagings');
+Route::get('/transport-package-items/{id}',[App\Http\Controllers\PackagingController::class,'transport_packaging_items'])->name('transport-package-items');
+Route::post('/transportAllotment',[App\Http\Controllers\PackagingController::class,'transportAllotment'])->name('transportAllotment');
+Route::get('/ajax_script/getTransportDetails', [App\Http\Controllers\PackagingController::class,'getTransportDetails']);
 
 Route::get('/print-package-items/{id}',[App\Http\Controllers\PackagingController::class,'print_packaging_items'])->name('print-package-items');
 
@@ -421,6 +424,7 @@ Route::get('/ajax_script/deleteCustomer', [App\Http\Controllers\CustomerControll
 Route::get('/list_vendor',[CommonController::class,'list_vendor'])->name('list_vendor');
 Route::get('/list_customer',[CommonController::class,'list_customer'])->name('list_customer');
 Route::get('/list_employee',[CommonController::class,'list_employee'])->name('list_employee');
+Route::get('/list_transport',[CommonController::class,'list_transport'])->name('list_transport');
 Route::get('/list_item',[CommonController::class,'list_item'])->name('list_item');
 Route::get('/list_item_type',[CommonController::class,'list_item_type'])->name('list_item_type');
 Route::get('/list_purchase_items',[CommonController::class,'list_purchase_items'])->name('list_purchase_items');
