@@ -1289,7 +1289,9 @@ class WorkOrderController extends Controller
 		$dataPI 	= ProcessItem::where('status', '1')->get();
 		$dataIT 	= ItemType::where('status', '1')->where('is_work', '1')->get();
 		$dataUT 	= UnitType::where('status', '1')->orderByDesc('unit_type_id')->get();
-		$dataW 		= Warehouse::where('status', '1')->get();
+		// $dataW 		= Warehouse::where('status', '1')->orderByDesc('id')->get();
+		$dataW 		= Warehouse::where('status', '1')->orderBy('id', 'asc')->get();
+
 
 		return view('html.workorder.receive-work-item', compact('dataW', 'dataWI', 'dataPI', 'dataIT', 'dataWO', 'ItemTypeId', 'ProcessTypeId', 'inspId'));
 	}
@@ -1419,7 +1421,8 @@ class WorkOrderController extends Controller
 			'status'            => '1',
 		]);
 
-		foreach ($gate_pass_noArr as $gateId => $rowArr) {
+		foreach ($gate_pass_noArr as $gateId => $rowArr) 
+		{
 			$quan_size 	= $request->quan_size[$gateId];
 			$gateId 	= $request->gate_pass_no[$gateId];
 			$objWIS 	= new WarehouseItemStock;
@@ -1448,6 +1451,7 @@ class WorkOrderController extends Controller
 			$objWIS->status  				= 1;
 			$is_saved 						= $objWIS->save();
 		}
+		
 		if ($is_saved) {
 			WorkInspection::where('id', '=', $inspId)->update([
 				'item_interred_in_warehouse_by' => Auth::user()->individual_id,
