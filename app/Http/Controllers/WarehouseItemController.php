@@ -43,7 +43,7 @@ class WarehouseItemController extends Controller
  		$dataW 			= Warehouse::where('status', '=', '1')->orderByDesc('id')->get();	
 		 
 		
-		$query 			= WarehouseBalanceItem::where('status', '=', '1')->with('Warehouse')->with('WarehouseCompartment')->with('User')->with('Individual')->orderByDesc('id'); 		 
+		$query 			= WarehouseBalanceItem::where('status', '=', '1')->where('balance_status', '=', '1')->where('item_qty', '>', '0')->with('Warehouse')->with('WarehouseCompartment')->with('User')->with('Individual')->orderByDesc('id'); 		 
 		if(!empty($qsearch)) 
 		{  
 			$itemIds = Item::where(DB::raw("CONCAT(item_name, ' ', internal_item_name)"), 'LIKE', '%' . $qsearch . '%')->where('status', '=', '1')->pluck('item_id')->implode(',');     

@@ -19,9 +19,7 @@
 		{!! CommonController::display_message('message') !!}
           <div class="panel panel-bd lobidrag">
             <div class="panel-heading">
-              <div class="btn-group" id="buttonexport"><a href="javascript:void(0);">
-                <h4>Start Requisition For Dyeing Process</h4>
-                </a></div>
+              <div class="btn-group" id="buttonexport"><a href="javascript:void(0);"><h4>Start Requisition For Dyeing Process</h4></a></div>
             </div>
             <div class="panel-body">
 			<form method="post" action="{{ route('add_work_requisition_for_dyeing')}}" class="form-horizontal" autocomplete="off">
@@ -44,10 +42,10 @@
 									<th>Extra Job</th>  
 									<th>Print Job</th>   
 								</tr>								
-								<?php foreach($data['WorkOrderItem'] as $rowArr) 
+								<?php 
+									foreach($data['WorkOrderItem'] as $rowArr) 
 									{  
-										// echo "<pre>"; print_r($rowArr);
-										$item_name   = CommonController::getItemName($rowArr->item_id);
+										$item_name = CommonController::getItemName($rowArr->item_id);
 								?>
 								<tr> 
 									<td><?=$item_name;?> </td> 
@@ -78,7 +76,8 @@
                     <th>Unit</th>
                   </tr>
                   <tr>
-                    <td><select  class="form-control" name="req_item_id[]">
+                    <td>
+						<select  class="form-control" name="req_item_id[]">
                         <option value=""> Select Item</option>
                         <?php foreach($dataIC as $rowArr) { ?>
 							<option value="<?=$rowArr->item_id;?>"><?=$rowArr->item_name;?></option>
