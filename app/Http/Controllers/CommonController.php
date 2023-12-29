@@ -1251,19 +1251,18 @@ class CommonController extends Controller
   }
 
 
-	public function list_transport(Request $request)
-    {
-		// echo "<pre>";  print_r($request->all()); exit;
-		$qsearch  =  $request->term;
-		$dataI = Individual::where(DB::raw("concat(name, email)"), 'LIKE', '%' . $qsearch . '%')
-                  ->where('type', '=', 'transport')
-                  ->where('status', '=', '1')
-                  ->limit(10)
-                  ->get();		 
-		// echo "<pre>";  print_r($dataI['0']->IndividualAddress->address_1); exit;
-		echo json_encode($dataI);
-
-    }
+  public function list_transport(Request $request)
+  {
+    // echo "<pre>";  print_r($request->all()); exit;
+    $qsearch  =  $request->term;
+    $dataI = Individual::where(DB::raw("concat(name, email)"), 'LIKE', '%' . $qsearch . '%')
+      ->where('type', '=', 'transport')
+      ->where('status', '=', '1')
+      ->limit(10)
+      ->get();
+    // echo "<pre>";  print_r($dataI['0']->IndividualAddress->address_1); exit;
+    echo json_encode($dataI);
+  }
 
 
 
@@ -1382,14 +1381,47 @@ class CommonController extends Controller
     // return $result . "Rupees  " . $points . " Paise";
     return ucwords($result);
   }
-
-  public function find_saleOrderNumer(Request $request)
+  
+  public static function find_saleOrderNumer(Request $request)
   {
-    $qsearch  =  $request->term;
-    //dd($qsearch);
-    //\DB::enableQueryLog();
-    $dataI = SaleOrder::where('sale_order_number', 'like', '%' .$qsearch. '%')->get();
-    //dd(\DB::getQueryLog());
-    echo json_encode($dataI);
+      $qsearch  =  $request->term;     
+      $dataI = SaleOrder::where('sale_order_number', 'like', '%' . $qsearch . '%')->get();    
+      echo json_encode($dataI);
+  }
+  public static function getItemTypeNameUnitType($itemTypeId)
+  {
+    error_reporting(0);
+    // $userId = Auth::id();
+    $itemD   = ItemType::where('item_type_id', $itemTypeId)->first();
+    $itemTypeName=$itemD->item_type_name;
+    $unitTypeId=$itemD->unit_type_id;
+    $itemDetails['item_type_name']=$itemTypeName;
+    $itemDetails['unit_type']=$unitTypeId;
+    //return  $itemD->item_type_name;
+    //dd($itemDetails);
+    return  $itemDetails;
+  }
+
+  public static function itemAvailableDetails($woId)
+  {
+     
+    $item = WorkProcessRequirement::where('work_order_id', '=', $woId)->get();     
+    $balance = []; 
+    foreach($item as $row)
+    {
+        $itemId = $row->item_id;
+        $itemtypeId = $row->item_type_id;
+
+        $result['quantity'] = static::getTotalAvalableStockItem($itemId,$itemtypeId);
+        $result['item_name']=static::getItemInternalName($itemId);
+        $itemDetails=static::getItemTypeNameUnitType($itemtypeId);
+        $result['item_type_name']=$itemDetails['item_type_name'];
+        $result['unit_type']=static::getUnitTypeName($itemDetails['unit_type']);
+        $balance[]=$result;
+    }     
+    //return implode('<br/>', $result);
+    //dd($result);
+    return $balance;
   }
 }
+ 
