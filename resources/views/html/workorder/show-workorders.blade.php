@@ -1,18 +1,15 @@
-<?php
-
+<?php 
 use \App\Http\Controllers\CommonController;
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
-<head>@include('common.head')
+<head>
+  @include('common.head')   
 </head>
 
 <body class="hold-transition sidebar-mini">
   <!--preloader-->
-  <div id="preloader">
-    <div id="status"></div>
-  </div>
+ 
   <!-- Site wrapper -->
   <div class="wrapper"> @include('common.header')
     <div class="content-wrapperd">
@@ -27,17 +24,19 @@ use \App\Http\Controllers\CommonController;
               </div>
               <div class="panel-body">
                 <div class="row" style="margin-bottom:5px">
-                  <form action="{{ route('show-workorders') }}" method="GET" role="search">
+                  <form action="{{ route('show-workorders') }}" method="GET" role="search" autocomplete="off">
                     @csrf
                     <div class="col-sm-2 col-xs-12">
-                      <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" placeholder="Search by Customer Name. ">
-                      <input type="hidden" id="individual_id" name="individual_id" value="{{ $individualId }}">
+                      <input type="text" class="form-control" name="cus_search" id="cus_search" value="{{ $cusSearch }}" autofocus="autofocus" placeholder="Search by Customer Name. ">
+                      <input type="hidden" id="individual_id" name="individual_id" value="{{-- $individualId --}}">
                     </div>
+					
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="item_search" id="item_search" value="{{ $itemSearch }}" placeholder="Search by Item Name.">
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="ordNumSearch" id="ordNumSearch" value="{{ $ordNumSearch }}" placeholder="Search by Sale Order Number.">
+                      <!-- <input type="hidden" id="qsaleOrderId" name="qsaleOrderId" value="{{-- $qsaleOrderId --}}"> -->
                     </div>
                     <div class="col-sm-2 col-xs-12">
                       <select class="form-control" name="priority" id="priority">
@@ -47,15 +46,38 @@ use \App\Http\Controllers\CommonController;
                         @endforeach
                       </select>
                     </div>
+					
                     <div class="col-sm-2 col-xs-12">
-                      <select class="form-control" name="search_process_id[]" id="search_process_id" multiple>
-                        <option value="">Select Process Type</option>
-                        @foreach($processI as $process)
-                        <!-- <option value="{{-- $process->id --}}" {{--@if(in_array($process->id,$search_process_id,)) selected @endif --}}> {{-- $process->process_name --}} </option> -->
-                        <option value="{{ $process->id }}"> {{ $process->process_name }} </option>
-                        @endforeach
-                      </select>
+                      <input type="text" class="form-control" name="from_date" id="from_date" placeholder="From Date" style="margin-left: 18px;" value="<?= $fromDate; ?>">
                     </div>
+                    <div class="col-sm-2 col-xs-12">
+                      <input type="text" class="form-control" name="to_date" id="to_date" placeholder="To Date" value="<?= $toDate; ?>">
+                    </div> 
+					
+                    <div class="col-sm-2 col-xs-12">
+						<div class="dropdown">
+							<button class="btn btn-default dropdown-toggle" type="button" id="processDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								Select Processes
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="processDropdown">
+								<?php
+								$search_process_id = is_array($search_process_id) ? array_map('intval', $search_process_id) : [];
+								foreach ($processI as $process) {
+								?>
+								<li role="presentation">
+									<label>
+										<input type="checkbox" name="search_process_id[]" value="<?php echo $process->id; ?>" <?php echo (!empty($search_process_id) && in_array($process->id, $search_process_id)) ? 'checked' : ''; ?>>
+										<?php echo $process->process_name; ?>
+									</label>
+								</li>
+								<?php
+								}
+								?>
+							</ul>
+
+						</div>				 
+                    </div> 
                     <div class="col-sm-2 col-xs-12">
                       <input type="submit" name="sbtSearch" class="btn btn-success" value="Search">
                     </div>
@@ -87,37 +109,36 @@ use \App\Http\Controllers\CommonController;
                       <?php
                       foreach ($dataWI as $data) {
                         //   echo "<pre>"; print_r($data); // exit;
-                        $WOItem = $data['WorkOrderItem'];
-                        $Id   = $data->work_order_id;
+                        $WOItem 							= $data['WorkOrderItem'];
+                        $Id   								= $data->work_order_id;
 
-                        $proTypeId       = $data->process_type_id;
-                        $quantity       = $data->quantity;
-                        $masterIndId     = $data->master_ind_id;
-                        $machineId       = $data->machine_id;
-                        $outputQuantity   = $data->output_quantity;
-                        $outputProcess     = $data->output_process;
-                        $endProcessEmpId   = $data->machine_id;
-                        $inspWorkStatusProcess     = $data->insp_status;
-                        $WorkStatusProcess       = $data->work_status;
-                        $isWarehouseAccepted     = $data->is_warehouse_accepted;
-                        $work_req_send_by       = $data->work_req_send_by;
-                        $WorkRequireReqAccepted   = $data->is_work_require_request_accepted;
-
-                        $IsGatePassGenrated         = $data->is_gatepass_genrated_by_warehouse;
-                        $isItemReceivedFromWarehouse     = $data->is_item_received_from_warehouse;
-                        $GatePassGenratedBy         = $data['GatepassGenratedByWarehouseUser'] ? $data['GatepassGenratedByWarehouseUser']->name : 'N/A';
-                        $ReqSendBy               = $data['WorkReqSend'] ? $data['WorkReqSend']->name : 'N/A';
-                        $internalName             = $data['Item']->internal_item_name;
-                        $processName             = $data['ProcessType']->process_name;
+                        $proTypeId       					= $data->process_type_id;
+                        $quantity       					= $data->quantity;
+                        $masterIndId     					= $data->master_ind_id;
+                        $machineId       					= $data->machine_id;
+                        $outputQuantity   					= $data->output_quantity;
+                        $outputProcess     					= $data->output_process;
+                        $endProcessEmpId   					= $data->machine_id;
+                        $inspWorkStatusProcess     			= $data->insp_status;
+                        $WorkStatusProcess       			= $data->work_status;
+                        $isWarehouseAccepted     			= $data->is_warehouse_accepted;
+                        $work_req_send_by       			= $data->work_req_send_by;
+                        $WorkRequireReqAccepted   			= $data->is_work_require_request_accepted;
+                        $IsGatePassGenrated         		= $data->is_gatepass_genrated_by_warehouse;
+                        $isItemReceivedFromWarehouse     	= $data->is_item_received_from_warehouse;
+                        $GatePassGenratedBy         		= $data['GatepassGenratedByWarehouseUser'] ? $data['GatepassGenratedByWarehouseUser']->name : 'N/A';
+                        $ReqSendBy               			= $data['WorkReqSend'] ? $data['WorkReqSend']->name : 'N/A';
+                        $internalName             			= $data['Item']->internal_item_name;
+                        $processName             			= $data['ProcessType']->process_name;
 
                       ?>
 
                         <tr id="Mid{{ $Id }}">
                           <td>
-                            <?= $data->process_type; ?><?= $data->process_sl_no; ?> <?= $Id; ?><br> 
-                            <?php  
-                              $created = date("d-m-Y", strtotime($data->created));
-                              echo $created; 
+                            <?= $data->process_type; ?><?= $data->process_sl_no; ?> <?= $Id; ?><br>
+                            <?php
+                            $created = date("d-m-Y", strtotime($data->created));
+                            echo $created;
                             ?>
                           </td>
                           <td>
@@ -170,6 +191,7 @@ use \App\Http\Controllers\CommonController;
                               <p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
                             <?php } ?>
                           </td>
+						  
                           <td>{{ $inspWorkStatusProcess }}</td>
                           <td class="center">
                             <?php if ($isWarehouseAccepted == 'Yes' && $WorkRequireReqAccepted == 'Yes' && $proTypeId > 1) { ?>
@@ -202,15 +224,15 @@ use \App\Http\Controllers\CommonController;
                                 <?php } ?>
 
 
-                                <?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
+                                <?php /* if($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
                                   <form method="post" action="{{ route('create_work_order_for_packaging') }}" class="form-horizontal">
                                     @csrf
-                                    <input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
+                                    <input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
                                     <div class="modal-footer">
                                       <button type="submit" class="btn btn-success pull-left">Create Packaging</button>
                                     </div>
                                   </form>
-                                <?php } ?>
+                                <?php } */ ?>
 
 
 
@@ -284,10 +306,12 @@ use \App\Http\Controllers\CommonController;
                               <?php } ?>
 
                             <?php } ?>
-
+								
+							<p style="margin-top: 10px;">
                             <a target="_blank" href="workorder-details/{{ base64_encode($Id) }}" title="View Work Order Details" class="tooltip-info">
                               <label class="label bg-green"><i class="fa fa-eye" aria-hidden="true"></i></label>
-                            </a>
+                            </a></p>	
+							 
                           </td>
 
 
@@ -295,7 +319,7 @@ use \App\Http\Controllers\CommonController;
                         </tr>
                       <?php } ?>
                       <tr class="center text-center">
-                        <td class="center" colspan="13">
+                        <td class="center" colspan="15">
                           <div class="pagination"> {{ $dataWI->links('vendor.pagination.bootstrap-4') }}</div>
                         </td>
                       </tr>
@@ -932,28 +956,111 @@ use \App\Http\Controllers\CommonController;
     @include('common.footer')
   </div>
   @include('common.formfooterscript')
+ 
+ 
   <script type="text/javascript" src="{{ asset('js/jquery.validate.js') }}"></script>
-
   <script type="text/javascript">
-    $(document).ready(function() {
-      var siteUrl = "{{url('/')}}";
-      $("#qsearch").autocomplete({
+     
+    $(function() {
+      $("#from_date, #to_date").datepicker({
+        dateFormat: "dd-mm-yy",
+        changeMonth: true,
+        changeYear: true,
+        autoclose: true,
+      });
+    });
+
+    var siteUrl = "{{url('/')}}";
+    $("#cus_search").autocomplete({
         minLength: 0,
-        source: siteUrl + '/list_customer',
+        source: siteUrl + '/' + "list_customer",
         focus: function(event, ui) {
-          $("#qsearch").val(ui.item.name);
+          //console.log(ui);
+          $("#cus_search").val(ui.item.name);
           return false;
         },
         select: function(event, ui) {
+          $("#cus_search").val(ui.item.name);
           $("#individual_id").val(ui.item.id);
           return false;
         }
-      }).autocomplete("instance")._renderItem = function(ul, item) {
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
         return $("<li>")
-          .append("<div>" + item.name + "<br> GSTIN - " + item.gstin + "</div>")
+          .append("<div>" + item.name + "</div>")
           .appendTo(ul);
       };
-    });
+  </script>
+
+  <script type="text/javascript">
+    // $(document).ready(function() {
+    //   var siteUrl = "{{url('/')}}";
+    //   $("#qsearch").autocomplete({
+    //     minLength: 0,
+    //     source: siteUrl + '/list_customer',
+    //     focus: function(event, ui) {
+    //       $("#qsearch").val(ui.item.name);
+    //       return false;
+    //     },
+    //     select: function(event, ui) {
+    //       $("#individual_id").val(ui.item.id);
+    //       return false;
+    //     }
+    //   }).autocomplete("instance")._renderItem = function(ul, item) {
+    //     return $("<li>")
+    //       .append("<div>" + item.name + "<br> GSTIN - " + item.gstin + "</div>")
+    //       .appendTo(ul);
+    //   };
+    // });
+    $("#item_search").autocomplete({
+        minLength: 0,
+        source: siteUrl + '/' + "fabric_list_item",
+        focus: function(event, ui) {
+          if (ui.item.part_number != '') {
+            $("#item_search").val(ui.item.item_name);
+            //$( "#product_name" ).val( ui.item.item_name + ' ' + ui.item.item_code );
+          } else {
+            $("#product_name").val(ui.item.item_name);
+          }
+          return false;
+        },
+        select: function(event, ui) {
+          if (ui.item.part_number != '') {
+            $("#product_name").val(ui.item.item_name);
+            //$( "#product_name" ).val( ui.item.item_name + ' ' + ui.item.item_code);
+          } else {
+            $("#product_name").val(ui.item.item_name);
+          }
+          return false;          
+        }
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+          //.append( "<div>" + item.item_name + " </div>" )
+          .append("<div>" + item.item_name + " </div>")
+          .appendTo(ul);
+      };
+      //console.log($("#ordNumSearch").val());
+      $("#ordNumSearch").autocomplete({
+        minLength: 0,
+        source: siteUrl + '/' + "find_saleOrderNumer",
+        focus: function(event, ui) {
+          //var ordNumSearch=$("#ordNumSearch").val();
+          $( "#ordNumSearch" ).val( ui.item.sale_order_number);
+		      return false;
+        },
+        select: function(event, ui) {
+          $("#ordNumSearch").val(ui.item.sale_order_number);
+          //$("#qsaleOrderId").val(ui.item.sale_order_id);
+          return false;          
+        }
+      })
+      .autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+          //.append( "<div>" + item.item_name + " </div>" )
+          .append("<div>" + item.sale_order_number + " </div>")
+          .appendTo(ul);
+      };
   </script>
 
   <script type="text/javascript">

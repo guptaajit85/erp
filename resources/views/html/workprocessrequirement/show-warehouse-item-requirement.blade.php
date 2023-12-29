@@ -39,11 +39,13 @@
                  <table id="dataTableExample1" class="table table-bordered table-striped table-hover">
 					<thead>
 						<tr class="info">
-							<th>Request Id</th>
+							<!-- <th>Request Id</th> -->
+              <th>Request Details</th>
 							<th>Work Order Id</th>
 							<th>Process Type</th>
 							<th>Item Type</th>
-							<th>Work Request Send By</th>
+							<!-- <th>Work Request Send By</th> -->
+              <th>Availability</th>
 							<th>Status</th>
 							<th>Allotment</th>
 						</tr>
@@ -58,15 +60,30 @@
 								$isProAccByWarehouse   = $data->is_pro_acc_by_warehouse;
 								$processAcceptedBy     = CommonController::getEmpName($process_accepted_by);
 								$processDenyBy         = CommonController::getEmpName($process_deny_by);
+                $itemAvailableDetails = CommonController::itemAvailableDetails($woId);
+                //echo "<pre>"; print_r($itemAvailableDetails);
 							?>
 							<tr id="Mid{{ $data->id }}">
-								<td>{{ $wprId }}</td>
+								<td>
+                  {{ $wprId }}<br>
+                  @php
+                    $created = date("d-m-Y", strtotime($data->created));
+                  @endphp  
+                  {{ $created }}<br>
+                  {{ CommonController::getEmpName($data->work_req_send_by) }}
+                </td>
 								<td>{{ $data['WorkOrder']->process_type }}{{ $data['WorkOrder']->process_sl_no }}</td>
 								<td>{{ CommonController::getProcessName($data->process_type_id) }}</td>
 								<td>{{ CommonController::getItemType($data->item_type_id) }} <br>
 									<a href="javascript:void(0);" onClick="getProcessRequirementItems({{ $woId }})" class="btn btn-info btn-xs">View</a>
 								</td>
-								<td>{{ CommonController::getEmpName($data->work_req_send_by) }}</td>
+								<!-- <td>{{-- CommonController::getEmpName($data->work_req_send_by) --}}</td> -->
+                <td>
+                  @foreach($itemAvailableDetails as $key=>$available)
+                    <strong>Item name:</strong> {{ $available['item_name']}}<br>
+                    <strong>Available Quantity:</strong> {{ $available['quantity']}} {{$available['unit_type']}} {{$available['item_type_name']}}<br>
+                  @endforeach  
+                </td>
 								<td class="center" id="Waccepted{{ $data->id }}">
 									<?php if(empty($isProAccByWarehouse)) { ?>
 										<a href="{{ route('accept-warehouse-item-requirement', base64_encode($woId)) }}" target="_blank" class="btn btn-success btn-xs">Accept</a>

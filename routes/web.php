@@ -298,6 +298,9 @@ Route::get('/ajax_script/deletePackagingType', [App\Http\Controllers\PackagingTy
 
 
 Route::get('/show-packagings',[App\Http\Controllers\PackagingController::class,'index'])->name('show-packagings');
+Route::get('/transport-package-items/{id}',[App\Http\Controllers\PackagingController::class,'transport_packaging_items'])->name('transport-package-items');
+Route::post('/transportAllotment',[App\Http\Controllers\PackagingController::class,'transportAllotment'])->name('transportAllotment');
+Route::get('/ajax_script/getTransportDetails', [App\Http\Controllers\PackagingController::class,'getTransportDetails']);
 
 Route::get('/print-package-items/{id}',[App\Http\Controllers\PackagingController::class,'print_packaging_items'])->name('print-package-items');
 
@@ -369,6 +372,10 @@ Route::get('/add-transport/{id}',[App\Http\Controllers\TransportController::clas
 Route::post('/store_transport',[App\Http\Controllers\TransportController::class,'store_transport'])->name('store_transport');
 Route::get('/ajax_script/deleteTransport', [App\Http\Controllers\TransportController::class,'deleteTransport']);
 
+Route::get('/show-alloted-transport',[App\Http\Controllers\TransportController::class,'index'])->name('show-alloted-transport');
+// new route by PK //
+Route::get('/show-transport-allotments',[App\Http\Controllers\TransportController::class,'showTransportAllotments'])->name('show-transport-allotments');
+// new route by PK //
 Route::get('/show-individualaddresses',[App\Http\Controllers\IndividualAddressController::class,'index'])->name('show-individualaddresses');
 Route::get('/edit-individualaddress/{id}',[App\Http\Controllers\IndividualAddressController::class,'edit_individualaddress'])->name('edit-individualaddress');
 Route::post('/update_individualaddress',[App\Http\Controllers\IndividualAddressController::class,'update_individualaddress'])->name('update_individualaddress');
@@ -421,6 +428,7 @@ Route::get('/ajax_script/deleteCustomer', [App\Http\Controllers\CustomerControll
 Route::get('/list_vendor',[CommonController::class,'list_vendor'])->name('list_vendor');
 Route::get('/list_customer',[CommonController::class,'list_customer'])->name('list_customer');
 Route::get('/list_employee',[CommonController::class,'list_employee'])->name('list_employee');
+Route::get('/list_transport',[CommonController::class,'list_transport'])->name('list_transport');
 Route::get('/list_item',[CommonController::class,'list_item'])->name('list_item');
 Route::get('/list_item_type',[CommonController::class,'list_item_type'])->name('list_item_type');
 Route::get('/list_purchase_items',[CommonController::class,'list_purchase_items'])->name('list_purchase_items');
@@ -439,6 +447,7 @@ Route::get('/ajax_script/search_customer_address', [CommonController::class,'sea
 
 Route::get('/fabric_list_item',[CommonController::class,'fabric_list_item'])->name('fabric_list_item');
 
+Route::get('/find_saleOrderNumer',[CommonController::class,'find_saleOrderNumer'])->name('find_saleOrderNumer');
 
 Route::get('/show-usermoduleassignments',[App\Http\Controllers\UserModuleAssignmentController::class,'index'])->name('show-usermoduleassignments');
 Route::get('/edit-usermoduleassignment/{id}',[App\Http\Controllers\UserModuleAssignmentController::class,'edit_usermoduleassignment'])->name('edit-usermoduleassignment');
@@ -492,10 +501,23 @@ Route::post('/store_user',[App\Http\Controllers\UserController::class,'store_use
 
 Route::get('/show-saleentries',[App\Http\Controllers\SaleEntryController::class,'index'])->name('show-saleentries');
 Route::post('/update_saleentry',[App\Http\Controllers\SaleEntryController::class,'update'])->name('update_saleentry');
+
 Route::get('/add-saleentry',[App\Http\Controllers\SaleEntryController::class,'create'])->name('add-saleentry');
+
+Route::get('/create-invoice-for-package/{id}',[App\Http\Controllers\SaleEntryController::class,'createInvoiceForPackage'])->name('create-invoice-for-package');
+
+
+// Route::post('/genrate_package_invoice',[App\Http\Controllers\PackagingController::class,'genrate_package_invoice'])->name('genrate_package_invoice'); 
+
+Route::post('/genrateInvoiceForPackage',[App\Http\Controllers\SaleEntryController::class,'genrateInvoiceForPackage'])->name('genrateInvoiceForPackage');
 Route::post('/store_saleentry',[App\Http\Controllers\SaleEntryController::class,'store'])->name('store_saleentry');
+
+
+
 Route::get('/print-saleentry/{id}',[App\Http\Controllers\SaleEntryController::class,'print_sale_entry'])->name('print-saleentry');
 Route::get('/ajax_script/deleteSaleEntry', [App\Http\Controllers\SaleEntryController::class,'deleteSaleEntry']);
+
+
 
 Route::get('/show-workorders',[App\Http\Controllers\WorkOrderController::class,'index'])->name('show-workorders');
 Route::get('/add-workorder',[App\Http\Controllers\WorkOrderController::class,'create'])->name('add-workorder');

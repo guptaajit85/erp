@@ -19,12 +19,10 @@
 		{!! CommonController::display_message('message') !!}
           <div class="panel panel-bd lobidrag">
             <div class="panel-heading">
-              <div class="btn-group" id="buttonexport"><a href="javascript:void(0);">
-                <h4>Start Requisition For Dyeing Process</h4>
-                </a></div>
+              <div class="btn-group" id="buttonexport"><a href="javascript:void(0);"><h4>Start Requisition For Dyeing Process</h4></a></div>
             </div>
             <div class="panel-body">
-			<form method="post" action="{{ route('add_work_requisition_for_dyeing')}}" class="form-horizontal" autocomplete="off">
+			<form method="post" action="{{ route('add_work_requisition_for_dyeing') }}" class="form-horizontal" autocomplete="off">
 			@csrf
               <table class="table table-bordered">
                 <tbody>
@@ -44,10 +42,10 @@
 									<th>Extra Job</th>  
 									<th>Print Job</th>   
 								</tr>								
-								<?php foreach($data['WorkOrderItem'] as $rowArr) 
+								<?php 
+									foreach($data['WorkOrderItem'] as $rowArr) 
 									{  
-										// echo "<pre>"; print_r($rowArr);
-										$item_name   = CommonController::getItemName($rowArr->item_id);
+										$item_name = CommonController::getItemName($rowArr->item_id);
 								?>
 								<tr> 
 									<td><?=$item_name;?> </td> 
@@ -78,7 +76,8 @@
                     <th>Unit</th>
                   </tr>
                   <tr>
-                    <td><select  class="form-control" name="req_item_id[]">
+                    <td>
+						<select  class="form-control" name="req_item_id[]">
                         <option value=""> Select Item</option>
                         <?php foreach($dataIC as $rowArr) { ?>
 							<option value="<?=$rowArr->item_id;?>"><?=$rowArr->item_name;?></option>
@@ -118,8 +117,8 @@
 				?> 
 				   <tr>                   
                     <td> <?=$item_name;?> </td> 
-                    <td>   <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
-                    <td>  <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
+                    <td> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>
+                    <td> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
                     <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>
                   </tr>	 				  
 				<?php } ?>   
@@ -131,7 +130,9 @@
 			<?php 
 				$unitTypeId = 2;
 				$balanceQ =  CommonController::check_warehouse_item_type_balance($itemId,$itemTypeId,$unitTypeId);
+				$flag 	= !empty($balanceQ) ? 1 : 0;			
 			?>	 
+			
 			  <input type="hidden" id="itemIdReq" name="itemIdReq" value="<?=$itemId;?>">
                     <input type="hidden" id="work_order_id_req" name="work_order_id_req" value="<?=$workOrderId;?>">
 					<input type="hidden" min="1" max="<?=$balanceQ;?>" id="tot_req_quantity" name="tot_req_quantity" required> 
@@ -152,7 +153,15 @@
               </table>	 
 			<?php */ ?>  
 			  
-			  <button type="submit" class="btn btn-success pull-left">Send Requisition </button>
+			
+				<?php if (empty($flag)) { ?>
+					<p> Note: <b style="color: red;">Some Item Not Available in Warehouse.</b></p>
+				<?php } ?>
+				<?php if (!empty($flag)) { ?> 
+					<button type="submit" class="btn btn-success pull-left">Send Requisition</button>
+				<?php } ?>
+			 
+			
 			</form>
 			  
 			</div> 

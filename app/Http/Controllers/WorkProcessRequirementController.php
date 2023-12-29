@@ -34,8 +34,9 @@ class WorkProcessRequirementController extends Controller
     public function index()
     {
 		$query = WorkProcessRequirement::where('is_accept', '!=', '2')->groupBy('work_order_id')->groupBy('is_accept')->orderByDesc('id');
+    //\DB::enableQueryLog();
 		$dataWPR = $query->paginate(20);
-		 
+		//dd(\DB::getQueryLog()); 
 		/*
 			$sql = $query->toSql();
 			$bindings = $query->getBindings();		 
@@ -46,6 +47,7 @@ class WorkProcessRequirementController extends Controller
  		
 	   return view('html.workprocessrequirement.show-warehouse-item-requirement', compact("dataWPR"));
     }
+	
 
 	public function accept_warehouse_item_requirement($Id)
     {

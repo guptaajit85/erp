@@ -26,5 +26,8 @@ class Individual extends Model
     {
        return $this->hasOne(User::class, 'individual_id','id');
     }
-
+  public function transPortDetails()
+  {
+    return $this->belongsTo(Individual::class,'packaging_ord_id','id')->select(['name']);
+  }  
 }

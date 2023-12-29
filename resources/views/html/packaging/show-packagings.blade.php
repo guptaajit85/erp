@@ -71,75 +71,204 @@ use App\Http\Controllers\CommonController;
 						$shiping_address 	= $data->shiping_address;
 						$billing_address 	= $data->billing_address;
 						$isInvGenerated 	= $data->is_invoice_generated;	
+						$isTransportAlloted = $data->is_transport_alloted;	
 						$poId 				= $data->id;				
 					 ?>
 				  <tr>
 					 <td> <?=(1000+$data->id);?> </td>
 					 <td> <?=$customerName;?> </td>
 					 <td>
-						<div class="address-container">
-						    
-						   <div class="address-value">{{ $data->shiping_address }}</div>
-						   
+						<div class="address-container"> 
+						   <div class="address-value">{{ $data->shiping_address }}</div> 
 						</div>
 					 </td>	
 					 <td>
-						<div class="address-container">
-						   
-						 
+						<div class="address-container">					 
 						   <div class="address-value">{{ $data->billing_address }}</div>
 						</div>
 					 </td>
-					  
 					 
-					 <td>   
+					<td> 
+						<?php if($isInvGenerated == 'No') { ?> 
+							<p><a target="_blank" href="create-invoice-for-package/{{ base64_encode($poId) }}" class="tooltip-info">
+								<label class="label bg-green"><i class="fa fa-file-text-o" aria-hidden="true"></i> Generate Invoice</label>
+							</a></p>
+						<?php } else { ?>
+							<p><a target="_blank" href="print-saleentry/{{ base64_encode($data->sale_entry_id) }}" class="tooltip-info">
+								<label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Invoice Generated</label>
+							</a></p>
 
-					<?php if($isInvGenerated == 'No') { ?> 				 
-					<form method="post" action="{{ route('genrate_package_invoice') }}" class="form-horizontal">
-						@csrf
-						<input type="hidden" name="package_order_id" id="package_order_id" value="<?=$poId;?>">
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-success pull-left">Genrate Invoice</button>
-						</div>
-					</form>					 
-					<?php } else {  ?>
-					
-					<p> <a target="_blank" href="print-saleentry/{{ base64_encode($data->sale_entry_id) }}" class="tooltip-info">
-                      <label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Invoice Generated</label>
-                      </a> 
-					  </p>
-					<p>  <a target="_blank" href="print-package-items/{{ base64_encode($data->id) }}" class="tooltip-info">
-                      <label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Print Package Items</label>
-                      </a> 
-					   </p>
+							<p><a target="_blank" href="print-package-items/{{ base64_encode($data->id) }}" class="tooltip-info">
+								<label class="label bg-green"><i class="fa fa-print" aria-hidden="true"></i> Print Package Items</label>
+							</a></p>
+
+							<p>
+								<?php if($isTransportAlloted == 'No') { ?>
+									<a href="transport-package-items/{{ base64_encode($data->id) }}" class="tooltip-info">
+										<label class="label bg-green"><i class="fa fa-truck" aria-hidden="true"></i> Allot Transport</label>
+									</a>
+								<?php } else if($isTransportAlloted == 'Yes') { ?>
+									 
+									
+									<a href="javascript:void(0);" onClick="viewAllotedTransport({{ $data->id }})" class="tooltip-info">
+									<label class="label bg-green"><i class="fa fa-eye" aria-hidden="true"></i> View Alloted Transport</label>
+									</a>
+									 
+								<?php } ?>
+							</p>
+						<?php } ?>
+					</td>
+ 
 					 
-					<?php } ?>
 					 
-					 </td>
+					 
 				  </tr>
 				  <?php } ?>
 				  <tr class="center text-center">
-					 <td class="center" colspan="5">
-						<div class="pagination">{{ $dataP->links() }}</div>
-					 </td>
+					 <td class="center" colspan="5"> <div class="pagination">{{ $dataP->links() }}</div> </td>
 				  </tr>
 			   </tbody>
 			</table>
 			
         </div>
-      </div>
+     
+	 </div>
     </div>
     </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
   <!-- /.content-wrapper -->
-  @include('common.footer') </div>
+  @include('common.footer') 
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="viewTransportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+             <div class="modal-header modal-header-primary">
+                <h5 class="modal-title" id="exampleModalLabel">Transport Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+			<div class="modal-body">
+				<table class="table table-bordered">
+				    <tr>
+						<td colspan="2" style="text-align: center; font-weight: bold;">
+							<span id="transportName"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><strong>Allotment ID:</strong></td>
+						<td><span id="allotmentId"></span></td>
+					</tr>
+					<tr>
+						<td><strong>Packaging Order ID:</strong></td>
+						<td><span id="packagingOrderId"></span></td>
+					</tr>
+					<tr>
+						<td><strong>Transport ID:</strong></td>
+						<td><span id="transportId"></span></td>
+					</tr>
+					<tr>
+						<td><strong>Phone:</strong></td>
+						<td><span id="phone"></span></td>
+					</tr>
+					<tr>
+						<td><strong>Mobile:</strong></td>
+						<td><span id="mobile"></span></td>
+					</tr>
+					<tr>
+						<td><strong>Email:</strong></td>
+						<td><span id="email"></span></td>
+					</tr>
+					<tr>
+						<td><strong>GSTIN:</strong></td>
+						<td><span id="gstin"></span></td>
+					</tr>
+					
+					<tr>
+						<td><strong>Remarks:</strong></td>
+						<td><span id="features"></span></td>
+					</tr>
+					
+					<tr>
+						<td><strong>Booking Date:</strong></td>
+						<td><span id="bookingDate"></span></td>
+					</tr>
+					<tr>
+						<td><strong>LR Number:</strong></td>
+						<td><span id="lr_number"></span></td>
+					</tr>					
+					<tr>
+						<td><strong>From Station:</strong></td>
+						<td><span id="fromstation"></span></td>
+					</tr> 				
+					<tr>
+						<td><strong>To Station:</strong></td>
+						<td><span id="tostation"></span></td>
+					</tr> 					 
+					<tr>
+						<td><strong>Created:</strong></td>
+						<td><span id="created"></span></td>
+					</tr>
+				</table>
+			</div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+
 @include('common.formfooterscript')
 <script type="text/javascript" src="{{ asset('js/jquery.validate.js') }}"></script>
+ 
 <script type="text/javascript">
 var siteUrl = "{{url('/')}}";
-        
-</script>
+function viewAllotedTransport(Id) 
+{	
+	jQuery.ajax({
+		type: "GET",  
+		url: siteUrl + '/' +"ajax_script/getTransportDetails", 
+		data: {
+			"_token": "{{ csrf_token() }}",
+			"FId":Id,				 
+		},	 
+		cache: false,				
+		success: function(response)	
+		{				
+			response = JSON.parse(response);
+			console.log(response);	 
+			 
+			$("#allotmentId").html(response.allotmentId); 
+			$("#packagingOrderId").html(response.packagingOrderId);  
+			$("#transportId").html(response.transportId);  
+			$("#transportName").html(response.transportName); 
+			$("#mobile").html(response.mobile);
+			$("#phone").html(response.phone); 
+			$("#email").html(response.email); 
+			$("#gstin").html(response.gstin); 
+			$("#features").html(response.features); 
+			$("#created").html(response.created); 
+			$("#bookingDate").html(response.bookingDate); 
+			$("#lr_number").html(response.lr_number); 
+			$("#fromstation").html(response.fromstation);  
+			$("#tostation").html(response.tostation);  
+ 
+			 
+		}
+	});			
+	
+	$('#viewTransportModal').modal({backdrop: 'static', keyboard: false});		 
+}
+</script> 
+
+
+
 </body>
 </html>

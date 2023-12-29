@@ -23,10 +23,10 @@ use Hash;
 class SaleOrderController extends Controller
 {
 
-  public function __construct()
-  {
-       $this->middleware('auth');
-  }
+	public function __construct()
+	{
+		$this->middleware('auth');
+	}
 
 	public function index(Request $request)
 	{ 	
@@ -36,8 +36,8 @@ class SaleOrderController extends Controller
 		$fromDate 		= $request->from_date;
 		$toDate 		= $request->to_date;
 		$ordNumSearch 	= $request->ordNumSearch;
-    $sale_order_type=trim($request->sale_order_type);
-    //dd($sale_order_type);
+		$sale_order_type = trim($request->sale_order_type);
+		//dd($sale_order_type);
 		$query = SaleOrder::where('is_deleted', '=', '0')->with('SaleOrderItem')->with('Individual')->with('ItemType')->orderByDesc('sale_order_id');		
 		if (!empty($qsearch)) 
 		{  
@@ -49,6 +49,10 @@ class SaleOrderController extends Controller
 			$ordNumSearchArray = explode(',', $ordNumSearch);
 			$saleOrderIds = SaleOrder::whereIn('sale_order_number', $ordNumSearchArray)->pluck('sale_order_id');
 			$query->whereIn('sale_order_id', $saleOrderIds);
+		}
+		if (!empty($sale_order_type)) 
+		{
+			$query->where('sale_order_type', $sale_order_type);
 		}
 		if (!empty($qnamesearch)) 
 		{ 
@@ -65,27 +69,22 @@ class SaleOrderController extends Controller
 		{     
 			$saleOrderIds = SaleOrderItem::where('order_item_priority', 'LIKE', '%' . $priority . '%')->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');    
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
-		}
-		
+		}	
 		
 		if (!empty($fromDate) && !empty($toDate)) 
-		{
-			
+		{			
 			$fromDate 		= date('Y-m-d', strtotime($request->from_date));
 			$toDate 		= date('Y-m-d', strtotime($request->to_date));		
 			$saleOrderIds = SaleOrderItem::where('expect_delivery_date', '>=',  $fromDate)->where('expect_delivery_date', '<=',  $toDate)->groupBy('sale_order_id')->pluck('sale_order_id')->implode(',');     
 			$query->whereIn('sale_order_id', explode(',', $saleOrderIds));
 		} 
 		
-		
-		
 		// $sql = $query->toSql();
 		// $bindings = $query->getBindings(); 
 		// $sqlWithValues = vsprintf(str_replace('?', "'%s'", $sql), $bindings); 
 		// dd($sqlWithValues);
 		
-		
-		
+		//\DB::enableQueryLog();
 		$dataP = $query->paginate(20);
 		//dd(\DB::getQueryLog());
 
@@ -105,12 +104,8 @@ class SaleOrderController extends Controller
 	  return view('html.saleorder.list-sales-order',compact("dataP","qsearch","indvId"));
 	}
 
-
-
 	public function show_sale_order_items(Request $request)
-	{
-		
-		
+	{	
 		$perPage 		= config('global.PER_PAGE');
 		$priorityArr 	= config('global.priorityArr');
 		$qsearch 		= trim($request->qsearch);
@@ -165,42 +160,39 @@ class SaleOrderController extends Controller
 
 	public function create($individual_id = NULL)
 	{
+		if(!empty($individual_id)){
+			$individual_id = $individual_id;
+		} else {
+			$individual_id = '';
+		}
+		$priorityArr = config('global.priorityArr');
+		$ExpDeliveryDate = config('global.ExpDeliveryDate');
+		$expDeliverydays = config('global.expDeliverydays');
+
+		// echo "<pre>"; print_r($expDeliverydays); exit;
+		$dataIT = ItemType::where('status', '=', '1')->get();
+		$dataUT = UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
+		$dataI = Individual::where('type', '=', 'agents')->where('status', '=', '1')->get();
+		$dataE = Individual::where('type', '=', 'employee')->where('status', '=', '1')->get();
+		$dataSO = SaleOrder::where('is_deleted', '=', '0')->count();
+		$totSleord = $dataSO+1;
+
+		return view('html.saleorder.add-saleorder', compact("dataIT","dataUT","dataI","dataE","totSleord","priorityArr","ExpDeliveryDate","expDeliverydays"));
+	}
 
 
-    if(!empty($individual_id)){
-        $individual_id = $individual_id;
-    } else {
-        $individual_id = '';
-    }
-
-       $priorityArr = config('global.priorityArr');
-	   $ExpDeliveryDate = config('global.ExpDeliveryDate');
-	   $expDeliverydays = config('global.expDeliverydays');
-
-	  // echo "<pre>"; print_r($expDeliverydays); exit;
-	  $dataIT = ItemType::where('status', '=', '1')->get();
-	  $dataUT = UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
-	  $dataI = Individual::where('type', '=', 'agents')->where('status', '=', '1')->get();
-	  $dataE = Individual::where('type', '=', 'employee')->where('status', '=', '1')->get();
-	  $dataSO = SaleOrder::where('is_deleted', '=', '0')->count();
-	  $totSleord = $dataSO+1;
-
-	  return view('html.saleorder.add-saleorder', compact("dataIT","dataUT","dataI","dataE","totSleord","priorityArr","ExpDeliveryDate","expDeliverydays"));
-  }
-
-
-  public function store(Request $request)
-  {
+	public function store(Request $request)
+	{
 			$validator = Validator::make($request->all(), [
 				"lot_number"=>"required",
 				"sale_order_number"=>"required",
 				"sale_order_date"=>"required",
 				//"cus_name"=>"required",
-        "cus_name"=>"required_if:sale_order_type,Customer",
+				"cus_name"=>"required_if:sale_order_type,Customer",
 				//"address"=>"required",
-        "address"=>"required_if:sale_order_type,Customer",
+				"address"=>"required_if:sale_order_type,Customer",
 				//"shiping_address"=>"required",
-        "shiping_address"=>"required_if:sale_order_type,Customer",
+				"shiping_address"=>"required_if:sale_order_type,Customer",
 				"product_name_arr"=>"required",
 				"rate_arr"=>"required",
 			], [
@@ -213,7 +205,7 @@ class SaleOrderController extends Controller
 				"product_name_arr.required"=>"Please Select Your Order Item.",
 				"rate_arr.required"=>"Your Selected item Amount Not Found.",
 			]);
-      //dd($request->all());
+	  //dd($request->all());
 			if ($validator->fails())
 			{
 				$error = $validator->errors()->first();
@@ -315,7 +307,7 @@ class SaleOrderController extends Controller
 			$rate_arr 				= $request->rate_arr;
 			$amount_arr 			= $request->amount_arr;
 			$discount_arr 			= $request->discount_arr;
-            $discount_amount_arr 	= $request->discount_amount_arr;
+			$discount_amount_arr 	= $request->discount_amount_arr;
 			$total_arr 				= $request->total_arr;
 			$remarks_arr 			= $request->remarks_arr;
 			$order_item_priority_arr = $request->order_item_priority_arr;
@@ -379,21 +371,14 @@ class SaleOrderController extends Controller
 			Session::put('message', 'Someting Problem.');
 			Session::put("messageClass","errorClass");
 			return redirect("/show-saleorders");
-		  }
+		  } 
+	}
 
 
-
-
-
-
-
-  }
-
-
-  public function show($id)
-  {
-      //
-  }
+	public function show($id)
+	{
+		//
+	}
 
 
 	public function print_saleorder($id)
@@ -410,19 +395,32 @@ class SaleOrderController extends Controller
 		return view('html.saleorder.print-saleorder', compact("dataPur","dataPI","dataCom","dataI","dataIA"));
 	}
 	
+	
 	public function show_saleorder_work_order_details($id)
 	{ 
 		$pId 		= base64_decode($id); 
-		$dataPur 	= SaleOrder::where('sale_order_id', '=', $pId)->where('is_deleted', '=', '0')->with('SaleOrderItem')->with('ItemType')->first(); 
-		$dataPI 	= SaleOrderItem::where('sale_order_id', '=', $pId)->where('is_deleted', '=', '0')->get();
-		$dataI  	= Individual::where('id', '=', $dataPur->individual_id)->where('status', '=', '1')->first();
-		$dataIA  	= IndividualAddress::where('ind_add_id', '=', $dataPur->ind_add_id)->where('status', '=', '1')->first();
+		$dataPur 	= SaleOrder::where('sale_order_id', '=', $pId)->where('is_deleted', '=', '0')->with('SaleOrderItem', 'PackagingOrderItem', 'SaleOrderItem.WorkOrderItem.WorkOrder', 'SaleOrderItem.PackagingOrderItem.PackagingType')->with('ItemType')->first(); 
 		 
-	 	// echo "<pre>"; print_r($dataPur);  
-		return view('html.saleorder.show-saleorder-workorder-details', compact("dataPur","dataPI","dataI","dataIA"));
-
-
+		$dataI  	= Individual::where('id', '=', $dataPur->individual_id)->where('status', '=', '1')->first();
+		$dataIA  	= IndividualAddress::where('ind_add_id', '=', $dataPur->ind_add_id)->where('status', '=', '1')->first(); 
+		return view('html.saleorder.show-saleorder-workorder-details', compact("dataPur","dataI","dataIA")); 
 	}
+	
+	/*	
+		public function show_saleorder_work_order_details($id)
+		{
+			$pId 		= base64_decode($id);
+			$dataPur 	= SaleOrder::with(['individual', 'SaleOrderItem', 'SaleOrderItem.WorkOrderItem', 'SaleOrderItem.WorkOrderItem.WorkOrder'])
+				->where('sale_order_id', $pId)
+				->where('is_deleted', 0)
+				->first();
+			// echo "<pre>"; print_r($dataPur); exit;	
+
+			return view('html.saleorder.show-saleorder-workorder-details', compact('dataPur'));
+		}
+	*/
+	
+	
 
 
   public function edit($id)

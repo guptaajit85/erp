@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Date;
 use App\Models\Packaging;
 use App\Models\SaleOrder;
 use App\Models\Individual;
@@ -16,6 +17,8 @@ use App\Models\SaleEntry;
 use App\Models\SaleEntryItem;
 use App\Models\Item; 
 use App\Models\Company; 
+use App\Models\TransportAllotment; 
+use App\Models\Transport;
 
 use Validator, Session, Hash;
 
@@ -29,17 +32,10 @@ class PackagingController extends Controller
 	
     public function index(Request $request)
 	{
-		$search  = $request->search; 
-		 
-		$dataP = PackagingOrder::where('status', '=', '1')
-		->with(['packagingOrderItems.PackagingType', 'packagingOrderItems.Item', 'individual'])
-		->orderByDesc('id')
-		->paginate(20); 
-		
-		 // echo "<pre>";  print_r($dataP); exit;
+		$search  	= $request->search;		 
+		$dataP 		= PackagingOrder::where('status', '=', '1')->with(['packagingOrderItems.PackagingType', 'packagingOrderItems.Item', 'individual'])->orderByDesc('id')->paginate(20);// echo "<pre>";  print_r($dataP); exit;
 		return view('html.packaging.show-packagings', compact('dataP'));
 	}
-
    
     public function create_packaging(Request $request)
 	{ 
@@ -51,7 +47,7 @@ class PackagingController extends Controller
 			$query   = SaleOrder::where('individual_id', '=', $individualId)
 				->where('is_deleted', '=', '0')
 				->with(['SaleOrderItem' => function ($query) {					 
-					$query->where('is_work_completed', '=', '1');
+					$query->where('is_work_completed', '=', 1);
 				}, 'Individual', 'ItemType']);
 
 			$dataP = $query->paginate(20);
@@ -71,8 +67,7 @@ class PackagingController extends Controller
 		 
 		return view('html.packaging.add-packaging', compact("dataP", "dataPT", "dataIAS", "dataIAB", "cusName", "individualId", "dataInd"));
 	}
- 
-    
+     
     public function store_packaging(Request $request)
     {
 	  
@@ -108,6 +103,7 @@ class PackagingController extends Controller
 		$pacTypeArr 	= $request->pack_type;
 		$packMeterArr 	= $request->pack_meter;
 		 
+		// $soiData    = SaleOrderItem::where('sale_order_item_id', '=', $soiId)->first();   
 		 
 		$newPackagingOrder = new PackagingOrder();		
 		$newPackagingOrder->customer_id 		= $individual_id;
@@ -246,25 +242,41 @@ class PackagingController extends Controller
 			PackagingOrder::where('id', $packOrdId)->update([
 				'is_invoice_generated' => 'Yes',
 				'sale_entry_id' => $lastInsertedId,
-			]); 
-			 
-		}
-		
+			]); 			 
+		}		
 		Session::put('message', 'Invoice Generated Successfully.');
 		Session::put("messageClass", "successClass");
 		return redirect("/show-packagings");
 	
 	}
-     
-	 
+     	
+	public function transport_packaging_items($id)
+	{
+		$packOrdId 	= base64_decode($id);
+		$dataPO 	= PackagingOrder::where('id', $packOrdId)->where('status', '1')->with(['packagingOrderItems.PackagingType', 'packagingOrderItems.Item', 'individual'])->orderByDesc('id')->first(); 
+		$dataIAS  	= IndividualAddress::where('ind_add_id', $dataPO->cus_ship_add_id)->where('address_type', 's')->where('status', '1')->first();
+		$dataIAB  	= IndividualAddress::where('ind_add_id', $dataPO->cus_bill_add_id)->where('address_type', 'b')->where('status', '1')->first();
+		
+		$dataTr 	= Transport::where('status', '=', '1')->get();  
+		$transArr 	= Individual::where('type', '=', 'transport')->where('status', '=', '1')->get();
+		
+		$IgstAr 	= config('global.IGST_RATES');
+		$CgstAr 	= config('global.CGST_RATES');
+		$SgstAr 	= config('global.SGST_RATES');
+		$query 		= SaleEntry::where('is_deleted', '=', '0');				 
+		$totalRecords = 1001+$query->count();
+		return view('html.packaging.transport-packaging-items', compact("dataPO", "packOrdId", "transArr", "dataTr", "dataIAS", "dataIAB", "IgstAr", "CgstAr","SgstAr","totalRecords"));
+ 
+	}
+
+
+
+	
     public function show(Packaging $qualityType)
     {
         //
     }
-    
-    
-	
-	
+     
     public function print_packaging_items($packaging_id)
     {         
 		$packagingId = base64_decode($packaging_id);			
@@ -272,6 +284,131 @@ class PackagingController extends Controller
 		
 		return view('html.packaging.print-package-items',compact("data"));         
     }
+
+	public function transportAllotment(Request $request)
+    {
+		//   echo "<pre>"; print_r($request->all()); exit;
+       $validator = Validator::make($request->all(), [				 
+				'individual_id' => 'required|integer',
+				'pack_ord_Id' => 'required|integer',
+				'remarks' => 'required|string|max:555',
+			], [				 
+				'individual_id.required' => 'Please select an Individual.',
+				'pack_ord_Id.required' => 'Please select a Pack Order.',
+				'remarks.required' => 'Please enter remarks.',
+			]);
+
+			if ($validator->fails()) {
+				$error = $validator->errors()->first();
+				Session::put('message', $validator->messages()->first());
+				Session::put("messageClass", "errorClass");
+				return redirect()->back()->withInput();
+			}
+		$packOrdId 		= $request->pack_ord_Id;
+		$transportId 	= $request->individual_id;
+		$from_station 	= $request->from_station;
+		$to_station 	= $request->to_station;
+		 
+		$remark 		= $request->remarks; 
+		$booking_date 	= date('Y-m-d', strtotime($request->booking_date));
+		$lr_number 		= $request->lr_number;
+	 
+		$indData 		= Individual::where('id', $transportId)->first();		 
+		if (!$indData) 
+		{			 
+			Session::put('message', 'Individual not found.');
+			Session::put("messageClass", "errorClass");
+			return redirect()->back();
+		}
+		$obj = new TransportAllotment; 
+		$obj->packaging_ord_id 	= $packOrdId;  
+		$obj->transport_id 		= $transportId;  
+		$obj->transport_name 	= $indData->name; 
+		$obj->mobile 			= $indData->mobile;  
+		$obj->phone 			= $indData->phone;  
+		$obj->email 			= $indData->email;
+		$obj->from_station		= $from_station;
+		$obj->to_station		= $to_station;
+		$obj->gstin				= $indData->gstin;
+		$obj->remark 			= $remark; 
+		$obj->booking_date 		= $booking_date;
+		$obj->lr_number 		= $lr_number; 		 
+		$obj->created 			= date("Y-m-d H:i:s");
+		$obj->status 			= 1;
+		$is_saved = $obj->save();
+		if ($is_saved) 
+		{     
+			PackagingOrder::where('id', $packOrdId)->update([
+				'is_transport_alloted' => 'Yes'
+			]);
+			Session::put('message', 'Updated successfully.');
+			Session::put("messageClass", "successClass");
+			return redirect("/show-packagings");
+		} 
+		else 
+		{			 
+			Session::put('message', 'Failed to update.');
+			Session::put("messageClass", "errorClass");
+			return redirect()->back();
+		}
+
+    }
+	 
+	 
+	public function getTransportDetails(Request $request)
+	{ 
+		$packOrdId = $request->FId;		 
+		$dataTA    = TransportAllotment::where('packaging_ord_id', $packOrdId)->where('status', 1)->firstOr(function () {			 
+			return null;
+		});
+		if ($dataTA) 
+		{ 
+			$dataTr 	= Transport::where('status', '=', '1')->get(); 
+			$fromStation 	= Transport::where('id', $dataTA->from_station)->value('station');
+			$ToStation 	= Transport::where('id', $dataTA->to_station)->value('station');
+			
+			
+			
+			$createdDate = Date::parse($dataTA->created)->format('d-m-Y');
+			$bookingDate = Date::parse($dataTA->booking_date)->format('d-m-Y');
+			$result = [
+				'allotmentId'       => $dataTA->id,
+				'packagingOrderId'  => $dataTA->packaging_ord_id,
+				'transportId'       => $dataTA->transport_id,
+				'transportName'     => $dataTA->transport_name,
+				'mobile'            => $dataTA->mobile,
+				'phone'             => $dataTA->phone,
+				'email'             => $dataTA->email,
+				'gstin'             => $dataTA->gstin,
+				'features'          => $dataTA->remark,
+				'bookingDate'       => $bookingDate,
+				'lr_number'         => $dataTA->lr_number,
+				'fromstation'       => $fromStation,
+				'tostation'         => $ToStation,
+				'created'           => $createdDate,             
+			];  
+			 
+			echo json_encode($result);
+		}
+		else 
+		{		
+			echo json_encode('Transport Allotment record not found.');
+		}
+	}
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
 
      
     public function update_packaging(Request $request, Packaging $qualityType)
