@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transport;
 use App\Models\Person;
 use App\Models\Individual;
+use App\Models\TransportAllotment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
  use Auth;
@@ -128,5 +129,14 @@ class TransportController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function showTransportAllotments(){
+      
+      $dataI = TransportAllotment::where('status', '=', '1')->with('locationDetailsFrom')->with('locationDetailsTo')->orderByDesc('id')->paginate(20);
+      //dd($dataI);
+      // echo "<pre>";
+      // print_r($dataI);
+      return view('html.transport.show-transport-allotment',compact("dataI"));
+
     }
 }
