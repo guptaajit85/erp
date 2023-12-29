@@ -47,6 +47,7 @@ class WorkProcessRequirementController extends Controller
  		
 	   return view('html.workprocessrequirement.show-warehouse-item-requirement', compact("dataWPR"));
     }
+	
 
 	public function accept_warehouse_item_requirement($Id)
     {

@@ -123,7 +123,7 @@
                     
                     <td> <?=$item_name;?> </td> 
                     <td> <?=$totalItemQty;?> Meter <?=$item_type_name;?></td>					
-					<td> <strong>Required </strong> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
+					<td> <input type="number" id="req_grey_qty_<?=$stockTblId?>" readonly name="req_grey_qty[]"> Meter <?=$item_type_name;?></td>
                     <td> <input type="checkbox" id="wis_id_<?=$stockTblId?>" name="wis_id[]" onClick="addRequisition({{ $stockTblId }})" value="<?=$stockTblId;?>"> </td>			
                   </tr>	 
 				  <?php } ?>  				  
@@ -157,7 +157,14 @@
               </table>	
 			<?php */ ?>         
 			  
+			  
+			 <?php  if(!empty($balanceQ)) { ?>
 			  <button type="submit" class="btn btn-success pull-left">Send Requisition </button>
+			 <?php }  if(empty($balanceQ)) { ?>
+			 <p> Note: <b style="color: red;">Some Dyed Item Not Available in Warehouse.</b></p>
+			 <?php } ?>
+			  
+			  
 			</form>
 			  
 			</div> 

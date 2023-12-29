@@ -189,7 +189,7 @@ use App\Http\Controllers\CommonController;
 					</tr>
 					
 					<tr>
-						<td><strong>Features:</strong></td>
+						<td><strong>Remarks:</strong></td>
 						<td><span id="features"></span></td>
 					</tr>
 					
@@ -202,8 +202,12 @@ use App\Http\Controllers\CommonController;
 						<td><span id="lr_number"></span></td>
 					</tr>					
 					<tr>
-						<td><strong>Station:</strong></td>
-						<td><span id="station"></span></td>
+						<td><strong>From Station:</strong></td>
+						<td><span id="fromstation"></span></td>
+					</tr> 				
+					<tr>
+						<td><strong>To Station:</strong></td>
+						<td><span id="tostation"></span></td>
 					</tr> 					 
 					<tr>
 						<td><strong>Created:</strong></td>
@@ -253,7 +257,8 @@ function viewAllotedTransport(Id)
 			$("#created").html(response.created); 
 			$("#bookingDate").html(response.bookingDate); 
 			$("#lr_number").html(response.lr_number); 
-			$("#station").html(response.station);  
+			$("#fromstation").html(response.fromstation);  
+			$("#tostation").html(response.tostation);  
  
 			 
 		}

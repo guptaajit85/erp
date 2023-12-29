@@ -26,5 +26,10 @@ class PackagingOrderItem extends Model
 		return $this->hasOne(Item::class, 'item_id', 'item_id');
 	}
 	
+	public function saleOrderItem()
+    {
+        return $this->belongsTo(SaleOrderItem::class, 'sale_order_item_id', 'sale_order_item_id');
+    }
+	
 	 
 }

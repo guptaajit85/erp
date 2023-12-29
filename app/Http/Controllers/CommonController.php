@@ -1006,7 +1006,7 @@ class CommonController extends Controller
     $fullSql = vsprintf(str_replace(['?'], ['\'%s\''], $sql), $bindings);
     echo $fullSql;
 
-    /*
+		/*
 			if ($result->count() > 0) {
 				$total = $result[0]->tot;
 				return $total;
@@ -1264,22 +1264,17 @@ class CommonController extends Controller
 		echo json_encode($dataI);
 
     }
+ 
 
+	public static function getWorkOrderDetailFromSaleOrderItem($SaleOrditemId)
+	{
+		return $workOrderItems = WorkOrderItem::where('sale_order_item_id', $SaleOrditemId)->get();
+	}
 
-
-
-
-  public static function getWorkOrderDetailFromSaleOrderItem($SaleOrditemId)
-  {
-
-    return $workOrderItems = WorkOrderItem::where('sale_order_item_id', $SaleOrditemId)->get();
-  }
-
-  public static function getWorkOrder($work_order_id)
-  {
-
-    return $workOrder = WorkOrder::where('work_order_id', $work_order_id)->first();
-  }
+	public static function getWorkOrder($work_order_id)
+	{
+		return $workOrder = WorkOrder::where('work_order_id', $work_order_id)->first();
+	}
 
 
 
