@@ -92,6 +92,7 @@
                   <li><a href="{{ route('show-work-purchase-requirement') }}">Requisition Request</a></li>
                 </ul>
               </li> 
+			  
 			  <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Stock </a>
                 <ul class="dropdown-menu">
                   <li><a href="{{ route('show') }}">Warehouse Items</a></li>
@@ -99,7 +100,8 @@
                  <!--- <li><a href="{{ route('show-warehouse-stock-report') }}">Warehouse Stock Report</a></li>
                   <li><a href="{{ route('show-warehouse-item-out') }}">Warehouse Items Out</a></li> --->				  
                 </ul>
-              </li>			  
+              </li>		
+			    
             </ul>
           </li>		.
 

@@ -438,10 +438,12 @@ class WorkOrderController extends Controller
 			$ItemNameReq 	= $dataWk->item_name;
 			$procesTypeId 	= $dataWk->process_type_id;
 
-			$warehousesSql 	= Warehouse::where('status', '=', '1')->where('process_type_id', '=', $procesTypeId)->get();
+			$warehousesSql 	= Warehouse::where('status', '=', '1')->get();
 			$warehouses 	= "";
-			foreach ($warehousesSql as $warehouse) {
-				$warehouses .= "<option value='{$warehouse->id}'>{$warehouse->warehouse_name}</option>";
+			foreach ($warehousesSql as $warehouse) 
+			{				 
+				$selected = ($warehouse->process_type_id == $procesTypeId) ? 'selected' : '';
+				$warehouses .= "<option value='{$warehouse->id}' $selected>{$warehouse->warehouse_name}</option>";				
 			}
 			$warehouses .= "";
 
@@ -466,7 +468,8 @@ class WorkOrderController extends Controller
 						<th>Quantity</th>
 					</tr>";
 
-			foreach ($wprArr as $row) {
+			foreach($wprArr as $row) 
+			{
 				$ItemD = DB::table('items')->where('item_id', $row->item_id)->first();
 				$ItemName = $ItemD->item_name;
 				$item_type_id = $row->item_type_id;
@@ -1090,6 +1093,7 @@ class WorkOrderController extends Controller
 
 		if ($insp_status == 'Complete') {
 			WorkOrder::where('work_order_id', $workOrderId)->update(['insp_status' => $insp_status]);
+			WorkOrder::where('work_order_id', $workOrderId)->update(['work_status' => $insp_status]);
 		}
 
 		$userId  				= Auth::id();
@@ -1288,18 +1292,16 @@ class WorkOrderController extends Controller
 		$ProcessTypeId = $dataWO->process_type_id;
 		$dataPI 	= ProcessItem::where('status', '1')->get();
 		$dataIT 	= ItemType::where('status', '1')->where('is_work', '1')->get();
-		$dataUT 	= UnitType::where('status', '1')->orderByDesc('unit_type_id')->get();
-		// $dataW 		= Warehouse::where('status', '1')->orderByDesc('id')->get();
+		$dataUT 	= UnitType::where('status', '1')->orderByDesc('unit_type_id')->get(); 
 		$dataW 		= Warehouse::where('status', '1')->orderBy('id', 'asc')->get();
 
-
 		return view('html.workorder.receive-work-item', compact('dataW', 'dataWI', 'dataPI', 'dataIT', 'dataWO', 'ItemTypeId', 'ProcessTypeId', 'inspId'));
+		
 	}
 
 	public function receive_work_item_in_warehouse(Request $request)
 	{
-		// echo "<pre>"; print_r($request->all());   exit;
-
+		 echo "<pre>"; print_r($request->all());   exit;
 		$dataW   = Warehouse::where('status', '=', '1')->orderByDesc('id')->get();
 		$dataPI  = ProcessItem::where('status', '=', '1')->get();
 		$dataIT  = ItemType::where('status', '=', '1')->get();
@@ -1392,7 +1394,8 @@ class WorkOrderController extends Controller
 			->where('balance_status', '=', '1')
 			->first();
 
-		if (!empty($opItemQty)) {
+		if(!empty($opItemQty)) 
+		{
 			$wbId = $opItemQty->id;
 			WarehouseBalanceItem::where('id', $wbId)->update(['balance_status' => '0']);
 		}
@@ -1452,7 +1455,8 @@ class WorkOrderController extends Controller
 			$is_saved 						= $objWIS->save();
 		}
 		
-		if ($is_saved) {
+		if ($is_saved) 
+		{
 			WorkInspection::where('id', '=', $inspId)->update([
 				'item_interred_in_warehouse_by' => Auth::user()->individual_id,
 				'item_received_in_warehouse_by' => $request->receiver_id,
@@ -2331,7 +2335,8 @@ class WorkOrderController extends Controller
 		$processTypeId 			= $dataOrder->process_type_id;
 
 
-		if ($workOrderId) {
+		if ($workOrderId) 
+		{
 			$woiSql = WorkOrderItem::where('work_order_id', $workOrderId)->get();
 			foreach ($woiSql as $row) {
 

@@ -1,9 +1,8 @@
-<?php
+<?php 
 use \App\Http\Controllers\CommonController;
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   @include('common.head')   
 </head>
@@ -47,8 +46,6 @@ use \App\Http\Controllers\CommonController;
                         @endforeach
                       </select>
                     </div>
-					
-					
 					
                     <div class="col-sm-2 col-xs-12">
                       <input type="text" class="form-control" name="from_date" id="from_date" placeholder="From Date" style="margin-left: 18px;" value="<?= $fromDate; ?>">
@@ -112,28 +109,27 @@ use \App\Http\Controllers\CommonController;
                       <?php
                       foreach ($dataWI as $data) {
                         //   echo "<pre>"; print_r($data); // exit;
-                        $WOItem = $data['WorkOrderItem'];
-                        $Id   = $data->work_order_id;
+                        $WOItem 							= $data['WorkOrderItem'];
+                        $Id   								= $data->work_order_id;
 
-                        $proTypeId       = $data->process_type_id;
-                        $quantity       = $data->quantity;
-                        $masterIndId     = $data->master_ind_id;
-                        $machineId       = $data->machine_id;
-                        $outputQuantity   = $data->output_quantity;
-                        $outputProcess     = $data->output_process;
-                        $endProcessEmpId   = $data->machine_id;
-                        $inspWorkStatusProcess     = $data->insp_status;
-                        $WorkStatusProcess       = $data->work_status;
-                        $isWarehouseAccepted     = $data->is_warehouse_accepted;
-                        $work_req_send_by       = $data->work_req_send_by;
-                        $WorkRequireReqAccepted   = $data->is_work_require_request_accepted;
-
-                        $IsGatePassGenrated         = $data->is_gatepass_genrated_by_warehouse;
-                        $isItemReceivedFromWarehouse     = $data->is_item_received_from_warehouse;
-                        $GatePassGenratedBy         = $data['GatepassGenratedByWarehouseUser'] ? $data['GatepassGenratedByWarehouseUser']->name : 'N/A';
-                        $ReqSendBy               = $data['WorkReqSend'] ? $data['WorkReqSend']->name : 'N/A';
-                        $internalName             = $data['Item']->internal_item_name;
-                        $processName             = $data['ProcessType']->process_name;
+                        $proTypeId       					= $data->process_type_id;
+                        $quantity       					= $data->quantity;
+                        $masterIndId     					= $data->master_ind_id;
+                        $machineId       					= $data->machine_id;
+                        $outputQuantity   					= $data->output_quantity;
+                        $outputProcess     					= $data->output_process;
+                        $endProcessEmpId   					= $data->machine_id;
+                        $inspWorkStatusProcess     			= $data->insp_status;
+                        $WorkStatusProcess       			= $data->work_status;
+                        $isWarehouseAccepted     			= $data->is_warehouse_accepted;
+                        $work_req_send_by       			= $data->work_req_send_by;
+                        $WorkRequireReqAccepted   			= $data->is_work_require_request_accepted;
+                        $IsGatePassGenrated         		= $data->is_gatepass_genrated_by_warehouse;
+                        $isItemReceivedFromWarehouse     	= $data->is_item_received_from_warehouse;
+                        $GatePassGenratedBy         		= $data['GatepassGenratedByWarehouseUser'] ? $data['GatepassGenratedByWarehouseUser']->name : 'N/A';
+                        $ReqSendBy               			= $data['WorkReqSend'] ? $data['WorkReqSend']->name : 'N/A';
+                        $internalName             			= $data['Item']->internal_item_name;
+                        $processName             			= $data['ProcessType']->process_name;
 
                       ?>
 
@@ -195,6 +191,7 @@ use \App\Http\Controllers\CommonController;
                               <p><a href="start-requisition-process/<?= base64_encode($Id) ?>" class="btn btn-success btn-xs">Request</a></p>
                             <?php } ?>
                           </td>
+						  
                           <td>{{ $inspWorkStatusProcess }}</td>
                           <td class="center">
                             <?php if ($isWarehouseAccepted == 'Yes' && $WorkRequireReqAccepted == 'Yes' && $proTypeId > 1) { ?>
@@ -227,15 +224,15 @@ use \App\Http\Controllers\CommonController;
                                 <?php } ?>
 
 
-                                <?php if ($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
+                                <?php /* if($WorkStatusProcess == 'Pending' && $inspWorkStatusProcess == 'Complete') { ?>
                                   <form method="post" action="{{ route('create_work_order_for_packaging') }}" class="form-horizontal">
                                     @csrf
-                                    <input type="hidden" name="work_order_Id" id="work_order_Id" value="<?= $Id; ?>">
+                                    <input type="hidden" name="work_order_Id" id="work_order_Id" value="<?=$Id;?>">
                                     <div class="modal-footer">
                                       <button type="submit" class="btn btn-success pull-left">Create Packaging</button>
                                     </div>
                                   </form>
-                                <?php } ?>
+                                <?php } */ ?>
 
 
 
@@ -309,10 +306,12 @@ use \App\Http\Controllers\CommonController;
                               <?php } ?>
 
                             <?php } ?>
-
+								
+							<p style="margin-top: 10px;">
                             <a target="_blank" href="workorder-details/{{ base64_encode($Id) }}" title="View Work Order Details" class="tooltip-info">
                               <label class="label bg-green"><i class="fa fa-eye" aria-hidden="true"></i></label>
-                            </a>
+                            </a></p>	
+							 
                           </td>
 
 

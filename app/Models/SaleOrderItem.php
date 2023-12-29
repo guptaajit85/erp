@@ -11,8 +11,7 @@ class SaleOrderItem extends Model
     protected $table   = 'sale_order_items';
 	public $timestamps = false;
 	
-	
-	 
+		 
 	 
 	public function SaleOrder()
 	{
@@ -21,7 +20,15 @@ class SaleOrderItem extends Model
  
 	public function WorkOrderItem()
 	{
-		return $this->hasOne(WorkOrderItem::class, 'sale_order_item_id', 'sale_order_item_id');
-	}
+		return $this->hasMany(WorkOrderItem::class, 'sale_order_item_id', 'sale_order_item_id');
+	}	 
+	
+	public function PackagingOrderItem()
+    {
+        return $this->hasMany(PackagingOrderItem::class, 'sale_order_item_id', 'sale_order_item_id');
+    }
+	
+	
+	
 	
 }

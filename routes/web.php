@@ -372,6 +372,8 @@ Route::get('/add-transport/{id}',[App\Http\Controllers\TransportController::clas
 Route::post('/store_transport',[App\Http\Controllers\TransportController::class,'store_transport'])->name('store_transport');
 Route::get('/ajax_script/deleteTransport', [App\Http\Controllers\TransportController::class,'deleteTransport']);
 
+Route::get('/show-alloted-transport',[App\Http\Controllers\TransportController::class,'index'])->name('show-alloted-transport');
+
 Route::get('/show-individualaddresses',[App\Http\Controllers\IndividualAddressController::class,'index'])->name('show-individualaddresses');
 Route::get('/edit-individualaddress/{id}',[App\Http\Controllers\IndividualAddressController::class,'edit_individualaddress'])->name('edit-individualaddress');
 Route::post('/update_individualaddress',[App\Http\Controllers\IndividualAddressController::class,'update_individualaddress'])->name('update_individualaddress');

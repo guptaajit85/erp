@@ -22,6 +22,7 @@ use App\Http\Controllers\CommonController;
 		<section class="content">
 			<div class="row">
 				<div class="col-sm-12">
+				{!! CommonController::display_message('message') !!}
 					<div class="panel panel-bd lobidrag">
 						<div class="panel-heading">
 							<div class="btn-group" id="buttonlist">
@@ -30,20 +31,18 @@ use App\Http\Controllers\CommonController;
 						</div>
 						<div class="panel-body">
 							<form class="col-sm-6" role="form" name="transport_allotment" id="transport_allotment" method="post" action="{{ url('transportAllotment') }}">
-								@csrf
+								@csrf 
 
 								<div class="form-group">
-									<label for="transport_name">Transport Name <span style="color:#ff0000;">*</span></label>
-									<input type="text" class="form-control" name="transport_name" id="transport_name" placeholder="Enter Transport Name" required>
-									<div class="contact-details"> 
-										<label>Email : &nbsp;<span id="email_spnId"></span></label> 
-										<label>GSTNO : <span id="gst_label"></span></label> 
-										<label>Phone : &nbsp;<span id="phone"></span></label>
-									</div>
-									<input type="hidden" name="individual_id" id="individual_id" value="">
+									<label for="individual_id">Transport Name <span style="color:#ff0000;">*</span></label> 
+									<select class="form-control" name="individual_id" id="individual_id" required> 
+									<?php foreach($transArr as $row) { ?>									
+										<option value="<?=$row->id;?>"><?=$row->name;?></option>										
+									<?php } ?>	 
+									</select> 
 									<input type="hidden" name="pack_ord_Id" id="pack_ord_Id" value="<?=$packOrdId;?>">
 								</div>
-
+  
 								<div class="form-group">
 									<label for="booking_date">Booking Date</label>
 									<input type="text" class="form-control" name="booking_date" id="booking_date" placeholder="Booking Date" required>
@@ -55,13 +54,28 @@ use App\Http\Controllers\CommonController;
 								</div>
 								
 								<div class="form-group">
-									<label for="station">Station</label>
-									<input type="text" class="form-control" name="station" id="station" placeholder="Enter LR Number" required>
+									<label for="station">From Station</label>																	
+									<select class="form-control" name="from_station" id="from_station" required> 
+										<option> Select Station </option>	
+										<?php foreach($dataTr as $rowFs) { ?>									
+										<option value="<?=$rowFs->id;?>"><?=$rowFs->station;?></option>										
+										<?php } ?>	 
+									</select> 
+								</div>	
+								
+								<div class="form-group">
+									<label for="station">To Station</label>																	
+									<select class="form-control" name="to_station" id="to_station" required> 
+										<option> Select Station </option>	
+										<?php foreach($dataTr as $rowTs) { ?>									
+										<option value="<?=$rowTs->id;?>"><?=$rowTs->station;?></option>										
+										<?php } ?>	 
+									</select> 
 								</div>							
 								
 								<div class="form-group">
-									<label for="features">Features</label>
-									<input type="text" class="form-control" name="features" id="features" placeholder="Enter Features" required>
+									<label for="Remarks">Remarks</label>
+									<input type="text" class="form-control" name="remarks" id="remarks" placeholder="Enter Remarks" required>
 								</div>
 
 								<div class="reset-button">

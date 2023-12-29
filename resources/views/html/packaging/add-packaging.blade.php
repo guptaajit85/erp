@@ -14,12 +14,7 @@ use App\Http\Controllers\CommonController;
     }
 </style>
    </head>
-   <body class="hold-transition sidebar-mini">
-     
-      <div id="preloader">
-         <div id="status"></div>
-      </div>
-     
+   <body class="hold-transition sidebar-mini"> 
       <div class="wrapper">
       @include('common.header') 
       <div class="content-wrapperd">
@@ -79,14 +74,19 @@ use App\Http\Controllers\CommonController;
 												<input type="hidden" required name="shiping_address" value="{{ $dataV->address_1 }} {{ $dataV->address_2 }} {{ 'scscdsc' }} {{ $dataV->city }} {{ $dataV->zip_code }}">
 											</td>
 										</tr>
-									@endforeach
-
+									@endforeach								 
+ 
+								</tbody>
+							</table>
+						</div>	
+						<div class="col-sm-4 col-xs-12">
+							<table class="table table-bordered">
+								<tbody> 
 									<tr>
 										<td colspan="2" class="shipping-address-heading">
 											<p>Billing Address</p>
 										</td>
 									</tr>
-
 									@foreach($dataIAB as $dataB)
 										<tr>
 											<td>

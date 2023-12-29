@@ -35,6 +35,12 @@ class SaleOrder extends Model
         return $this->hasMany(WorkOrder::class, 'sale_order_id', 'sale_order_id');
     }
 	
+	public function PackagingOrderItem()
+    {
+        return $this->hasMany(PackagingOrderItem::class, 'sale_order_id', 'sale_order_id');
+    }
+	
+	
 	 
 	 
 }
