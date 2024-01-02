@@ -90,15 +90,7 @@
 						</select>
                   </div>
                </div>
-			   
-			   <!--------
-               <div class="col-sm-6">
-                <div class="form-group">
-                    <label> Company name </label>
-                    <input type="text" class="form-control" name="company_name" id="company_name" value="{{ htmlentities($data->company_name) }}" placeholder="Enter Company Name" required>
-                  </div>
-               </div>
-			   ----------->
+			    
                <div class="col-sm-6">
 
                 <div class="form-group">
@@ -177,10 +169,7 @@
 						</div>
 					</div>
 				</div>
-		  
-				  
-				  
-				  
+		   
               </form>
             </div>
           </div>
@@ -243,6 +232,15 @@ $(document).ready(function() {
     });
 });
 </script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () 
+	{ 
+        var passwordDiv = $('#passwordId');  
+        @if($data->type =='master' || $data->type =='employee')
+            passwordDiv.show();
+        @endif
+    });
+</script>
 
 
 
@@ -258,6 +256,16 @@ $(document).ready(function() {
 		if (selectedType === 'employee') 
 		{			 
 			$("#passwordId").show();			
+		} 
+		if (selectedType === 'master') 
+		{			 
+			$("#passwordId").show();
+			$("#processTypeId").show();			
+		}	
+		if (selectedType === 'transport') 
+		{ 
+			$("#processTypeId").hide();
+			$("#adharcardId").hide(); 		
 		} 		
 		if (selectedType === 'vendors' || selectedType === 'customers') {
 			gstinInput.setAttribute('required', true);

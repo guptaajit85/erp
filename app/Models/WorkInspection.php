@@ -17,6 +17,10 @@ class WorkInspection extends Model
 		return $this->belongsTo(WorkOrder::class, 'work_order_id', 'work_order_id');
 	}
 	
+	public function GatePass()
+    {
+        return $this->hasOne(GatePass::class, 'inspection_id', 'id');
+    }
 	 
 	
 }

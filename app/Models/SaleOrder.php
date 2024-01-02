@@ -20,10 +20,7 @@ class SaleOrder extends Model
 	public function Individual(){
 		return $this->hasOne(Individual::class, 'id', 'individual_id');
 	}
-	
-	 
- 
-		 
+	  
 	public function SaleOrderItem()
 	{
 		return $this->hasMany(SaleOrderItem::class, 'sale_order_id', 'sale_order_id');

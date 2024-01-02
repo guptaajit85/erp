@@ -1,12 +1,12 @@
+<?php
+	use \App\Http\Controllers\CommonController; 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>@include('common.head')
 </head>
 <body class="hold-transition sidebar-mini">
-<!--preloader-->
-<div id="preloader">
-  <div id="status"></div>
-</div>
+ 
 <!-- Site wrapper -->
 <div class="wrapper">
  @include('common.header')
@@ -20,11 +20,12 @@
     <section class="content-header">
       <div class="header-icon"> <i class="fa fa-dashboard"></i> </div>
       <div class="header-title">
-        <h1>CRM Admin Dashboard</h1>
+        <h1>CRM Admin Dashboard  </h1>
         <small>Very detailed & featured admin.</small> </div>
     </section>
     <!-- Main content -->
     <section class="content">
+	{!! CommonController::display_message('message') !!}
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3">
           <div id="cardbox1">

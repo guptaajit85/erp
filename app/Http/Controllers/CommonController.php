@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\Notification;
@@ -1194,34 +1195,89 @@ class CommonController extends Controller
     return $dataI->name;
   }
 
-  public static function checkPagePermission($page_name)
-  {
-    $dataP     = AllPage::where('page_name', 'LIKE', '%' . $page_name . '%')->where('status', 1)->first();
-    $pageId   = $dataP->id;
-    $userId     = Auth::id();
-    $results   = UserWebPage::where('user_id', $userId)->where('page_id', $pageId)->first();
-    if ($userId > 1) {
-      if (empty($results->id)) {
-        return 0;
-      } else {
-        return 1;
-      }
-    } else {
-      return 1;
-    }
-  }
+   
+  /*
+	public static function checkPagePermission($page_name)
+	{
+		// $currentUrl = request()->url(); 
+		// $path 		= parse_url($currentUrl, PHP_URL_PATH); 		
+		// $segments 	= explode('/', $path); 
+		// $pageName	= $segments[1];		
+		$dataP  = AllPage::where('page_name', 'LIKE', '%' . $page_name . '%')->where('status', 1)->first();
+		$pageId = $dataP ? $dataP->id : null;
+		$userId = Auth::id();
+		if ($userId > 1) {
+			return !empty(UserWebPage::where('user_id', $userId)->where('page_id', $pageId)->first());
+		}
+		return true;
+	}
+	*/
+	
+	public static function checkPagePermission($pageName)
+	{
+		$userId = Auth::id();
 
-  public static function getPurchaseOrderItemTypeArr($purchaseId)
-  {
-    return $purchaseOrderItems = PurchaseOrderItem::where('purchase_id', $purchaseId)
-      ->groupBy('item_type_id')
-      ->get();
-  }
+		if ($userId > 1) {
+			$userWebPages = session('userWebPages');
 
-  public static function getPurchaseOrderItemTypeCount($purchaseId)
-  {
-    return $count  = PurchaseOrderItem::where('purchase_id', $purchaseId)->count();
-  }
+			if (!$userWebPages) {
+				return 0; // User not authenticated or session data not available
+			}
+
+			$allowedPages = $userWebPages->pluck('page_id')->toArray();
+
+			// Retrieve the page ID based on the page name
+			$page = AllPage::where('page_name', $pageName)->first();
+
+			if (!$page) {
+				return 0; // Page not found
+			}
+
+			return in_array($page->id, $allowedPages) ? 1 : 0;
+		} else {
+			return 1;
+		}
+	}
+
+
+	
+	
+	public static function checkPageViewPermission()
+	{
+		$currentUrl 	= request()->url();
+		$path 			= parse_url($currentUrl, PHP_URL_PATH);
+		$segments 		= explode('/', $path);
+		$pageName 		= $segments[1];
+		$userId 		= Auth::id();
+ 
+		$dataP  = AllPage::where('page_name', 'LIKE', '%' . $pageName . '%')->where('status', 1)->first();
+		$pageId = $dataP ? $dataP->id : null;
+
+		$result = UserWebPage::where('user_id', $userId)->where('page_id', $pageId)->first();
+		
+		if ($userId > 1) {
+		  if (empty($result->id)) {
+			return 0;
+		  } else {
+			return 1;
+		  }
+		} else {
+		  return 1;
+		}	
+	}	
+ 
+
+	public static function getPurchaseOrderItemTypeArr($purchaseId)
+	  {
+		return $purchaseOrderItems = PurchaseOrderItem::where('purchase_id', $purchaseId)
+		  ->groupBy('item_type_id')
+		  ->get();
+	  }
+
+	  public static function getPurchaseOrderItemTypeCount($purchaseId)
+	  {
+		return $count  = PurchaseOrderItem::where('purchase_id', $purchaseId)->count();
+	  }
 
 
 

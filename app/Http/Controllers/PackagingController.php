@@ -19,8 +19,9 @@ use App\Models\Item;
 use App\Models\Company; 
 use App\Models\TransportAllotment; 
 use App\Models\Transport;
-
 use Validator, Session, Hash;
+use App\Http\Controllers\CommonController;
+
 
 class PackagingController extends Controller
 {

@@ -95,11 +95,11 @@
 				    <?php  
 					foreach($dataSOI as $data) 
 					{ 
-					//   echo "<pre>"; print_r($data);   exit;
+					    // echo "<pre>"; print_r($data);   exit;
 						$itemId = $data->item_id;
 						$saleOrderItemId  		= $data->sale_order_item_id;
 						$indvId  				= $data['SaleOrder']->individual_id;
-						$workSaleOrderItemId  	= @$data['WorkOrderItem']->sale_order_item_id;
+						// $workSaleOrderItemId  	= @$data['WorkOrderItem']->sale_order_item_id;
 						$cusName 				= CommonController::getIndividualName($indvId);
 						$itemtypeId 			= $data->item_type_id;
 						$dyeing_color 			= $data->dyeing_color;

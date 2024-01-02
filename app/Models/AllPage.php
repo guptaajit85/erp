@@ -13,4 +13,12 @@ class AllPage extends Model
 	public $timestamps = false;
 	
 	
+	public function userWebPages()
+    {
+        return $this->hasMany(UserWebPage::class, 'page_id', 'id');
+    }
+	
+	
+	
+	
 }

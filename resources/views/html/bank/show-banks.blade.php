@@ -1,15 +1,12 @@
-<?php
-	use \App\Http\Controllers\CommonController;
+<?php	 
+	use App\Http\Controllers\CommonController;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>@include('common.head')
 </head>
 <body class="hold-transition sidebar-mini">
-    <!--preloader-->
-    <div id="preloader">
-        <div id="status"></div>
-    </div>
+     
     <!-- Site wrapper -->
     <div class="wrapper">
         @include('common.header')

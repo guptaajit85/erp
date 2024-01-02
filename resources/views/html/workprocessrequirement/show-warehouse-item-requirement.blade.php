@@ -79,12 +79,14 @@
 										<p>Denied By <?= $processDenyBy; ?></p>
 									<?php } ?>
 								</td>
+								
 								<td>
 									<?php if($isProAccByWarehouse == 'Yes') { ?>
 										<!--- <a href="javascript:void(0);" onClick="ViewWarehouseReq({{ $woId }})" class="btn btn-info btn-xs">View</a> --->
 										<a target="_blank" href="{{ route('print-warehouse-item-requirement-gatepass', base64_encode($wprId)) }}" class="btn btn-success btn-xs">Gatepass</a>
 									<?php } ?>
 								</td>
+								
 							</tr>
 						@endforeach
 						<tr class="center text-center">

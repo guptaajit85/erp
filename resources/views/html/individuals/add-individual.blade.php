@@ -151,7 +151,8 @@
                     <input type="number" class="form-control" oninput="limitInputLength5(this, 10)" required maxlength="10" name="whatsapp" id="whatsapp" placeholder="Enter WhatsApp Number">
                   </div>
                </div>
-               <div class="col-sm-6">
+               
+			   <div class="col-sm-6">
                 <div class="form-group">
                     <label>Verified Remark</label>
                     <input type="text" class="form-control" name="verified_remark" id="verified_remark" placeholder="Enter Verified Remark By">
@@ -160,7 +161,6 @@
 
 
                <div class="col-sm-6">
-
                 <div class="form-group">
                     <label>Is Verified </label>
                     <select class="form-control" name="is_verified" id="is_verified">
@@ -169,11 +169,13 @@
                     </select>
                   </div>
                </div>
+			   
 				<div class="col-sm-6">
 					<div class="reset-button">
 					  <button type="submit" id="submit" name="submit"  class="btn btn-success"> Save </button>
 					</div> 
 				</div>
+				
               </form>
             </div>
           </div>
@@ -201,6 +203,11 @@
 		{			 
 			$("#passwordId").show();	
 			$("#adharcardId").hide(); 				
+		}
+		if (selectedType === 'master') 
+		{			 
+			$("#passwordId").show();	
+			$("#processTypeId").show();		
 		}
  		if (selectedType === 'transport') 
 		{ 
