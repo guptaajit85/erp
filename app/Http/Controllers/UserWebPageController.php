@@ -8,33 +8,30 @@ use App\Models\AllPage;
 use App\Models\UserWebPage; 
 use App\Models\User; 
 use Illuminate\Support\Facades\DB;
- use Auth;
+use Auth;
 use Validator, Session, Hash;
+use App\Http\Controllers\CommonController;
 
 class UserWebPageController extends Controller
 {
     
-   public function __construct()
+	public function __construct()
     {
-         // $this->middleware('auth');
+       $this->middleware('auth');
 	}
 	
     public function index(Request $request)
     { 
 		error_reporting(0);
-		$dataI = UserWebPage::where('status', '=', '1')->groupBy('user_id')->orderByDesc('id')->paginate(20);
-		// echo "<pre>"; print_r($dataI); exit;
+		$dataI = UserWebPage::where('status', '=', '1')->groupBy('user_id')->orderByDesc('id')->paginate(20);	
 		return view('html.userwebpages.show-userwebpages',compact("dataI"));
-
-    }
-     
+    }     
      
     public function create()
     {
 		error_reporting(0);
 		return view('html.userwebpages.add-userwebpage');
     }
-
     
     public function store(Request $request)
 	{
@@ -89,7 +86,6 @@ class UserWebPageController extends Controller
     {
         //
     }
-
      
     public function edit($id)
     {
@@ -99,7 +95,6 @@ class UserWebPageController extends Controller
 		// echo "<pre>"; print_r($data); exit;
 		return view('html.userwebpages.edit-userwebpage',compact("data"));
     }
-
      
     public function create_userwebpage($id)
     {
@@ -109,7 +104,6 @@ class UserWebPageController extends Controller
 		 
 		return view('html.userwebpages.indadd-userwebpage',compact("userId","data"));
     }
-
     
     public function update(Request $request)
     {
@@ -171,11 +165,10 @@ class UserWebPageController extends Controller
 		}			
 		return $isDelete;
     }
-
-	
 	
     public function destroy($id)
     {
         //
     }
+
 }

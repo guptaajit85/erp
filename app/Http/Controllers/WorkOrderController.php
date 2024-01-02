@@ -40,75 +40,86 @@ class WorkOrderController extends Controller
 	}
 
 	public function index(Request $request)
-	{
+	{ 
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
+
 	  // echo "<pre>";  print_r($request->all()); exit;
 		$cusSearch 		= trim($request->cus_search);
 		$individualId 	= trim($request->individual_id);
 		$itemSearch 	= trim($request->item_search);
 		$ordNumSearch 	= trim($request->ordNumSearch);
-    //$qsaleOrderId=$request->qsaleOrderId;
+    
 		$priority 		= trim($request->priority);
 		$search_process_id = $request->search_process_id;
-		//dd($request->all());
-		//dd(count($search_process_id));
-    //dd($search_process_id);
-    $fromDate 		= $request->from_date;
+		 
+        $fromDate 		= $request->from_date;
 		$toDate 		= $request->to_date;
-		if (!empty($search_process_id)) {
+		
+		$userId 		= Auth::id();
+		$userD 			= User::find($userId);	 
+		$userIndId 		= $userD->individual_id;
+		$processTypeId  = Individual::where('id', $userIndId)->where('type', 'master')->where('status', '1')->value('process_type_id');
+		
+		 
+		if (!empty($search_process_id)) 
+		{
 			$search_process_filter =  array_filter($search_process_id);
 			$arrr = count($search_process_filter);
-		}
-		//echo "<pre>"; print_r($arrr); exit; 
-		//dd($search_process_id);
-		// $worSqlRes = WorkOrder::where('status', '=', '1')->with('WorkReqSend')->orderByDesc('work_order_id')->get(); 
-
+		} 		
 		$query = WorkOrder::where('status', '=', '1')->with('WorkOrderItem')->with('ProcessType')->with('GatePass')->with('Item')->with('WorkReqSend')->with('GatepassGenratedByWarehouseUser')->orderByDesc('work_order_id');
-
-		if (!empty($cusSearch)) {
+		
+		if($userId > 1 && $processTypeId !='')
+		{ 
+			$query = WorkOrder::where('process_type_id', '=', $processTypeId);
+		}		
+		
+		if (!empty($cusSearch)) 
+		{
 			$workorderids = WorkOrderItem::where('customer_id', '=', $individualId)->where('status', '=', '1')->pluck('work_order_id')->implode(',');
 			$query->whereIn('work_order_id', explode(',', $workorderids));
 		}
 
-		if (!empty($itemSearch)) {
-			// echo "dffdfdf"; exit;
+		if (!empty($itemSearch)) 
+		{			 
 			$query->where(DB::raw("concat(item_name)"), 'LIKE', '%' . $itemSearch . '%');
 		}
 
-    if (!empty($ordNumSearch)) {
-      $saleOrderId = SaleOrder::where('sale_order_number', '=', $ordNumSearch)->pluck('sale_order_id');
-      //dd($saleOrderId);
+        if(!empty($ordNumSearch)) 
+	    {
+            $saleOrderId = SaleOrder::where('sale_order_number', '=', $ordNumSearch)->pluck('sale_order_id'); 
 			$workorderids = WorkOrderItem::whereIn('sale_order_id', $saleOrderId)->where('status', '=', '1')->pluck('work_order_id')->implode(',');
 			$query->whereIn('work_order_id', explode(',', $workorderids));
 		}
 
-		if (!empty($priority)) {
+		if (!empty($priority)) 
+		{
 			$workorderids = WorkOrderItem::where('order_item_priority', 'LIKE', '%' . $priority . '%')->where('status', '=', '1')->pluck('work_order_id')->implode(',');
 			$query->whereIn('work_order_id', explode(',', $workorderids));
 		}
-		if (!empty($arrr)) {
-			for ($i = 0; $i < count($search_process_id); $i++) {
+		if (!empty($arrr)) 
+		{
+			for ($i = 0; $i < count($search_process_id); $i++) 
+			{
 				$processItemIds[] = ProcessItem::where('id', '=', $search_process_id[$i])->where('status', '=', '1')->pluck('id');
-			}
-			//dd($processItemIds);
+			} 
 			$query->whereIn('process_type_id', $processItemIds);
 		}
-    if (!empty($fromDate) && !empty($toDate)) 
+        if (!empty($fromDate) && !empty($toDate)) 
 		{
 			$fromDate 		= date('Y-m-d', strtotime($request->from_date));
 			$toDate 		= date('Y-m-d', strtotime($request->to_date));		
 			$query->where('created', '>=',  $fromDate)->where('created', '<=',  $toDate);     			
 		} 
-		//\DB::enableQueryLog();
-		$dataWI = $query->paginate(20);
-		//dd(\DB::getQueryLog()); 
-		// echo "<pre>"; print_r($dataWI); exit;	
-
-
+		 
+		$dataWI     = $query->paginate(20); 
 		$dataMas 	= Individual::where('type', '=', 'master')->where('status', '=', '1')->get();
 		$machine 	= Machine::where('status', '=', '1')->get();
-		// echo "<pre>"; print_r($machine); exit;		
+		 
 		$processI 	= ProcessItem::where('status', '=', '1')->get();
-		//dd($processI);		
+		 
 		$dataW 		= Warehouse::where('status', '=', '1')->orderBy('id', 'asc')->get();
 
 		$dataF 		= FabricFaultReason::where('status', '=', '1')->orderByDesc('id')->get();
@@ -116,12 +127,17 @@ class WorkOrderController extends Controller
 		$dataITP  	= ItemType::where('status', '=', '1')->where('is_purchase', '=', '1')->get();
 		$dataI  	= Item::where('status', '=', '1')->get();
 		$priorityArr = config('global.priorityArr');
-		// echo "<pre>"; print_r($search_process_id);   exit;
+	 
 		return view('html.workorder.show-workorders', compact("dataWI", "cusSearch", "individualId", "itemSearch", "ordNumSearch", "priority", "dataMas", "machine", "processI", "dataW", "dataF", "dataIT", "dataI", "dataITP", "priorityArr", "search_process_id","fromDate","toDate"));
+	
 	}
 
 	public function work_order_details($Id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$Id  	= base64_decode($Id);
 		$dataWI = WorkOrderItem::where('work_order_id', '=', $Id)->get();
 		return view('html.workorder.workorder-details', compact("dataWI"));
@@ -129,6 +145,12 @@ class WorkOrderController extends Controller
 
 	public function create()
 	{
+		if (empty(CommonController::checkPageViewPermission())) {
+			return redirect()->route('home')->with([
+				'message' => 'Access denied! You do not have permission to access this page.',
+				'messageClass' => 'errorClass'
+			]);
+		}
 		error_reporting(0);
 		$dataIT  = ItemType::where('status', '=', '1')->get();
 		$dataUT  = UnitType::where('status', '=', '1')->orderByDesc('unit_type_id')->get();
@@ -285,6 +307,10 @@ class WorkOrderController extends Controller
 
 	public function start_addworkorder($id, $ItemTypeId)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$sale_order_item_id  =  base64_decode($id);
 		$ItemTypeId  	=  base64_decode($ItemTypeId); // exit;
 		$dataSOI 		= SaleOrderItem::where('sale_order_item_id', '=', $sale_order_item_id)->where('is_deleted', '=', '0')->first();
@@ -302,6 +328,10 @@ class WorkOrderController extends Controller
 
 	public function start_workorder($id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$saleordId = base64_decode($id);
 		$dataSO  = SaleOrder::where('sale_order_id', '=', $saleordId)->where('is_deleted', '=', '0')->first();
 		$dataSOI = SaleOrderItem::where('sale_order_id', '=', $saleordId)->where('is_deleted', '=', '0')->with('WorkOrder')->get();
@@ -314,6 +344,10 @@ class WorkOrderController extends Controller
 
 	public function check_warehouse_item_stock($saleOrdItemId)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$saleOrdItemId 	= base64_decode($saleOrdItemId);
 		$dataSOI 		= SaleOrderItem::where('sale_order_item_id', '=', $saleOrdItemId)->where('is_deleted', '=', '0')->first();
 		$saleOrderId 	= $dataSOI->sale_order_id;
@@ -322,6 +356,10 @@ class WorkOrderController extends Controller
 
 	public function checkWarehouseItemStock(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$sale_order_item_id 	= $request->FId;
 		$dataSOI = SaleOrderItem::where('sale_order_item_id', '=', $sale_order_item_id)->where('is_deleted', '=', '0')->first();
 		$itemId  = $dataSOI->item_id;
@@ -366,6 +404,10 @@ class WorkOrderController extends Controller
 
 	public function createWorkOrder(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		// echo "<pre>"; print_r($request->all()); exit;
 		$ItemTypeId 	= $request->ItemTypeId;
 		$SaleOrdItemId  = $request->SaleOrdItemId;
@@ -431,6 +473,10 @@ class WorkOrderController extends Controller
 
 	public function getWorkOrderDetails(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$workOrdId = $request->FId;
 		$dataWk = WorkOrder::where('work_order_id', '=', $workOrdId)->where('status', '=', '1')->first();
 		if ($dataWk) {
@@ -567,6 +613,10 @@ class WorkOrderController extends Controller
 
 	public function updateworkorder(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		// echo "<pre>"; print_r($request->all()); exit;
 		$validator = Validator::make($request->all(), [
 			"itemId" => "required",
@@ -724,6 +774,7 @@ class WorkOrderController extends Controller
 		$objWI->status  					= 1;
 		$objWI->created  					= date("Y-m-d");
 		$is_Insaved							= $objWI->save();
+		$lastInsertInspId 					= $objWI->id;
 
 		$processTypeId 	= $dataOrder->process_type_id;
 		$curDate  		= date("Y-m-d");
@@ -827,6 +878,7 @@ class WorkOrderController extends Controller
 			}
 
 			$objG = new GatePass;
+			$objG->inspection_id 						= $lastInsertInspId;
 			$objG->work_order_id 						= $request->ins_work_order_id;
 			$objG->item_id 								= $itemId;
 			$objG->item_type_id 						= $itemTypeId;
@@ -922,10 +974,12 @@ class WorkOrderController extends Controller
 		$objWI->status  					= 1;
 		$objWI->created  					= $curDate;
 		$is_Insaved							= $objWI->save();
-		$lastInsertId 						= $objWI->getKey();
+		// $lastInsertId 						= $objWI->getKey();
+		$lastInsertInspId 					= $objWI->id;
 		if ($is_Insaved) {
 			// $objPI = ProcessItem::where('id', '=', $proTypeId)->update(['process_sl_no_last'=> $lastPsnl]); 				 
 			$objG = new GatePass;
+			$objG->inspection_id 						= $lastInsertInspId;
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
@@ -1024,10 +1078,12 @@ class WorkOrderController extends Controller
 		$objWI->status  					= 1;
 		$objWI->created  					= $curDate;
 		$is_Insaved							= $objWI->save();
-		$lastInsertId 						= $objWI->getKey();
+		// $lastInsertId 						= $objWI->getKey();
+		$lastInsertInspId 					= $objWI->id;
 
 		if ($is_Insaved) {
 			$objG = new GatePass;
+			$objG->inspection_id 						= $lastInsertInspId;
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
@@ -1130,10 +1186,12 @@ class WorkOrderController extends Controller
 		$objWI->status  					= 1;
 		$objWI->created  					= $curDate;
 		$is_Insaved							= $objWI->save();
-		$lastInsertId 						= $objWI->getKey();
+		// $lastInsertId 						= $objWI->getKey();
+		$lastInsertInspId 					= $objWI->id;
 
 		if ($is_Insaved) {
 			$objG = new GatePass;
+			$objG->inspection_id 						= $lastInsertInspId;
 			$objG->work_order_id  						= $request->ins_work_order_id;
 			$objG->item_id  							= $itemId;
 			$objG->item_type_id  						= $itemTypeId;
@@ -1162,6 +1220,10 @@ class WorkOrderController extends Controller
 
 	public function print_workorder_gatepass($id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$GpId 	= base64_decode($id);
 		$userId = Auth::id();
 		$userD 	= User::find($userId);
@@ -1193,6 +1255,10 @@ class WorkOrderController extends Controller
 
 	public function print_workorder_report($id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$workOrderId = base64_decode($id);
 		$userId = Auth::id();
 		$userD 	= User::find($userId);
@@ -1208,6 +1274,10 @@ class WorkOrderController extends Controller
 
 	public function show_workorder_report(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		// echo "<pre>"; print_r($request->all()); exit;
 		$qsearch 		= trim($request->qsearch);
 		$processTypeId 	= $request->process_type_id;
@@ -1251,6 +1321,10 @@ class WorkOrderController extends Controller
 
 	public function accept_work_item_in_warehouse(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$userId = Auth::id();
 		$userD 	= User::find($userId);
 		$IndId = $userD->individual_id;
@@ -1270,6 +1344,10 @@ class WorkOrderController extends Controller
 
 	public function acceptWorkOrderInWarehouse(Request $request)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$userId = Auth::id();
 		$userD 	= User::find($userId);
 		$IndividualId = $userD->individual_id;
@@ -1280,28 +1358,37 @@ class WorkOrderController extends Controller
 
 	public function receive_work_item($id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		$inspId = base64_decode($id);
-		$dataWI = WorkInspection::where('id', $inspId)->first();
-		//  echo "<pre>"; print_r(); exit; 		 
+		$dataWI = WorkInspection::where('id', $inspId)->with('GatePass')->first();
+		// echo "<pre>"; print_r($dataWI); exit;		
 		$wId = $dataWI->work_order_id;
 		$dataWO = WorkOrder::where('work_order_id', $wId)->where('status', '1')->first();
 
 		$dataWOI = WorkOrderItem::where('work_order_id', $wId)->where('status', '1')->first();
 		$ItemTypeId = $dataWOI->item_type_id;
 
-		$ProcessTypeId = $dataWO->process_type_id;
+		$ProcessTypeId = $dataWO->process_type_id;		 
+		$userId 			= Auth::id();
+		$userD 				= User::find($userId);
+		$IndividualId 		= $userD->individual_id;
+		
 		$dataPI 	= ProcessItem::where('status', '1')->get();
 		$dataIT 	= ItemType::where('status', '1')->where('is_work', '1')->get();
 		$dataUT 	= UnitType::where('status', '1')->orderByDesc('unit_type_id')->get(); 
 		$dataW 		= Warehouse::where('status', '1')->orderBy('id', 'asc')->get();
 
-		return view('html.workorder.receive-work-item', compact('dataW', 'dataWI', 'dataPI', 'dataIT', 'dataWO', 'ItemTypeId', 'ProcessTypeId', 'inspId'));
+		return view('html.workorder.receive-work-item', compact('dataW', 'dataWI', 'dataPI', 'dataIT', 'dataWO', 'ItemTypeId', 'ProcessTypeId', 'inspId', 'userD'));
 		
 	}
 
 	public function receive_work_item_in_warehouse(Request $request)
 	{
-		 echo "<pre>"; print_r($request->all());   exit;
+		 
+		// echo "<pre>"; print_r($request->all());   exit;
 		$dataW   = Warehouse::where('status', '=', '1')->orderByDesc('id')->get();
 		$dataPI  = ProcessItem::where('status', '=', '1')->get();
 		$dataIT  = ItemType::where('status', '=', '1')->get();
@@ -1756,6 +1843,7 @@ class WorkOrderController extends Controller
 
 	public function deleteWorkOrder(Request $request)
 	{
+		
 		$workId = $request->FId;
 		$is_update = WorkOrder::where('work_order_id', '=', $workId)->update(['status' => 0]);
 		return $is_update;
@@ -1803,6 +1891,10 @@ class WorkOrderController extends Controller
 
 	public function start_requisition_process($id)
 	{
+		if (empty(CommonController::checkPageViewPermission())) 
+		{
+			return redirect()->route('home')->with(['message' => 'Access denied! You do not have permission to access this page.', 'messageClass' => 'errorClass']);
+		}
 		error_reporting(0);
 		$workOrderId 	= base64_decode($id);
 		$data 			= WorkOrder::where('work_order_id', $workOrderId)->with('WorkOrderItem')->first();

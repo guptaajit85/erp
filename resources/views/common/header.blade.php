@@ -1,153 +1,372 @@
- 
+<?php 
+use App\Http\Controllers\CommonController;
+	$currentUrl = request()->url(); 
+	$path 		= parse_url($currentUrl, PHP_URL_PATH); 		
+	$segments 	= explode('/', $path); 
+	$pageName	= $segments[1];
+	// echo $segments[1]; 
+	// $checkPage = CommonController::checkPagePermission($pageName);
+	 
+?>
 <header class="main-header"> <a href="{{ route('dashboard') }}" class="logo">
   <!-- Logo -->
   <span class="logo-mini"> <img src="{{ asset('assets/dist/img/mini-logo.png') }}"> </span> <span class="logo-lg"> <img src="{{ asset('assets/dist/img/logo.png') }}"> </span> </a>
-
-<?php /* ?>
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">  
-	<div class="navbar-custom-menu">
-    <ul class="nav navbar-nav">	 
-        <li class="dropdown active">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Warehouse<span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{{ route('show') }}">Warehouse</a></li>
-            <li class="dropdown-submenu">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Submenu 1<span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Submenu Item 1</a></li>
-                <li class="dropdown-submenu">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Submenu 1.1<span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">Submenu Item 1.1.1</a></li>
-                    <li><a href="#">Submenu Item 1.1.2</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li> 
-    </ul>
-  </div>
-  </div>
-</nav> 
-<?php */ ?>
-
+ 
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">		
           <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Daily Entry<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Sale </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('add-saleentry') }}">Add Sale Entry</a></li>
-                  <li><a href="{{ route('add-saleorder') }}">Add Sale Order</a></li>
-                </ul>
-              </li>
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Purchase </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('add-purchase') }}">Add Purchase Entry</a></li>
-                  <li><a href="{{ route('add-purchaseorder') }}">Add Purchase Order</a></li>
-                </ul>
-              </li>
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Work Order </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('show-saleorderitems') }}">Create Work Order</a></li>
-                  <li><a href="{{ route('show-workorders') }}">Work Order Process</a></li>                 
-                </ul>
-              </li>
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Warehouse Stock </a>
-                <ul class="dropdown-menu"> 
-                  <li><a href="{{ route('add-item-in-warehouse') }}">Add Item in Warehouse</a></li>
-                  <li><a href="{{ route('add-purchase-request') }}">Add Purchase Request</a></li>
-                  <li><a href="{{ route('show-warehouse-item-requirement') }}">Warehouse Requirement</a></li>
-				  <li><a href="{{ route('show-workorder-report') }}">Stock In Ward</a></li>
-                </ul>
-              </li>
+				<?php
+					$addSaleEntry 	= CommonController::checkPagePermission('add-saleentry');
+					$addSaleOrder 	= CommonController::checkPagePermission('add-saleorder');
+				?>
+
+				<?php if ($addSaleEntry ==1 || $addSaleOrder ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Sale </a>
+					<ul class="dropdown-menu">
+					  <?php if ($addSaleEntry) { ?>
+						<li><a href="{{ route('add-saleentry') }}">Add Sale Entry</a></li>
+					  <?php } ?>
+
+					  <?php if ($addSaleOrder) { ?>
+						<li><a href="{{ route('add-saleorder') }}">Add Sale Order</a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
+			
+				<?php
+				$addPurchase 		= CommonController::checkPagePermission('add-purchase');
+				$addPurchaseOrder 	= CommonController::checkPagePermission('add-purchaseorder');
+				?>
+
+				<?php if ($addPurchase ==1 || $addPurchaseOrder ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Purchase </a>
+					<ul class="dropdown-menu">
+					  <?php if ($addPurchase) { ?>
+						<li><a href="{{ route('add-purchase') }}">Add Purchase Entry</a></li>
+					  <?php } ?>
+
+					  <?php if ($addPurchaseOrder) { ?>
+						<li><a href="{{ route('add-purchaseorder') }}">Add Purchase Order</a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
+			
+				<?php
+				$showSaleOrderItems 	= CommonController::checkPagePermission('show-saleorderitems');
+				$showWorkOrders 		= CommonController::checkPagePermission('show-workorders');
+				?>
+
+				<?php if ($showSaleOrderItems ==1 || $showWorkOrders ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Work Order </a>
+					<ul class="dropdown-menu">
+					  <?php if ($showSaleOrderItems) { ?>
+						<li><a href="{{ route('show-saleorderitems') }}">Create Work Order</a></li>
+					  <?php } ?>
+
+					  <?php if ($showWorkOrders) { ?>
+						<li><a href="{{ route('show-workorders') }}">Work Order Process</a></li>
+					  <?php } ?>             
+					</ul>
+				  </li>
+				<?php } ?>
+
 			  
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Packaging </a>
-                <ul class="dropdown-menu"> 
-                  <li><a href="{{ route('add-packaging') }}">Add Package</a></li>                 
-				  <li><a href="{{ route('show-packagings') }}">Packaging List</a></li>
-                </ul>
-              </li>
+				<?php
+					$addItemInWarehouse  = CommonController::checkPagePermission('add-item-in-warehouse');
+					$showPurchaseRequest = CommonController::checkPagePermission('add-purchase-request');
+					$showWaeItemReirment = CommonController::checkPagePermission('show-warehouse-item-requirement');
+					$showWorkOrderReport = CommonController::checkPagePermission('show-workorder-report');
+				?>
+
+				<?php if ($addItemInWarehouse ==1 || $showPurchaseRequest ==1 || $showWaeItemReirment ==1 || $showWorkOrderReport ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Warehouse Stock </a>
+					<ul class="dropdown-menu">
+					  <?php if ($addItemInWarehouse) { ?>
+						<li><a href="{{ route('add-item-in-warehouse') }}">Add Item in Warehouse</a></li>
+					  <?php } ?>
+
+					  <?php if ($showPurchaseRequest) { ?>
+						<li><a href="{{ route('add-purchase-request') }}">Add Purchase Request</a></li>
+					  <?php } ?>
+
+					  <?php if ($showWaeItemReirment) { ?>
+						<li><a href="{{ route('show-warehouse-item-requirement') }}">Warehouse Requirement</a></li>
+					  <?php } ?>
+
+					  <?php if ($showWorkOrderReport) { ?>
+						<li><a href="{{ route('show-workorder-report') }}">Stock In Ward</a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
+			  
+				<?php
+					$addPackaging 		= CommonController::checkPagePermission('add-packaging');
+					$showPackagings 	= CommonController::checkPagePermission('show-packagings');
+					?>
+
+					<?php if ($addPackaging ==1 || $showPackagings ==1) { ?>
+					  <li class="dropdown-submenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Packaging </a>
+						<ul class="dropdown-menu">
+						  <?php if ($addPackaging) { ?>
+							<li><a href="{{ route('add-packaging') }}">Add Package</a></li>
+						  <?php } ?>
+
+						  <?php if ($showPackagings) { ?>
+							<li><a href="{{ route('show-packagings') }}">Packaging List</a></li>
+						  <?php } ?>
+						</ul>
+					  </li>
+					<?php } ?>
+
 			   
             </ul>
           </li>
 		  
-          <li class="dropdown"> 
-			<a class "dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Report<span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Sale </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('show-saleentries') }}">Sale Entry</a></li>
-                  <li><a href="{{ route('show-saleorders') }}">Sale Order</a></li>
-                </ul>
-              </li>
-              <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Purchase </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('show-purchases') }}">Purchase Entry</a></li>
-                  <li><a href="{{ route('show-purchaseorders') }}">Purchase Order</a></li>
-                  <li><a href="{{ route('show-work-purchase-requirement') }}">Requisition Request</a></li>
-                </ul>
-              </li> 
-			  
-			  <li class="dropdown-submenu"> <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Stock </a>
-                <ul class="dropdown-menu">
-                  <li><a href="{{ route('show') }}">Warehouse Items</a></li>
-                  <li><a href="{{ route('show-stock-details-listing') }}">Warehouse Stock Report</a></li>
-                 <!--- <li><a href="{{ route('show-warehouse-stock-report') }}">Warehouse Stock Report</a></li>
-                  <li><a href="{{ route('show-warehouse-item-out') }}">Warehouse Items Out</a></li> --->				  
-                </ul>
-              </li>		
-			    
-            </ul>
-          </li>		.
+         <li class="dropdown"> 
+			<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Report<span class="caret"></span></a>
+			<ul class="dropdown-menu">
 
+				<?php 
+					$showSaleentries 	= CommonController::checkPagePermission('show-saleentries'); 
+					$showSaleorders 	= CommonController::checkPagePermission('show-saleorders'); 
+				?> 
+
+				<?php if ($showSaleentries ==1 || $showSaleorders ==1) { ?>
+					<li class="dropdown-submenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Sale </a>
+						<ul class="dropdown-menu">
+							<?php if (!empty($showSaleentries)) { ?> <li><a href="{{ route('show-saleentries') }}">Sale Entry</a></li> <?php } ?>
+							<?php if (!empty($showSaleorders)) { ?> <li><a href="{{ route('show-saleorders') }}">Sale Order</a></li> <?php } ?>
+						</ul>
+					</li>
+				<?php } ?>
+
+				<?php 
+					$showpurchases 			= CommonController::checkPagePermission('show-purchases'); 
+					$showpurchaseorders 	= CommonController::checkPagePermission('show-purchaseorders'); 
+					$showworkPurRequ 		= CommonController::checkPagePermission('show-work-purchase-requirement'); 
+				?> 
+
+				<?php if ($showpurchases ==1 || $showpurchaseorders ==1 || $showworkPurRequ ==1) { ?>
+					<li class="dropdown-submenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Purchase </a>
+						<ul class="dropdown-menu">
+							<?php if (!empty($showpurchases)) { ?> <li><a href="{{ route('show-purchases') }}">Purchase Entry</a></li> <?php } ?>
+							<?php if (!empty($showpurchaseorders)) { ?> <li><a href="{{ route('show-purchaseorders') }}">Purchase Order</a></li> <?php } ?>
+							<?php if (!empty($showworkPurRequ)) { ?> <li><a href="{{ route('show-work-purchase-requirement') }}">Requisition Request</a></li> <?php } ?>
+						</ul>
+					</li>
+				<?php } ?>
+
+				<?php 
+					$showWarehouse 			= CommonController::checkPagePermission('show'); 
+					$showStocDetailListing 	= CommonController::checkPagePermission('show-stock-details-listing'); 
+				?> 
+
+				<?php if ($showWarehouse ==1 || $showStocDetailListing ==1) { ?>
+					<li class="dropdown-submenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Stock </a>
+						<ul class="dropdown-menu">
+							<?php if (!empty($showWarehouse)) { ?> <li><a href="{{ route('show') }}">Warehouse Items</a></li> <?php } ?>
+							<?php if (!empty($showStocDetailListing)) { ?> <li><a href="{{ route('show-stock-details-listing') }}">Warehouse Stock Report</a></li> <?php } ?> 
+						</ul>
+					</li>
+				<?php } ?>
+
+			</ul>
+		</li>
+
+		
+		 
 		  
           <li class="dropdown"> 
 			<a class "dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Masters<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              
-			  <li><a href="{{ route('show-individuals') }}">Individuals</a></li>			   
-			  <li class="dropdown-submenu"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Materials </a>
-                <ul class="dropdown-menu">
-					<li><a href="{{ route('show-unittypes') }}">Unit Types </a></li>
-					<li><a href="{{ route('show-itemtypes') }}">Item Types </a></li>
-					<li><a href="{{ route('show-items') }}">Materials / Items</a></li>
-                </ul>
-              </li> 
+ 
+			<?php
+			 $showIndividuals = CommonController::checkPagePermission('show-individuals');
+			?>
+
+			<?php if ($showIndividuals ==1) { ?>
+				<li><a href="{{ route('show-individuals') }}">Individuals</a></li>
+			<?php } ?>
+
+
 			  
-			  <li class="dropdown-submenu"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Warehouses </a>
-                <ul class="dropdown-menu">
-					<li><a href="{{ route('show-warehouses') }}">Warehouses</a></li>
-					<li><a href="{{ route('show-warehousecompartment') }}">Warehouse Compartment</a></li>					 
-                </ul>
-              </li>
+		  <?php
+			$showUnitTypes 	= CommonController::checkPagePermission('show-unittypes');
+			$showItemTypes 	= CommonController::checkPagePermission('show-itemtypes');
+			$showItems 		= CommonController::checkPagePermission('show-items');
+			?>
+			<?php 			 	
+			if($showUnitTypes == 1 || $showItemTypes ==1 || $showItems ==1) { 
+			?>
+				<li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Materials </a>
+					<ul class="dropdown-menu">
+						@if($showUnitTypes)
+							<li><a href="{{ route('show-unittypes') }}">Unit Types </a></li>
+						@endif
+
+						@if($showItemTypes)
+							<li><a href="{{ route('show-itemtypes') }}">Item Types </a></li>
+						@endif
+
+						@if($showItems)
+							<li><a href="{{ route('show-items') }}">Materials / Items</a></li>
+						@endif
+					</ul>
+				</li>
+			<?php } ?>
 			  
-			  <li class="dropdown-submenu"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Accounts </a>
-                <ul class="dropdown-menu">
-					<li><a href="{{ route('show-gstrates') }}">GST Rate</a></li>
-					<li><a href="{{ route('show-banks') }}"> Banks </a></li>
-					<li><a href="{{ route('show-bankaccounts') }}">Bank Account </a></li>	
-					<li><a href="{{ route('show-accountgroups') }}"> Account Group </a></li>					
-                </ul>
-              </li>
+			   
+			  <?php
+				$showWarehouses 			= CommonController::checkPagePermission('show-warehouses');
+				$showWarehouseCompartment 	= CommonController::checkPagePermission('show-warehousecompartment');
+				?>
+
+				<?php if ($showWarehouses == 1 || $showWarehouseCompartment == 1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Warehouses </a>
+					<ul class="dropdown-menu">
+					  <?php if ($showWarehouses) { ?>
+						<li><a href="{{ route('show-warehouses') }}">Warehouses</a></li>
+					  <?php } ?>
+
+					  <?php if ($showWarehouseCompartment) { ?>
+						<li><a href="{{ route('show-warehousecompartment') }}">Warehouse Compartment</a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
+			  
+			  
+			  
+				 <?php
+				$showGSTRates 		= CommonController::checkPagePermission('show-gstrates');
+				$showBanks 			= CommonController::checkPagePermission('show-banks');
+				$showBankAccounts 	= CommonController::checkPagePermission('show-bankaccounts');
+				$showAccountGroups 	= CommonController::checkPagePermission('show-accountgroups');
+				?>
+
+				<?php if ($showGSTRates ==1 || $showBanks ==1 || $showBankAccounts ==1 || $showAccountGroups ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Accounts</a>
+					<ul class="dropdown-menu">
+					  <?php if ($showGSTRates) { ?>
+						<li><a href="{{ route('show-gstrates') }}">GST Rate</a></li>
+					  <?php } ?>
+
+					  <?php if ($showBanks) { ?>
+						<li><a href="{{ route('show-banks') }}">Banks</a></li>
+					  <?php } ?>
+
+					  <?php if ($showBankAccounts) { ?>
+						<li><a href="{{ route('show-bankaccounts') }}">Bank Account</a></li>
+					  <?php } ?>
+
+					  <?php if ($showAccountGroups) { ?>
+						<li><a href="{{ route('show-accountgroups') }}">Account Group</a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
+
+				<?php
+					$showGSTRates 		= CommonController::checkPagePermission('show-gstrates');
+					$showBanks			= CommonController::checkPagePermission('show-banks');
+					$showBankAccounts 	= CommonController::checkPagePermission('show-bankaccounts');
+					$showAccountGroups 	= CommonController::checkPagePermission('show-accountgroups');
+					?>
+
+					<?php if ($showGSTRates ==1 || $showBanks ==1 || $showBankAccounts ==1 || $showAccountGroups ==1) { ?>
+					  <li class="dropdown-submenu">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Accounts</a>
+						<ul class="dropdown-menu">
+						  <?php if ($showGSTRates) { ?>
+							<li><a href="{{ route('show-gstrates') }}">GST Rate</a></li>
+						  <?php } ?>
+
+						  <?php if ($showBanks) { ?>
+							<li><a href="{{ route('show-banks') }}">Banks</a></li>
+						  <?php } ?>
+
+						  <?php if ($showBankAccounts) { ?>
+							<li><a href="{{ route('show-bankaccounts') }}">Bank Account</a></li>
+						  <?php } ?>
+
+						  <?php if ($showAccountGroups) { ?>
+							<li><a href="{{ route('show-accountgroups') }}">Account Group</a></li>
+						  <?php } ?>
+						</ul>
+					  </li>
+					<?php } ?>
+
+					<?php
+						$showVehicles 		= CommonController::checkPagePermission('show-vehicles');
+						$showBrands 		= CommonController::checkPagePermission('show-brands');
+						$showHSNS 			= CommonController::checkPagePermission('show-hsns');
+						$showMachines 		= CommonController::checkPagePermission('show-machines');
+						$showNotifications 	= CommonController::checkPagePermission('show-notifications');
+					?>
               
-				<li><a href="{{ route('show-vehicles') }}">Vehicle </a></li>
-				<li><a href="{{ route('show-brands') }}">Brands </a></li>
-				<li><a href="{{ route('show-hsns') }}">Show HSNS</a></li>
-				<li><a href="{{ route('show-machines') }}">Machine </a></li>
-				<li><a href="{{ route('show-notifications') }}">Notifications</a></li>
+					<?php if ($showVehicles ==1) { ?>
+						<li><a href="{{ route('show-vehicles') }}">Vehicle</a></li>
+					<?php } ?>
+
+					<?php if ($showBrands ==1) { ?>
+						<li><a href="{{ route('show-brands') }}">Brands</a></li>
+					<?php } ?>
+
+					<?php if ($showHSNS ==1) { ?>
+						<li><a href="{{ route('show-hsns') }}">Show HSNS</a></li>
+					<?php } ?>
+
+					<?php if ($showMachines ==1) { ?>
+						<li><a href="{{ route('show-machines') }}">Machine</a></li>
+					<?php } ?>
+
+					<?php if ($showNotifications ==1) { ?>
+						<li><a href="{{ route('show-notifications') }}">Notifications</a></li>
+					<?php } ?>
 				 
 				
-			 <li class="dropdown-submenu"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Permissions </a>
-                <ul class="dropdown-menu">
-					<li><a href="{{ route('show-allpages') }}">All Pages</a></li>
-					<li><a href="{{ route('show-userwebpages') }}">User Permissions </a></li> 	
-                </ul>
-              </li>
+				<?php
+				$showAllPages 		= CommonController::checkPagePermission('show-allpages');
+				$showUserWebPages 	= CommonController::checkPagePermission('show-userwebpages');
+				?>
+
+				<?php if ($showAllPages ==1 || $showUserWebPages ==1) { ?>
+				  <li class="dropdown-submenu">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">Permissions </a>
+					<ul class="dropdown-menu">
+					  <?php if ($showAllPages) { ?>
+						<li><a href="{{ route('show-allpages') }}">All Pages</a></li>
+					  <?php } ?>
+
+					  <?php if ($showUserWebPages) { ?>
+						<li><a href="{{ route('show-userwebpages') }}">User Permissions </a></li>
+					  <?php } ?>
+					</ul>
+				  </li>
+				<?php } ?>
+
 				
 				
             </ul>

@@ -31,6 +31,26 @@
                 <div class="row">
                   <div class="col-md-12"> </div>
                   <div class="col-md-12">
+				     <table class="table table-bordered" id="myTable">					
+                      <thead>
+                        <tr>
+                          <th>Gate Pass No.</th>
+                          <th>Quantity</th>
+                          <th>Size (Meter)</th>
+                          <th>Report Document</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>					  
+                        <tr>
+                          <td><input type="number" name="gate_pass_no[]" id="gate_pass_no" value="<?=$dataWI['GatePass']->id;?>"></td>
+                          <td>1</td>
+                          <td><input type="number" min="0" name="quan_size[]" id="quan_size" value="<?=$dataWI->insp_quan_size;?>"></td>
+						  <td><input type="file" name="report_document[]" id="report_document[]"></td>	
+						  <?php /* ?> <td><button type="button" class="btn btn-success btn-xs" onClick="addRow()">Add Row</button> </td>	<?php */ ?>		  
+                        </tr>  						               
+                      </tbody>					  
+                    </table>
                     <table class="table table-bordered">
                       <tbody> 
 						<input type="hidden" name="insp_id" id="insp_id" value="<?=$inspId;?>">
@@ -39,11 +59,14 @@
                           <input type="text" id="work_order_id"  class="form-control" required name="work_order_id" value="<?=$workOrderId;?>">
                         </td>
                         <td><label for="receiver_name">Receiver Name</label>
-                          <input type="text" id="receiver_name" required class="form-control" name="receiver_name" class="form-control">
-                          <input type="hidden" id="receiver_id"  value="" class="form-control" name="receiver_id">
+                          <input type="text" id="receiver_name" required class="form-control" name="receiver_name" class="form-control" value="<?=$userD->name;?>">
+                          <input type="hidden" id="receiver_id"  value="<?=$userD->individual_id;?>" class="form-control" name="receiver_id">
                         </td>                        
 						 <td><label>Reciving Date</label>
-                          <input type="text" id="receiving_date" required data-date-format="yyyy-mm-dd" name="receiving_date" class="form-control">
+                          
+						  <input type="text" id="receiving_date" required data-date-format="yyyy-mm-dd" value="<?=date('d-m-Y');?>" name="receiving_date" class="form-control">
+
+
                         </td>					 
                         <td><label for="purchase_number">Warehouse</label>
                           <select class="form-control" name="warehouseId" required id="warehouseId" onChange="selectCompartment(this.value);">
@@ -70,10 +93,8 @@
                         <td><label for="process_type">Process Type</label>
                           <select name="process_type_id" id="process_type_id" required class="form-control">
 						  <option value="">Select Process Type</option>
-                            <?php foreach($dataPI as $row) { ?>
-                            <option value="<?=$row->id;?>">
-                            <?=$row->process_name;?>
-                            </option>
+                            <?php foreach($dataPI as $rowp) { ?>
+                            <option value="<?=$rowp->id;?>" <?php if($rowp->id == $ProcessTypeId) echo"selected"; ?>> <?=$rowp->process_name;?></option>
                             <?php } ?>
                           </select>
                         </td>
@@ -110,26 +131,7 @@
                       </tr>					                   
                       </tbody>                      
                     </table>
-                    <table class="table table-bordered" id="myTable">					
-                      <thead>
-                        <tr>
-                          <th>Gate Pass No.</th>
-                          <th>Quantity</th>
-                          <th>Size (Meter)</th>
-                          <th>Report Document</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>					  
-                        <tr>
-                          <td><input type="number" name="gate_pass_no[]" id="gate_pass_no"></td>
-                          <td>1</td>
-                          <td><input type="number" min="0" name="quan_size[]" id="quan_size"></td>
-						  <td><input type="file" name="report_document[]" id="report_document[]"></td>	
-						  <?php /* ?> <td><button type="button" class="btn btn-success btn-xs" onClick="addRow()">Add Row</button> </td>	<?php */ ?>		  
-                        </tr>  						               
-                      </tbody>					  
-                    </table>					
+                 					
                   </div>
                   <div class="col-md-12" id="main_div">
                     <div class="row">

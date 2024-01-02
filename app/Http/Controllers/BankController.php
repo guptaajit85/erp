@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bank;
-use App\Http\Controllers\CommonController;
+use App\Models\Bank; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Route;
 use Validator,Auth, Session, Hash;
+use App\Http\Controllers\CommonController;
 
 
 class BankController extends Controller
@@ -15,18 +16,31 @@ class BankController extends Controller
     public function __construct()
     {
          $this->middleware('auth');
-}
-    public function index(Request $request)
-    {
-            $search = $request->search;
+	}
+    
+	 
+	public function index(Request $request)
+	{ 
+	 
+		if (empty(CommonController::checkPageViewPermission())) {
+			return redirect()->route('home')->with([
+				'message' => 'Access denied! You do not have permission to access this page.',
+				'messageClass' => 'errorClass'
+			]);
+		} 
+		$query = Bank::query(); 
+		if ($request->has('search')) 
+		{
+			$search = $request->search;
+			$query->where('bank_name', 'LIKE', "%{$search}%");
+		} 
+		$query->where('status', '=', '1')->orderByDesc('id');
+		$perPage 	= 20;
+		$dataP 		= $query->paginate($perPage); 
+		return view('html.bank.show-banks', compact('dataP'));
+	}
 
-            $dataP = Bank::query()->where([['bank_name', 'LIKE', "%{$search}%"],['status', '=', '1']])->orderByDesc('id')->paginate(12);
-			// echo "<pre>"; print_r($dataP); exit;
-
-
-           return view('html.bank.show-banks',compact("dataP"));
-    }
-
+	 
     public function create_bank()
     {
         return view('html.bank.add-bank');

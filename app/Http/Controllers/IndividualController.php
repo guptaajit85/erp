@@ -23,6 +23,14 @@ class IndividualController extends Controller
 
     public function index(Request $request)
     { 
+		 
+		if (empty(CommonController::checkPageViewPermission())) {
+			return redirect()->route('home')->with([
+				'message' => 'Access denied! You do not have permission to access this page.',
+				'messageClass' => 'errorClass'
+			]);
+		}
+		
 		error_reporting(0);
 		$ind_type =  $request->ind_type;
 		$qsearch  =  trim($request->qsearch);
@@ -330,39 +338,40 @@ class IndividualController extends Controller
 		$individual->is_verified 		= $request->is_verified;
 		$individual->type 				= $request->type;
 		$individual->status 			= 1;
-		$individual->modified 			= now();
+		$individual->modified 			= date("Y-m-d H:i:s");
 		$individual->save();
 
-		if ($request->input('type') === 'employee') {
+		if ($request->input('type') === 'employee' || $request->input('type') === 'master')
+		{
 			$user = User::where('individual_id', $request->id)->first();
-
-			if ($user) {
-				$password = $request->password;
-
-				$user->name = $request->name;
-				$user->email = $request->email;
-				$user->password = !empty($password) ? Hash::make($password) : $user->password;
-				$user->updated_at = now();
+			if ($user) 
+			{
+				$password 			= $request->password;
+				$user->name 		= $request->name;
+				$user->email 		= $request->email;
+				$user->password 	= !empty($password) ? Hash::make($password) : $user->password;
+				$user->updated_at 	= date("Y-m-d H:i:s");
 				$user->save();
 			} else {
 				$existingUser = User::where('email', $request->email)->first();
 				if (!$existingUser) {
-					$password = $request->password;
-
+					  $password = $request->password;
+					 
 					$user = new User([
 						'name' => $request->name,
 						'individual_id' => $request->id,
 						'email' => $request->email,
 						'password' => Hash::make($password),
-						'created_at' => now(),
-						'updated_at' => now(),
+						'created_at' => date("Y-m-d H:i:s"),
+						'updated_at' => date("Y-m-d H:i:s"),
 					]);
+					// echo "<pre>"; print_r($user); exit;
 					$user->save();
 				} else {
 					return redirect()->back()->with('message', 'Email Id already exists.')->with("messageClass", "errorClass");
 				}
 			}
-		} elseif ($request->input('type') !== 'employee') {
+		} elseif ($request->input('type') !== 'employee' || $request->input('type') !== 'master') {
 			$user = User::where('individual_id', $request->id)->first();
 			if ($user) {
 				$user->status = 0;
@@ -372,112 +381,6 @@ class IndividualController extends Controller
 		return redirect("/show-individuals")->with('message', 'Updated successfully.')->with("messageClass", "successClass");
 	}
 
-
-	public function update_individual_old(Request $request)
-    { 
-		$validator = Validator::make($request->all(), [
-            "name"=>"required",
-            "phone"=>"required",
-            "email"=>"required",
-            "id"=>"required",
-          ], [
-            "name.required"=>"Please enter first name.",
-            "phone.required"=>"Please enter your phone number.",
-            "email.required"=>"Please enter email.",
-            "id.required"=>"Something went wrong.",
-          ]);
-
-		if ($validator->fails())
-		{
-			$error = $validator->errors()->first();
-			Session::put('message', $validator->messages()->first());
-			Session::put("messageClass","errorClass");
-			return redirect()->back()->withInput();
-		}	 
-		$obj = Individual::where('id','=', $request->id)->first();
-       //  echo "<pre>"; print_r($obj); exit;
-	    $obj->process_type_id  		= $request->process_type_id;
-		$obj->type  				= $request->type;
-		$obj->name  				= addslashes(stripslashes($request->name));
-		$obj->company_name  		= addslashes(stripslashes($request->company_name));
-		$obj->nick_name  			= addslashes(stripslashes($request->nick_name));
-		$obj->email  				= addslashes(stripslashes($request->email));
-		$obj->gstin  				= $request->gstin;
-		$obj->pan  					= $request->pan;
-		$obj->tanno  				= $request->tanno;
-		$obj->phone  				= $request->phone;
-		$obj->adhar  				= $request->adhar;
-		$obj->whatsapp  			= $request->whatsapp;
-		$obj->verified_remark  		= $request->verified_remark;
-		$obj->is_verified  			= $request->is_verified;
-		$obj->type  				= $request->type;
-		$obj->status  				= 1;
-		$obj->created  				= date("Y-m-d H:i:s");
-		$obj->modified  			= date("Y-m-d H:i:s");
-		$is_saved 					= $obj->save();	 
-		
-		if ($request->input('type') === 'employee') 
-		{
-			$indId = $request->id;  
-			$objM  = User::where('individual_id','=', $indId)->first();	
-			// echo "<pre>"; print_r($objM); exit;
-			if(!empty($objM)) 
-			{
-				$password = $request->password; 
-				$objM->name  						= $request->name;  
-				$objM->email  						= $request->email;
-				if(!empty($password)) 
-				{
-				$objM->password  					= Hash::make($password);		
-				}				 
-				$objM->updated_at  					= date("Y-m-d H:i:s");
-				$is_saved 							= $objM->save();			
-			} 
-			else 
-			{
-				$email = $request->email;	
-				$userD  = User::where('email','=', $email)->first();	
-				if(empty($userD))
-				{				
-					$password = $request->password;
-					$objM 	= new User;
-					$objM->name  						= $request->name; 
-					$objM->individual_id  				= $indId;
-					$objM->email  						= $request->email;
-					$objM->password  					= Hash::make($password);
-					$objM->created_at  					= date("Y-m-d H:i:s");
-					$objM->updated_at  					= date("Y-m-d H:i:s");
-					$is_saved 							= $objM->save();
-					$userId                             = $objM->id; 
-				}
-				else 
-				{
-					Session::put('message', 'Email Id already exists.');
-					Session::put("messageClass","errorClass");	
-					return back();				
-				}		
-				
-			}
-			 
-		}  
-		else if ($request->input('type') != 'employee') 
-		{
-			$indId = $request->id; 
-			$objM = User::where('individual_id','=', $indId)->first();	
-			if(!empty($objM)) 
-			{ 
-				$objM->status  						= 0;   
-				$is_saved 							= $objM->save();			
-			}  
-		}    
-		if($is_saved)
-		{
-			Session::put('message', 'Updated successfully.');
-			Session::put("messageClass","successClass");
-			return redirect("/show-individuals");
-		}
-
-    }
  
     public function deleteIndividual(Request $request)
     {
